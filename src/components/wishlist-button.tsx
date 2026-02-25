@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from "react";
-import { addToWishlistAction, removeFromWishlistAction, getUserWishlists, createWishlistAction } from "@/app/actions/wishlist";
+import { addToWishlistAction, removeFromWishlistAction, createWishlistAction } from "@/app/actions/wishlist";
 
 type List = { id: number; name: string; item_count: number };
 
@@ -36,7 +36,8 @@ export function WishlistButton({ productId, initialLists = [], initialActive = [
     setOpen(o => !o);
     if (!open && lists.length === 0) {
       setLoading(true);
-      const fresh = await getUserWishlists();
+      const res = await fetch("/api/wishlists");
+      const fresh = await res.json();
       setLists(fresh);
       setLoading(false);
     }
@@ -59,7 +60,8 @@ export function WishlistButton({ productId, initialLists = [], initialActive = [
     const fd = new FormData();
     fd.set("name", newName.trim());
     await createWishlistAction({}, fd);
-    const fresh = await getUserWishlists();
+    const res = await fetch("/api/wishlists");
+    const fresh = await res.json();
     setLists(fresh);
     // Auto-add product to the new list
     const newest = fresh[fresh.length - 1];
