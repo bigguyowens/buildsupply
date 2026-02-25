@@ -3,22 +3,30 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PdpPurchaseSection } from "@/components/pdp-purchase-section";
 import { WishlistButton } from "@/components/wishlist-button";
-import { fetchGraphQL } from "@/lib/graphql-client";
 import { getSession } from "@/lib/auth";
-import { getUserWishlists, getWishlistsContaining } from "@/app/actions/wishlist";
-import { logger } from "@/lib/logger";
+import { getProductBySlug } from "@/lib/products";
+import { query } from "@/lib/db";
 import type { Product } from "@/lib/products";
 
-const PRODUCT_QUERY = /* GraphQL */ `
-  query Product($slug: String!) {
-    product(slug: $slug) {
-      id name slug description price currency category subcategory
-      tags image gallery rating ratingCount inventory featured brand sku unit
-    }
-  }
-`;
-
 type ProductPageProps = { params: Promise<{ slug: string }> };
+
+async function getWishlistData(userId: number, productId: string) {
+  const [lists, active] = await Promise.all([
+    query<{ id: number; name: string; item_count: number }>(
+      `SELECT w.id, w.name, COUNT(wi.id)::int AS item_count
+       FROM wishlists w LEFT JOIN wishlist_items wi ON wi.wishlist_id = w.id
+       WHERE w.user_id = $1 GROUP BY w.id ORDER BY w.created_at ASC`,
+      [userId]
+    ),
+    query<{ wishlist_id: number }>(
+      `SELECT wi.wishlist_id FROM wishlist_items wi
+       JOIN wishlists w ON w.id = wi.wishlist_id
+       WHERE w.user_id = $1 AND wi.product_id = $2`,
+      [userId, productId]
+    ),
+  ]);
+  return { lists, activeIds: active.map(r => r.wishlist_id) };
+}
 
 function StarRating({ rating, count }: { rating: number; count: number }) {
   return (
@@ -37,38 +45,18 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  let product: Product | null = null;
-  try {
-    const data = await fetchGraphQL<{ product: Product | null }>({ query: PRODUCT_QUERY, variables: { slug }, revalidate: 300 });
-    product = data.product;
-  } catch (err) {
-    await logger.error("PDP fetchGraphQL failed", {
-      source: "products/[slug]",
-      context: { slug, error: String(err) },
-      stack: err instanceof Error ? err.stack : undefined,
-    });
-  }
 
+  const product: Product | null = await getProductBySlug(slug);
   if (!product) notFound();
 
-  // Wishlist state — only for logged-in users
+  // Ensure arrays are actually arrays (defensive against DB returning strings)
+  const tags    = Array.isArray(product.tags)    ? product.tags    : [];
+  const gallery = Array.isArray(product.gallery) ? product.gallery : [];
+
   const session = await getSession();
-  let lists: Awaited<ReturnType<typeof getUserWishlists>> = [];
-  let activeIds: number[] = [];
-  if (session) {
-    try {
-      [lists, activeIds] = await Promise.all([
-        getUserWishlists(),
-        getWishlistsContaining(product.id),
-      ]);
-    } catch (err) {
-      await logger.error("PDP wishlist fetch failed", {
-        source: "products/[slug]",
-        context: { slug, error: String(err) },
-        stack: err instanceof Error ? err.stack : undefined,
-      });
-    }
-  }
+  const { lists, activeIds } = session
+    ? await getWishlistData(session.id, product.id)
+    : { lists: [], activeIds: [] };
 
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
 
@@ -97,13 +85,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="relative aspect-video overflow-hidden rounded bg-white border" style={{ borderColor: "var(--color-border)" }}>
               <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(min-width:1024px) 55vw, 100vw" priority />
             </div>
-            <div className="grid grid-cols-4 gap-3">
-              {product.gallery.map((src, i) => (
-                <div key={i} className="relative aspect-square overflow-hidden rounded bg-white border" style={{ borderColor: "var(--color-border)" }}>
-                  <Image src={src} alt={`${product.name} ${i + 1}`} fill className="object-cover" />
-                </div>
-              ))}
-            </div>
+            {gallery.length > 0 && (
+              <div className="grid grid-cols-4 gap-3">
+                {gallery.map((src, i) => (
+                  <div key={i} className="relative aspect-square overflow-hidden rounded bg-white border" style={{ borderColor: "var(--color-border)" }}>
+                    <Image src={src} alt={`${product.name} ${i + 1}`} fill className="object-cover" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right: info + purchase */}
@@ -127,10 +117,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <table className="w-full text-sm">
                 <tbody>
                   {[
-                    ["Brand",       product.brand],
-                    ["SKU",         product.sku],
-                    ["Category",    product.category],
-                    ["Availability",product.inventory > 0 ? `${product.inventory} In Stock` : "Out of Stock"],
+                    ["Brand",        product.brand],
+                    ["SKU",          product.sku],
+                    ["Category",     product.category],
+                    ["Availability", product.inventory > 0 ? `${product.inventory} In Stock` : "Out of Stock"],
                   ].map(([label, value]) => (
                     <tr key={label} className="border-b last:border-0" style={{ borderColor: "var(--color-border)" }}>
                       <td className="px-4 py-2.5 font-semibold text-[var(--color-muted)] bg-gray-50 w-32">{label}</td>
@@ -162,14 +152,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <p className="text-sm text-[var(--color-muted)] leading-relaxed">{product.description}</p>
             </div>
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {product.tags.map((tag) => (
-                <span key={tag} className="rounded px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)] bg-gray-100">
-                  {tag}
-                </span>
-              ))}
-            </div>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => (
+                  <span key={tag} className="rounded px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)] bg-gray-100">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
