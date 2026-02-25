@@ -2,41 +2,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ProductCard } from "@/components/product-card";
-import { fetchGraphQL } from "@/lib/graphql-client";
-import type { Product, Category } from "@/lib/products";
-
-const CATEGORY_PAGE_QUERY = /* GraphQL */ `
-  query CategoryPage($slug: String!, $category: String!) {
-    category(slug: $slug) {
-      id name slug description image productCount
-    }
-    productsByCategory(category: $category) {
-      id name slug description price currency category subcategory
-      tags image gallery rating ratingCount inventory featured brand sku unit
-    }
-    subcategoriesByCategory(category: $category)
-  }
-`;
-
-const SUBCATEGORY_PAGE_QUERY = /* GraphQL */ `
-  query SubcategoryPage($slug: String!, $category: String!, $subcategory: String!) {
-    category(slug: $slug) {
-      id name slug description image productCount
-    }
-    productsBySubcategory(category: $category, subcategory: $subcategory) {
-      id name slug description price currency category subcategory
-      tags image gallery rating ratingCount inventory featured brand sku unit
-    }
-    subcategoriesByCategory(category: $category)
-  }
-`;
-
-type CategoryPageQuery = {
-  category: Category | null;
-  productsByCategory?: Product[];
-  productsBySubcategory?: Product[];
-  subcategoriesByCategory: string[];
-};
+import {
+  getCategoryBySlug,
+  getProductsByCategory,
+  getProductsBySubcategory,
+  getSubcategoriesByCategory,
+} from "@/lib/products";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -53,43 +24,23 @@ function slugToName(slug: string): string {
 }
 
 function subSlugToName(slug: string): string {
-  return slug
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  return slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { sub } = await searchParams;
-  const categoryName = slugToName(slug);
+  const { sub }  = await searchParams;
+
+  const categoryName   = slugToName(slug);
   const subcategoryName = sub ? subSlugToName(sub) : undefined;
 
-  let category: Category | null = null;
-  let products: Product[] = [];
-  let subcategories: string[] = [];
-
-  try {
-    if (subcategoryName) {
-      const data = await fetchGraphQL<CategoryPageQuery>({
-        query: SUBCATEGORY_PAGE_QUERY,
-        variables: { slug, category: categoryName, subcategory: subcategoryName },
-        revalidate: 300,
-      });
-      category = data.category;
-      products = data.productsBySubcategory ?? [];
-      subcategories = data.subcategoriesByCategory ?? [];
-    } else {
-      const data = await fetchGraphQL<CategoryPageQuery>({
-        query: CATEGORY_PAGE_QUERY,
-        variables: { slug, category: categoryName },
-        revalidate: 300,
-      });
-      category = data.category;
-      products = data.productsByCategory ?? [];
-      subcategories = data.subcategoriesByCategory ?? [];
-    }
-  } catch { /* graceful degradation */ }
+  const [category, products, subcategories] = await Promise.all([
+    getCategoryBySlug(slug),
+    subcategoryName
+      ? getProductsBySubcategory(categoryName, subcategoryName)
+      : getProductsByCategory(categoryName),
+    getSubcategoriesByCategory(categoryName),
+  ]);
 
   if (!category && products.length === 0) notFound();
 
@@ -138,11 +89,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                 <nav className="py-2">
                   <Link
                     href={`/categories/${slug}`}
-                    className={`block px-4 py-2 text-sm transition-colors ${
-                      !sub
-                        ? "font-bold text-[var(--color-accent)] bg-orange-50"
-                        : "text-[var(--color-foreground)] hover:bg-gray-50"
-                    }`}
+                    className={`block px-4 py-2 text-sm transition-colors ${!sub ? "font-bold text-[var(--color-accent)] bg-orange-50" : "text-[var(--color-foreground)] hover:bg-gray-50"}`}
                   >
                     All {category?.name ?? categoryName}
                   </Link>
@@ -153,11 +100,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                       <Link
                         key={subcat}
                         href={`/categories/${slug}?sub=${subSlug}`}
-                        className={`block px-4 py-2 text-sm transition-colors ${
-                          isActive
-                            ? "font-bold text-[var(--color-accent)] bg-orange-50"
-                            : "text-[var(--color-foreground)] hover:bg-gray-50"
-                        }`}
+                        className={`block px-4 py-2 text-sm transition-colors ${isActive ? "font-bold text-[var(--color-accent)] bg-orange-50" : "text-[var(--color-foreground)] hover:bg-gray-50"}`}
                       >
                         {subcat}
                       </Link>
@@ -179,14 +122,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             ) : (
               <div className="rounded bg-white border border-[var(--color-border)] p-12 text-center">
                 <p className="text-[var(--color-muted)] text-lg mb-2">No products found</p>
-                <p className="text-sm text-[var(--color-muted)] mb-4">
-                  {subcategoryName ? `No products in ${subcategoryName} yet.` : "No products in this category yet."}
-                </p>
-                <Link
-                  href={`/categories/${slug}`}
-                  className="text-sm font-semibold hover:underline"
-                  style={{ color: "var(--color-accent)" }}
-                >
+                <Link href={`/categories/${slug}`} className="text-sm font-semibold hover:underline" style={{ color: "var(--color-accent)" }}>
                   View all {category?.name ?? categoryName}
                 </Link>
               </div>

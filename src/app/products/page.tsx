@@ -1,11 +1,9 @@
 import { FilterSidebar } from "@/components/filter-sidebar";
 import { ProductCard } from "@/components/product-card";
-import { fetchGraphQL } from "@/lib/graphql-client";
+import { getProducts } from "@/lib/products";
 import { filterProductsByParams, PRICE_OPTIONS } from "@/lib/filter-options";
-import { PRODUCTS_QUERY } from "@/lib/queries";
 import type { Product } from "@/lib/products";
 
-type ProductsResult = { products: Product[] };
 type ProductsPageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
@@ -20,13 +18,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const initialParams: Record<string, string> = {};
   Object.entries(params).forEach(([k, v]) => { const n = normalize(v); if (n) initialParams[k] = n; });
 
-  let products: Product[] = [];
-  try {
-    const data = await fetchGraphQL<ProductsResult>({ query: PRODUCTS_QUERY, revalidate: 300 });
-    products = data.products;
-  } catch { /* graceful */ }
-
-  const categories = products.map((p) => p.category);
+  const products: Product[] = await getProducts();
+  const categories = [...new Set(products.map((p) => p.category))].sort();
   const filteredProducts = filterProductsByParams(products, selectedCategory, selectedPrice);
 
   const heading = (() => {
@@ -38,7 +31,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
-      {/* Page header */}
       <div className="border-b bg-white" style={{ borderColor: "var(--color-border)" }}>
         <div className="mx-auto max-w-7xl px-4 py-6">
           <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-muted)] mb-1">Catalog</p>
