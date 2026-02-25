@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { updateProfileAction } from "@/app/actions/profile";
 
-const initial = {};
+const initial: { error?: string; success?: string } = {};
 
 export function ProfileForm({ firstName, lastName, email }: {
   firstName: string; lastName: string; email: string;

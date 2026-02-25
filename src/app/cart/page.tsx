@@ -34,7 +34,7 @@ export default function CartPage() {
               </Link>
             </div>
           ) : (
-            <div className="rounded bg-white border divide-y" style={{ borderColor: "var(--color-border)", divideColor: "var(--color-border)" }}>
+            <div className="rounded bg-white border divide-y" style={{ borderColor: "var(--color-border)" }}>
               {items.map((item) => (
                 <div key={item.id} className="flex gap-4 p-4">
                   <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded border" style={{ borderColor: "var(--color-border)" }}>

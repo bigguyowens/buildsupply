@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { registerAction } from "@/app/actions/auth";
 
-const initialState = {};
+const initialState: { error?: string } = {};
 
 const inputStyle = {
   padding: "9px 12px", borderRadius: 6,

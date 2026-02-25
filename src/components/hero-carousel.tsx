@@ -44,7 +44,6 @@ export function HeroCarousel({ products }: HeroCarouselProps) {
                       {product.brand}
                     </span>
                     <span>{product.category}</span>
-                    <span>{product.colors.join(" / ")}</span>
                   </div>
                   <div className="flex flex-wrap gap-4">
                     <Link

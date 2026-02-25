@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { changePasswordAction } from "@/app/actions/profile";
 import { useRef } from "react";
 
-const initial = {};
+const initial: { error?: string; success?: string } = {};
 
 export function PasswordForm() {
   const [state, formAction, pending] = useActionState(changePasswordAction, initial);

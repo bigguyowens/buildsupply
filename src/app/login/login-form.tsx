@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { loginAction } from "@/app/actions/auth";
 
-const initialState = {};
+const initialState: { error?: string } = {};
 
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(loginAction, initialState);
