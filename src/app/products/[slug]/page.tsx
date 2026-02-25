@@ -6,6 +6,7 @@ import { WishlistButton } from "@/components/wishlist-button";
 import { fetchGraphQL } from "@/lib/graphql-client";
 import { getSession } from "@/lib/auth";
 import { getUserWishlists, getWishlistsContaining } from "@/app/actions/wishlist";
+import { logger } from "@/lib/logger";
 import type { Product } from "@/lib/products";
 
 const PRODUCT_QUERY = /* GraphQL */ `
@@ -40,15 +41,34 @@ export default async function ProductPage({ params }: ProductPageProps) {
   try {
     const data = await fetchGraphQL<{ product: Product | null }>({ query: PRODUCT_QUERY, variables: { slug }, revalidate: 300 });
     product = data.product;
-  } catch { /* graceful */ }
+  } catch (err) {
+    await logger.error("PDP fetchGraphQL failed", {
+      source: "products/[slug]",
+      context: { slug, error: String(err) },
+      stack: err instanceof Error ? err.stack : undefined,
+    });
+  }
 
   if (!product) notFound();
 
   // Wishlist state — only for logged-in users
   const session = await getSession();
-  const [lists, activeIds] = session
-    ? await Promise.all([getUserWishlists(), getWishlistsContaining(product.id)])
-    : [[], []];
+  let lists: Awaited<ReturnType<typeof getUserWishlists>> = [];
+  let activeIds: number[] = [];
+  if (session) {
+    try {
+      [lists, activeIds] = await Promise.all([
+        getUserWishlists(),
+        getWishlistsContaining(product.id),
+      ]);
+    } catch (err) {
+      await logger.error("PDP wishlist fetch failed", {
+        source: "products/[slug]",
+        context: { slug, error: String(err) },
+        stack: err instanceof Error ? err.stack : undefined,
+      });
+    }
+  }
 
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
 
