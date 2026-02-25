@@ -5,84 +5,50 @@ import { filterProductsByParams, PRICE_OPTIONS } from "@/lib/filter-options";
 import { PRODUCTS_QUERY } from "@/lib/queries";
 import type { Product } from "@/lib/products";
 
-type ProductsResult = {
-  products: Product[];
-};
+type ProductsResult = { products: Product[] };
+type ProductsPageProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
-type ProductsPageProps = {
-  searchParams: Promise<
-    Record<string, string | string[] | undefined>
-  >;
-};
-
-export default async function ProductsPage({
-  searchParams,
-}: ProductsPageProps) {
+export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
-  const normalizeParam = (value?: string | string[]) =>
-    Array.isArray(value) ? value[0] : value;
+  const normalize = (v?: string | string[]) => Array.isArray(v) ? v[0] : v;
 
-  const selectedCategory = normalizeParam(
-    params.category,
-  );
-  const selectedPrice = normalizeParam(params.price);
-  const priceOption = PRICE_OPTIONS.find(
-    (option) => option.value === selectedPrice,
-  );
-  const priceLabel =
-    priceOption && priceOption.value ? priceOption.label : undefined;
+  const selectedCategory = normalize(params.category);
+  const selectedPrice    = normalize(params.price);
+  const priceOption      = PRICE_OPTIONS.find((o) => o.value === selectedPrice);
+  const priceLabel       = priceOption?.value ? priceOption.label : undefined;
 
   const initialParams: Record<string, string> = {};
-  Object.entries(params).forEach(([key, value]) => {
-    const normalized = normalizeParam(value);
-    if (normalized) {
-      initialParams[key] = normalized;
-    }
-  });
+  Object.entries(params).forEach(([k, v]) => { const n = normalize(v); if (n) initialParams[k] = n; });
 
-  const { products } = await fetchGraphQL<ProductsResult>({
-    query: PRODUCTS_QUERY,
-    revalidate: 300,
-  });
+  let products: Product[] = [];
+  try {
+    const data = await fetchGraphQL<ProductsResult>({ query: PRODUCTS_QUERY, revalidate: 300 });
+    products = data.products;
+  } catch { /* graceful */ }
 
-  const categories = products.map((product) => product.category);
-  const filteredProducts = filterProductsByParams(
-    products,
-    selectedCategory,
-    selectedPrice,
-  );
+  const categories = products.map((p) => p.category);
+  const filteredProducts = filterProductsByParams(products, selectedCategory, selectedPrice);
 
   const heading = (() => {
-    const priceText = priceLabel
-      ? priceLabel.includes("–")
-        ? `between ${priceLabel.replace("–", "and")}`
-        : priceLabel.toLowerCase()
-      : null;
-
-    if (selectedCategory && priceText) {
-      return `Shop all ${selectedCategory} ${priceText}`;
-    }
-    if (selectedCategory) {
-      return `Shop all ${selectedCategory}`;
-    }
-    if (priceText) {
-      return `Shop all products ${priceText}`;
-    }
-    return "Shop all products";
+    if (selectedCategory && priceLabel) return `${selectedCategory} — ${priceLabel}`;
+    if (selectedCategory) return selectedCategory;
+    if (priceLabel) return `All Products — ${priceLabel}`;
+    return "All Products";
   })();
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] pb-24 pt-12">
-      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-6 lg:px-0">
-        <div className="flex flex-col gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-black/50">
-            Product Listing
-          </p>
-          <h1 className="text-4xl font-semibold text-black">
-            {heading}
-          </h1>
+    <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
+      {/* Page header */}
+      <div className="border-b bg-white" style={{ borderColor: "var(--color-border)" }}>
+        <div className="mx-auto max-w-7xl px-4 py-6">
+          <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-muted)] mb-1">Catalog</p>
+          <h1 className="text-2xl font-bold text-[var(--color-foreground)]">{heading}</h1>
+          <p className="text-sm text-[var(--color-muted)] mt-1">{filteredProducts.length} products</p>
         </div>
-        <div className="grid gap-8 grid-cols-[minmax(220px,_0.25fr)_minmax(0,_0.75fr)]">
+      </div>
+
+      <main className="mx-auto max-w-7xl px-4 py-8">
+        <div className="grid gap-6" style={{ gridTemplateColumns: "220px 1fr" }}>
           <FilterSidebar
             categories={categories}
             selectedCategory={selectedCategory}
@@ -90,15 +56,18 @@ export default async function ProductsPage({
             basePath="/products"
             initialParams={initialParams}
           />
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+          <div>
             {filteredProducts.length === 0 ? (
-              <p className="text-sm text-black/60">
+              <div className="rounded bg-white border border-[var(--color-border)] p-12 text-center text-[var(--color-muted)]">
                 No products match the selected filters.
-              </p>
-            ) : null}
+              </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filteredProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>

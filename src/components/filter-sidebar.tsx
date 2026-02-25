@@ -9,84 +9,55 @@ type FilterSidebarProps = {
   initialParams?: Record<string, string>;
 };
 
-function buildHref(
-  basePath: string,
-  initial: Record<string, string>,
-  updates: Record<string, string | undefined>,
-) {
+function buildHref(basePath: string, initial: Record<string, string>, updates: Record<string, string | undefined>) {
   const params = new URLSearchParams(initial);
-
   Object.entries(updates).forEach(([key, value]) => {
-    if (value && value.length) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
+    if (value?.length) params.set(key, value);
+    else params.delete(key);
   });
-
   const query = params.toString();
   return query ? `${basePath}?${query}` : basePath;
 }
 
-export function FilterSidebar({
-  categories,
-  selectedCategory,
-  selectedPrice,
-  basePath,
-  initialParams = {},
-}: FilterSidebarProps) {
-  const uniqueCategories = Array.from(new Set(categories)).sort();
+export function FilterSidebar({ categories, selectedCategory, selectedPrice, basePath, initialParams = {} }: FilterSidebarProps) {
+  const unique = Array.from(new Set(categories)).sort();
 
   return (
-    <aside className="flex flex-col gap-6 rounded-[12px] border border-black/5 bg-white p-6 md:sticky md:top-28 md:h-fit">
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-black/50">
-          Category
-        </p>
-        <div className="mt-3 flex flex-col gap-2 text-sm">
+    <aside className="rounded bg-white border sticky top-28 h-fit" style={{ borderColor: "var(--color-border)" }}>
+      {/* Category section */}
+      <div className="border-b px-4 py-3" style={{ borderColor: "var(--color-border)" }}>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-muted)] mb-3">Category</p>
+        <div className="flex flex-col gap-1 text-sm">
           <Link
-            href={buildHref(basePath, initialParams, {
-              category: undefined,
-            })}
-            className={`transition hover:text-black ${
-              !selectedCategory ? "font-semibold text-black" : "text-black/60"
-            }`}
+            href={buildHref(basePath, initialParams, { category: undefined })}
+            className={`rounded px-2 py-1.5 transition-colors ${!selectedCategory ? "bg-[var(--color-primary)] text-white font-semibold" : "text-[var(--color-foreground)] hover:bg-gray-100"}`}
           >
-            All
+            All Categories
           </Link>
-          {uniqueCategories.map((category) => (
+          {unique.map((cat) => (
             <Link
-              key={category}
-              href={buildHref(basePath, initialParams, {
-                category,
-              })}
-              className={`transition hover:text-black ${
-                selectedCategory === category
-                  ? "font-semibold text-black"
-                  : "text-black/60"
-              }`}
+              key={cat}
+              href={buildHref(basePath, initialParams, { category: cat })}
+              className={`rounded px-2 py-1.5 transition-colors ${selectedCategory === cat ? "bg-[var(--color-primary)] text-white font-semibold" : "text-[var(--color-foreground)] hover:bg-gray-100"}`}
             >
-              {category}
+              {cat}
             </Link>
           ))}
         </div>
       </div>
-      <div>
-        <p className="text-xs font-semibold uppercase tracking-[0.4em] text-black/50">
-          Price
-        </p>
-        <div className="mt-3 flex flex-col gap-2 text-sm">
+
+      {/* Price section */}
+      <div className="px-4 py-3">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-muted)] mb-3">Price Range</p>
+        <div className="flex flex-col gap-1 text-sm">
           {PRICE_OPTIONS.map((option) => (
             <Link
               key={option.value || "all"}
-              href={buildHref(basePath, initialParams, {
-                price: option.value || undefined,
-              })}
-              className={`transition hover:text-black ${
-                selectedPrice === option.value ||
-                (!selectedPrice && option.value === "")
-                  ? "font-semibold text-black"
-                  : "text-black/60"
+              href={buildHref(basePath, initialParams, { price: option.value || undefined })}
+              className={`rounded px-2 py-1.5 transition-colors ${
+                (selectedPrice === option.value) || (!selectedPrice && option.value === "")
+                  ? "bg-[var(--color-primary)] text-white font-semibold"
+                  : "text-[var(--color-foreground)] hover:bg-gray-100"
               }`}
             >
               {option.label}

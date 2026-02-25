@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { CartProvider } from "@/context/cart-context";
+import { getSession } from "@/lib/auth";
+import type { SessionUser } from "@/lib/auth";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -10,29 +12,19 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "Graphite & Co. | Office Supply Commerce Starter",
-  description:
-    "Shop curated office essentials—from ergonomic seating to lighting and storage—through the Graphite & Co. demo storefront.",
+  title: "BuildSupply | Industrial & Construction Supply",
+  description: "Professional-grade tools, safety equipment, fasteners and industrial supplies.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session: SessionUser | null = await getSession();
+
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-slate-950/5 antialiased`}
-      >
-        <CartProvider>
-          <Header />
+      <body className={`${geistSans.variable} antialiased`}>
+        <CartProvider isLoggedIn={!!session}>
+          <Header session={session} />
           {children}
           <Footer />
         </CartProvider>
