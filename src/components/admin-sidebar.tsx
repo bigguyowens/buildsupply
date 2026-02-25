@@ -6,12 +6,13 @@ import { logoutAction } from "@/app/actions/auth";
 import type { SessionUser } from "@/lib/auth";
 
 const NAV = [
-  { label: "Dashboard",    href: "/admin",            icon: "▦" },
-  { label: "Orders",       href: "/admin/orders",     icon: "📦" },
-  { label: "Customers",    href: "/admin/customers",  icon: "👥" },
-  { label: "Products",     href: "/admin/products",   icon: "🔧" },
-  { label: "Wishlists",    href: "/admin/wishlists",  icon: "♡" },
-  { label: "Homepage",     href: "/admin/homepage",   icon: "🏠" },
+  { label: "Dashboard",    href: "/admin",              icon: "▦" },
+  { label: "Orders",       href: "/admin/orders",       icon: "📦" },
+  { label: "Customers",    href: "/admin/customers",    icon: "👥" },
+  { label: "Products",     href: "/admin/products",     icon: "🔧" },
+  { label: "Wishlists",    href: "/admin/wishlists",    icon: "♡" },
+  { label: "Homepage",     href: "/admin/homepage",     icon: "🏠" },
+  { label: "Error Logs",   href: "/admin/error-logs",   icon: "🔴" },
 ];
 
 export function AdminSidebar({ session }: { session: SessionUser }) {

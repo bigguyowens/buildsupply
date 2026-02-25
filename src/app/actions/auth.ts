@@ -1,12 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import {
-  createUser,
-  verifyCredentials,
-  setSessionCookie,
-  clearSessionCookie,
-} from "@/lib/auth";
+import { createUser, verifyCredentials, setSessionCookie, clearSessionCookie } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 
 export type ActionResult = {
   error?: string;
@@ -37,6 +33,7 @@ export async function registerAction(
     const user = await createUser(email, password, firstName, lastName);
     await setSessionCookie(user);
   } catch (err) {
+    await logger.warn("Registration failed", { source: "auth/register", context: { email } });
     return { error: err instanceof Error ? err.message : "Registration failed." };
   }
 
@@ -59,6 +56,7 @@ export async function loginAction(
     const user = await verifyCredentials(email, password);
     await setSessionCookie(user);
   } catch (err) {
+    await logger.warn("Login failed", { source: "auth/login", context: { email } });
     return { error: err instanceof Error ? err.message : "Login failed." };
   }
 
