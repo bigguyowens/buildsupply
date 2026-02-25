@@ -39,7 +39,10 @@ type ProductRow = Omit<Product, "tags" | "gallery" | "ratingCount"> & {
 function mapRow(row: ProductRow): Product {
   return {
     ...row,
-    ratingCount: row.rating_count,
+    price:       Number(row.price),
+    rating:      Number(row.rating),
+    ratingCount: Number(row.rating_count),
+    inventory:   Number(row.inventory),
     tags:    Array.isArray(row.tags)    ? row.tags    : JSON.parse(row.tags    as string ?? "[]"),
     gallery: Array.isArray(row.gallery) ? row.gallery : JSON.parse(row.gallery as string ?? "[]"),
   };
