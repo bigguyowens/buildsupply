@@ -23,15 +23,33 @@ export async function updateOrderStatusAction(orderId: number, status: string) {
 // ── Products ─────────────────────────────────────────────
 export async function updateProductAction(
   productId: string,
-  fields: { price?: number; inventory?: number; featured?: boolean }
+  fields: {
+    price?: number; inventory?: number; featured?: boolean;
+    name?: string; description?: string; category?: string; subcategory?: string;
+    brand?: string; sku?: string; currency?: string; unit?: string;
+    tags?: string[]; image?: string; gallery?: string[];
+    rating?: number; ratingCount?: number;
+  }
 ) {
   await assertAdmin();
+  const colMap: Record<string, string> = {
+    price: "price", inventory: "inventory", featured: "featured",
+    name: "name", description: "description", category: "category",
+    subcategory: "subcategory", brand: "brand", sku: "sku",
+    currency: "currency", unit: "unit", image: "image",
+    rating: "rating", ratingCount: "rating_count",
+  };
   const sets: string[] = [];
   const vals: unknown[] = [];
   let i = 1;
-  if (fields.price     !== undefined) { sets.push(`price = $${i++}`);     vals.push(fields.price); }
-  if (fields.inventory !== undefined) { sets.push(`inventory = $${i++}`); vals.push(fields.inventory); }
-  if (fields.featured  !== undefined) { sets.push(`featured = $${i++}`);  vals.push(fields.featured); }
+  for (const [key, col] of Object.entries(colMap)) {
+    if (fields[key as keyof typeof fields] !== undefined) {
+      sets.push(`${col} = $${i++}`);
+      vals.push(fields[key as keyof typeof fields]);
+    }
+  }
+  if (fields.tags    !== undefined) { sets.push(`tags = $${i++}`);    vals.push(JSON.stringify(fields.tags)); }
+  if (fields.gallery !== undefined) { sets.push(`gallery = $${i++}`); vals.push(JSON.stringify(fields.gallery)); }
   if (!sets.length) return;
   vals.push(productId);
   await query(`UPDATE products SET ${sets.join(", ")} WHERE id = $${i}`, vals);
