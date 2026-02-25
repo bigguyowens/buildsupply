@@ -16,58 +16,18 @@ export async function fetchGraphQL<T>({
   variables,
   revalidate,
 }: GraphQLParams) {
-  let headerList: Headers | null = null;
-  try {
-    headerList = await headers();
-  } catch {
-    headerList = null;
-  }
+  // On the server, call the GraphQL resolver directly instead of HTTP
+  // to avoid URL resolution issues in production
+  const { graphqlResolver } = await import("@/lib/graphql-resolver");
+  const payload = await graphqlResolver<T>(query, variables);
 
-  const origin =
-    headerList?.get("origin") ??
-    headerList?.get("x-forwarded-host") ??
-    undefined;
-  const host = headerList?.get("host");
-  const protocol =
-    headerList?.get("x-forwarded-proto") ?? "http";
-
-  const baseUrl =
-    origin && origin.startsWith("http")
-      ? origin
-      : host
-        ? `${protocol}://${host}`
-        : process.env.NEXT_PUBLIC_SITE_URL ??
-          "http://localhost:3000";
-
-  const response = await fetch(`${baseUrl}/api/graphql`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query,
-      variables,
-    }),
-    cache: "no-store",
-    next: revalidate
-      ? { revalidate }
-      : undefined,
-  });
-
-  if (!response.ok) {
-    throw new Error("GraphQL request failed");
-  }
-
-  const payload: GraphQLResponse<T> =
-    await response.json();
-
-  if (payload.errors?.length) {
-    throw new Error(payload.errors[0].message);
+  if ("errors" in payload && payload.errors?.length) {
+    throw new Error((payload.errors as Array<{ message: string }>)[0].message);
   }
 
   if (!payload.data) {
     throw new Error("GraphQL response missing data");
   }
 
-  return payload.data;
+  return payload.data as T;
 }
