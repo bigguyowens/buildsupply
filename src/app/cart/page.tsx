@@ -7,7 +7,7 @@ import { QuantitySelector } from "@/components/quantity-selector";
 import { useCart } from "@/context/cart-context";
 
 export default function CartPage() {
-  const { items, updateItemQuantity } = useCart();
+  const { items, updateItemQuantity, removeItem } = useCart();
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
@@ -58,6 +58,18 @@ export default function CartPage() {
                       <span className="text-xs text-[var(--color-muted)]">
                         {new Intl.NumberFormat("en-US", { style: "currency", currency: item.currency }).format(item.price)} / {item.unit}
                       </span>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        title="Remove item"
+                        style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 12, fontWeight: 600, padding: "4px 6px", borderRadius: 4, transition: "color 0.15s" }}
+                        onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = "#ef4444"}
+                        onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = "#94a3b8"}
+                      >
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Remove
+                      </button>
                     </div>
                   </div>
                 </div>
