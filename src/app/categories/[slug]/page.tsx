@@ -39,7 +39,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
 
       {/* Hero bar */}
-      <div className="relative overflow-hidden border-b" style={{ background: "var(--color-primary)", minHeight: 120 }}>
+      <div className="relative overflow-hidden border-b" style={{ background: "var(--color-primary)", minHeight: 110 }}>
         {category.image && (
           <Image src={category.image} alt={category.name} fill className="object-cover opacity-20" />
         )}
@@ -64,27 +64,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             {subcategoryName ?? category.name}
           </h1>
           {!subcategoryName && category.description && (
-            <p style={{ color: "rgba(255,255,255,0.65)", marginTop: 4, fontSize: 13, maxWidth: 520 }}>{category.description}</p>
+            <p style={{ color: "rgba(255,255,255,0.6)", marginTop: 4, fontSize: 13, maxWidth: 520 }}>{category.description}</p>
           )}
         </div>
       </div>
 
-      {/* Mobile subcategory scroll chips */}
-      {subcategories.length > 0 && (
-        <div className="category-sub-mobile" style={{ display: "none" }}>
-          <Link href={`/categories/${slug}`} className={`category-sub-chip${!sub ? " active" : ""}`}>All</Link>
-          {subcategories.map((subcat) => {
-            const subSlug = subcat.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-            return (
-              <Link key={subcat} href={`/categories/${slug}?sub=${subSlug}`} className={`category-sub-chip${sub === subSlug ? " active" : ""}`}>
-                {subcat}
-              </Link>
-            );
-          })}
-        </div>
-      )}
-
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 16px" }}>
+      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 20px" }}>
         <CategoryPageClient
           category={category}
           products={products}

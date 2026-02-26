@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import { ProductCard } from "@/components/product-card";
 import { ProductListItem } from "@/components/product-list-item";
-import type { Product } from "@/lib/products";
-import type { Category } from "@/lib/products";
+import type { Product, Category } from "@/lib/products";
+import Link from "next/link";
 
 type Props = {
   category: Category;
@@ -25,44 +24,33 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "name",       label: "Name A–Z" },
 ];
 
-function ChevronIcon({ open }: { open: boolean }) {
-  return (
-    <svg width="14" height="14" fill="none" viewBox="0 0 10 6" stroke="currentColor" strokeWidth={2}
-      style={{ transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M1 1l4 4 4-4" />
-    </svg>
-  );
-}
-
-function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
-  const [open, setOpen] = useState(true);
+function FilterSection({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
     <div style={{ borderBottom: "1px solid #e2e8f0" }}>
-      <button onClick={() => setOpen(o => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#374151" }}>
+      <button onClick={() => setOpen(o => !o)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 0", background: "none", border: "none", cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
         {title}
-        <ChevronIcon open={open} />
+        <svg width="14" height="14" fill="none" viewBox="0 0 10 6" stroke="currentColor" strokeWidth={2.5}
+          style={{ transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0, color: "#94a3b8" }}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M1 1l4 4 4-4" />
+        </svg>
       </button>
-      {open && <div style={{ padding: "0 16px 14px" }}>{children}</div>}
+      {open && <div style={{ paddingBottom: 16 }}>{children}</div>}
     </div>
   );
 }
 
 export function CategoryPageClient({ category, products, subcategories, slug, activeSub }: Props) {
-  const [view, setView] = useState<"grid" | "list">("list");
-  const [sort, setSort] = useState<SortKey>("featured");
+  const [view, setView]           = useState<"grid" | "list">("grid");
+  const [sort, setSort]           = useState<SortKey>("featured");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
   const [minRating, setMinRating] = useState(0);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 99999]);
 
-  // Derive filter options from products
-  const brands = useMemo(() => {
-    const b = new Set(products.map(p => p.brand).filter(Boolean));
-    return Array.from(b).sort();
-  }, [products]);
-
+  const brands = useMemo(() => Array.from(new Set(products.map(p => p.brand).filter(Boolean))).sort(), [products]);
   const maxPrice = useMemo(() => Math.ceil(Math.max(...products.map(p => p.price), 0)), [products]);
 
-  // Apply filters + sort
   const filtered = useMemo(() => {
     let list = [...products];
     if (selectedBrands.size > 0) list = list.filter(p => selectedBrands.has(p.brand));
@@ -79,6 +67,7 @@ export function CategoryPageClient({ category, products, subcategories, slug, ac
   }, [products, selectedBrands, minRating, priceRange, sort]);
 
   const hasFilters = selectedBrands.size > 0 || minRating > 0 || priceRange[0] > 0 || priceRange[1] < maxPrice;
+  const filterCount = selectedBrands.size + (minRating > 0 ? 1 : 0) + (priceRange[0] > 0 || priceRange[1] < maxPrice ? 1 : 0);
 
   function toggleBrand(brand: string) {
     setSelectedBrands(prev => {
@@ -94,151 +83,209 @@ export function CategoryPageClient({ category, products, subcategories, slug, ac
     setPriceRange([0, 99999]);
   }
 
+  const PRICE_BUCKETS: [number, number, string][] = [
+    [0,   50,    "Under $50"],
+    [50,  100,   "$50 – $100"],
+    [100, 250,   "$100 – $250"],
+    [250, 500,   "$250 – $500"],
+    [500, 99999, "$500+"],
+  ];
+
   return (
-    <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+    <div>
+      {/* ── Sort / Filter / Toggle Bar ─────────────────────── */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, background: "white", borderRadius: 8, border: "1px solid #e2e8f0", padding: "10px 16px", flexWrap: "wrap" }}>
 
-      {/* ── Filter Sidebar ── */}
-      <aside className="category-sub-sidebar" style={{ width: 220, flexShrink: 0, background: "white", borderRadius: 8, border: "1px solid #e2e8f0", overflow: "hidden", position: "sticky", top: 80 }}>
+        {/* Filter button */}
+        <button
+          onClick={() => setDrawerOpen(true)}
+          style={{ display: "flex", alignItems: "center", gap: 7, padding: "7px 14px", borderRadius: 6, border: "1px solid #d1d5db", background: hasFilters ? "#fff7ed" : "white", color: hasFilters ? "var(--color-accent)" : "#374151", fontSize: 13, fontWeight: 700, cursor: "pointer", transition: "all 0.15s" }}
+        >
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+          </svg>
+          Filter
+          {filterCount > 0 && (
+            <span style={{ background: "var(--color-accent)", color: "white", borderRadius: 9999, fontSize: 11, fontWeight: 800, padding: "1px 6px" }}>
+              {filterCount}
+            </span>
+          )}
+        </button>
 
-        {/* Sidebar header */}
-        <div style={{ padding: "12px 16px", borderBottom: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 13, fontWeight: 800, color: "#0f172a" }}>Filter</span>
+        {/* Divider */}
+        <div style={{ width: 1, height: 24, background: "#e2e8f0" }} />
+
+        {/* Result count */}
+        <span style={{ fontSize: 13, color: "#64748b" }}>
+          <strong style={{ color: "#0f172a" }}>{filtered.length}</strong> results
           {hasFilters && (
-            <button onClick={clearFilters} style={{ fontSize: 11, color: "var(--color-accent)", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-              Clear All
+            <button onClick={clearFilters} style={{ marginLeft: 10, fontSize: 12, color: "var(--color-accent)", fontWeight: 700, background: "none", border: "none", cursor: "pointer", padding: 0, textDecoration: "underline" }}>
+              Clear filters
             </button>
           )}
+        </span>
+
+        {/* Sort — pushed right */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", whiteSpace: "nowrap" }}>Sort by:</label>
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value as SortKey)}
+            style={{ fontSize: 13, border: "1px solid #e2e8f0", borderRadius: 6, padding: "6px 10px", background: "white", color: "#0f172a", cursor: "pointer" }}
+          >
+            {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
         </div>
 
-        {/* Subcategory filter */}
-        {subcategories.length > 0 && (
-          <FilterSection title="Category">
-            <Link href={`/categories/${slug}`} style={{ display: "block", padding: "5px 0", fontSize: 13, fontWeight: activeSub ? 400 : 700, color: activeSub ? "#64748b" : "var(--color-accent)", textDecoration: "none" }}>
-              All ({products.length})
-            </Link>
-            {subcategories.map(sub => {
-              const subSlug = sub.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-              const isActive = activeSub === subSlug;
-              const count = products.filter(p => p.subcategory?.toLowerCase() === sub.toLowerCase()).length;
-              return (
-                <Link key={sub} href={`/categories/${slug}?sub=${subSlug}`} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 13, fontWeight: isActive ? 700 : 400, color: isActive ? "var(--color-accent)" : "#374151", textDecoration: "none" }}>
-                  <span>{sub}</span>
-                  <span style={{ color: "#94a3b8", fontSize: 11 }}>({count})</span>
-                </Link>
-              );
-            })}
-          </FilterSection>
-        )}
+        {/* Grid/List toggle */}
+        <div style={{ display: "flex", border: "1px solid #e2e8f0", borderRadius: 6, overflow: "hidden" }}>
+          {(["grid", "list"] as const).map(v => (
+            <button key={v} onClick={() => setView(v)} title={v} style={{ padding: "6px 10px", background: view === v ? "#f1f5f9" : "white", border: "none", cursor: "pointer", display: "flex", alignItems: "center", color: view === v ? "var(--color-accent)" : "#94a3b8" }}>
+              {v === "list" ? (
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              ) : (
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
+                  <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
 
-        {/* Brand filter */}
-        {brands.length > 1 && (
-          <FilterSection title="Brand">
-            {brands.map(brand => (
-              <label key={brand} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0", cursor: "pointer", fontSize: 13, color: "#374151" }}>
-                <input
-                  type="checkbox"
-                  checked={selectedBrands.has(brand)}
-                  onChange={() => toggleBrand(brand)}
-                  style={{ accentColor: "var(--color-accent)", width: 14, height: 14 }}
-                />
-                {brand}
+      {/* ── Products ───────────────────────────────────────── */}
+      {filtered.length === 0 ? (
+        <div style={{ background: "white", borderRadius: 8, border: "1px solid #e2e8f0", padding: "80px 24px", textAlign: "center" }}>
+          <p style={{ color: "#94a3b8", fontSize: 15, margin: "0 0 14px" }}>No products match your filters.</p>
+          <button onClick={clearFilters} style={{ background: "var(--color-accent)", color: "white", border: "none", borderRadius: 6, padding: "9px 22px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+            Clear Filters
+          </button>
+        </div>
+      ) : view === "list" ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {filtered.map(p => <ProductListItem key={p.id} product={p} />)}
+        </div>
+      ) : (
+        <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(4, 1fr)" }}>
+          {filtered.map(p => <ProductCard key={p.id} product={p} />)}
+        </div>
+      )}
+
+      {/* ── Filter Drawer ──────────────────────────────────── */}
+      {/* Overlay */}
+      {drawerOpen && (
+        <div
+          onClick={() => setDrawerOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.35)", zIndex: 200, transition: "opacity 0.2s" }}
+        />
+      )}
+
+      {/* Drawer panel */}
+      <div style={{
+        position: "fixed", top: 0, left: 0, bottom: 0, width: 320, maxWidth: "90vw",
+        background: "white", zIndex: 201, boxShadow: "4px 0 32px rgba(0,0,0,0.15)",
+        transform: drawerOpen ? "translateX(0)" : "translateX(-100%)",
+        transition: "transform 0.28s cubic-bezier(0.4,0,0.2,1)",
+        display: "flex", flexDirection: "column",
+        overflowY: "auto",
+      }}>
+        {/* Drawer header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 20px", borderBottom: "1px solid #e2e8f0", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Filter</span>
+            {filterCount > 0 && (
+              <span style={{ background: "var(--color-accent)", color: "white", borderRadius: 9999, fontSize: 11, fontWeight: 800, padding: "2px 8px" }}>
+                {filterCount} active
+              </span>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            {hasFilters && (
+              <button onClick={clearFilters} style={{ fontSize: 12, color: "var(--color-accent)", fontWeight: 700, background: "none", border: "none", cursor: "pointer" }}>
+                Clear All
+              </button>
+            )}
+            <button onClick={() => setDrawerOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", display: "flex", padding: 4 }}>
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Drawer content */}
+        <div style={{ flex: 1, padding: "0 20px", overflowY: "auto" }}>
+
+          {/* Subcategory */}
+          {subcategories.length > 0 && (
+            <FilterSection title="Category">
+              <Link href={`/categories/${slug}`} onClick={() => setDrawerOpen(false)} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 14, fontWeight: !activeSub ? 700 : 400, color: !activeSub ? "var(--color-accent)" : "#374151", textDecoration: "none" }}>
+                <span>All</span>
+                <span style={{ color: "#94a3b8", fontSize: 12 }}>({products.length})</span>
+              </Link>
+              {subcategories.map(sub => {
+                const subSlug = sub.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+                const isActive = activeSub === subSlug;
+                const count = products.filter(p => p.subcategory?.toLowerCase() === sub.toLowerCase()).length;
+                return (
+                  <Link key={sub} href={`/categories/${slug}?sub=${subSlug}`} onClick={() => setDrawerOpen(false)} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 14, fontWeight: isActive ? 700 : 400, color: isActive ? "var(--color-accent)" : "#374151", textDecoration: "none" }}>
+                    <span>{sub}</span>
+                    <span style={{ color: "#94a3b8", fontSize: 12 }}>({count})</span>
+                  </Link>
+                );
+              })}
+            </FilterSection>
+          )}
+
+          {/* Brand */}
+          {brands.length > 1 && (
+            <FilterSection title="Brand">
+              {brands.map(brand => (
+                <label key={brand} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", cursor: "pointer", fontSize: 14, color: selectedBrands.has(brand) ? "var(--color-accent)" : "#374151", fontWeight: selectedBrands.has(brand) ? 700 : 400 }}>
+                  <input type="checkbox" checked={selectedBrands.has(brand)} onChange={() => toggleBrand(brand)} style={{ accentColor: "var(--color-accent)", width: 15, height: 15 }} />
+                  {brand}
+                </label>
+              ))}
+            </FilterSection>
+          )}
+
+          {/* Rating */}
+          <FilterSection title="Customer Rating">
+            {[4, 3, 2, 1].map(r => (
+              <label key={r} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", cursor: "pointer", fontSize: 14, color: minRating === r ? "var(--color-accent)" : "#374151", fontWeight: minRating === r ? 700 : 400 }}>
+                <input type="radio" name="rating" checked={minRating === r} onChange={() => setMinRating(minRating === r ? 0 : r)} style={{ accentColor: "var(--color-accent)" }} />
+                {"★".repeat(r)}{"☆".repeat(5 - r)} & Up
               </label>
             ))}
           </FilterSection>
-        )}
 
-        {/* Rating filter */}
-        <FilterSection title="Customer Rating">
-          {[4, 3, 2, 1].map(r => (
-            <label key={r} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0", cursor: "pointer", fontSize: 13, color: minRating === r ? "var(--color-accent)" : "#374151", fontWeight: minRating === r ? 700 : 400 }}>
-              <input type="radio" name="rating" checked={minRating === r} onChange={() => setMinRating(minRating === r ? 0 : r)} style={{ accentColor: "var(--color-accent)" }} />
-              {"★".repeat(r)}{"☆".repeat(5 - r)} & Up
-            </label>
-          ))}
-        </FilterSection>
-
-        {/* Price filter */}
-        {maxPrice > 0 && (
+          {/* Price */}
           <FilterSection title="Price">
-            {[
-              [0, 50],
-              [50, 100],
-              [100, 250],
-              [250, 500],
-              [500, 99999],
-            ].map(([min, max]) => {
-              const label = max === 99999 ? `$${min}+` : `$${min} – $${max}`;
+            {PRICE_BUCKETS.map(([min, max, label]) => {
               const active = priceRange[0] === min && priceRange[1] === max;
               return (
-                <label key={label} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 0", cursor: "pointer", fontSize: 13, color: active ? "var(--color-accent)" : "#374151", fontWeight: active ? 700 : 400 }}>
+                <label key={label} style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", cursor: "pointer", fontSize: 14, color: active ? "var(--color-accent)" : "#374151", fontWeight: active ? 700 : 400 }}>
                   <input type="radio" name="price" checked={active} onChange={() => setPriceRange(active ? [0, 99999] : [min, max])} style={{ accentColor: "var(--color-accent)" }} />
                   {label}
                 </label>
               );
             })}
           </FilterSection>
-        )}
 
-      </aside>
-
-      {/* ── Results area ── */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-
-        {/* Sort + view toggle bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16, background: "white", borderRadius: 8, border: "1px solid #e2e8f0", padding: "10px 16px", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13, color: "#64748b", marginRight: 4 }}>
-            <strong style={{ color: "#0f172a" }}>{filtered.length}</strong> results
-            {hasFilters && <span style={{ color: "var(--color-accent)", marginLeft: 6, fontSize: 12 }}>· Filtered</span>}
-          </span>
-
-          {/* Sort */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", whiteSpace: "nowrap" }}>Sort by:</label>
-            <select
-              value={sort}
-              onChange={e => setSort(e.target.value as SortKey)}
-              style={{ fontSize: 13, border: "1px solid #e2e8f0", borderRadius: 6, padding: "5px 10px", background: "white", color: "#0f172a", cursor: "pointer" }}
-            >
-              {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-            </select>
-          </div>
-
-          {/* Grid/List toggle */}
-          <div style={{ display: "flex", border: "1px solid #e2e8f0", borderRadius: 6, overflow: "hidden" }}>
-            {(["list", "grid"] as const).map(v => (
-              <button key={v} onClick={() => setView(v)} title={v === "list" ? "List view" : "Grid view"} style={{ padding: "6px 10px", background: view === v ? "#f1f5f9" : "white", border: "none", cursor: "pointer", display: "flex", alignItems: "center", color: view === v ? "var(--color-accent)" : "#94a3b8" }}>
-                {v === "list" ? (
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                ) : (
-                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" />
-                    <rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" />
-                  </svg>
-                )}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* Products */}
-        {filtered.length === 0 ? (
-          <div style={{ background: "white", borderRadius: 8, border: "1px solid #e2e8f0", padding: "64px 24px", textAlign: "center" }}>
-            <p style={{ color: "#94a3b8", fontSize: 15, margin: "0 0 12px" }}>No products match your filters.</p>
-            <button onClick={clearFilters} style={{ background: "var(--color-accent)", color: "white", border: "none", borderRadius: 6, padding: "8px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-              Clear Filters
-            </button>
-          </div>
-        ) : view === "list" ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {filtered.map(product => <ProductListItem key={product.id} product={product} />)}
-          </div>
-        ) : (
-          <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
-            {filtered.map(product => <ProductCard key={product.id} product={product} />)}
-          </div>
-        )}
+        {/* Drawer footer */}
+        <div style={{ padding: "16px 20px", borderTop: "1px solid #e2e8f0", flexShrink: 0 }}>
+          <button
+            onClick={() => setDrawerOpen(false)}
+            style={{ width: "100%", background: "var(--color-accent)", color: "white", border: "none", borderRadius: 8, padding: "12px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}
+          >
+            Show {filtered.length} Results
+          </button>
+        </div>
       </div>
     </div>
   );
