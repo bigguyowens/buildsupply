@@ -315,17 +315,10 @@ export function Header({ session }: { session: SessionUser | null }) {
 
           {/* Right: Subcategory grid */}
           <div style={{ flex: 1, padding: "20px 28px", maxHeight: 480, overflowY: "auto" }}>
-            <div style={{ marginBottom: 12, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ marginBottom: 12 }}>
               <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>
                 {activeCatLabel}
               </span>
-              <Link
-                href={`/categories/${activeCategory}`}
-                onClick={() => setMegaOpen(false)}
-                style={{ fontSize: 12, color: "var(--color-accent)", textDecoration: "none", fontWeight: 600 }}
-              >
-                View All →
-              </Link>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "4px 12px" }}>
               {activeSubs.map((sub) => (
@@ -343,6 +336,15 @@ export function Header({ session }: { session: SessionUser | null }) {
                   {sub.label}
                 </Link>
               ))}
+            </div>
+            <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid #e5e7eb" }}>
+              <Link
+                href={`/categories/${activeCategory}`}
+                onClick={() => setMegaOpen(false)}
+                style={{ fontSize: 12, color: "var(--color-accent)", textDecoration: "none", fontWeight: 700 }}
+              >
+                View All {activeCatLabel} →
+              </Link>
             </div>
           </div>
         </div>
