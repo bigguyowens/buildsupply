@@ -27,8 +27,14 @@ export function ProductImage({ src, alt, fill, sizes, priority, className, style
         alt={alt}
         className={className}
         style={{
-          width: fill ? "100%" : undefined,
-          height: fill ? "100%" : undefined,
+          // fill=true means Next <Image> renders as position:absolute inset-0
+          // We must match that so the parent aspect-ratio container works correctly
+          ...(fill ? {
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+          } : {}),
           objectFit: "contain",
           ...style,
         }}
