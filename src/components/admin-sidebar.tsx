@@ -5,15 +5,24 @@ import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
 import type { SessionUser } from "@/lib/auth";
 
-const NAV = [
-  { label: "Dashboard",    href: "/admin",              icon: "▦" },
-  { label: "Orders",       href: "/admin/orders",       icon: "📦" },
-  { label: "Customers",    href: "/admin/customers",    icon: "👥" },
-  { label: "Products",     href: "/admin/products",     icon: "🔧" },
-  { label: "Wishlists",    href: "/admin/wishlists",    icon: "♡" },
-  { label: "Homepage",     href: "/admin/homepage",     icon: "🏠" },
-  { label: "About Us",     href: "/admin/about",        icon: "🏢" },
-  { label: "Error Logs",   href: "/admin/error-logs",   icon: "🔴" },
+type NavItem =
+  | { type: "link";      label: string; href: string; icon: string }
+  | { type: "separator"; label?: string };
+
+const NAV: NavItem[] = [
+  { type: "link",      label: "Dashboard",   href: "/admin",              icon: "▦"  },
+  { type: "separator" },
+  { type: "link",      label: "Orders",      href: "/admin/orders",       icon: "📦" },
+  { type: "link",      label: "Customers",   href: "/admin/customers",    icon: "👥" },
+  { type: "link",      label: "Products",    href: "/admin/products",     icon: "🔧" },
+  { type: "link",      label: "Wishlists",   href: "/admin/wishlists",    icon: "♡"  },
+  { type: "separator" },
+  { type: "link",      label: "Contact Forms", href: "/admin/contact",    icon: "✉️"  },
+  { type: "separator" },
+  { type: "link",      label: "Homepage",    href: "/admin/homepage",     icon: "🏠" },
+  { type: "link",      label: "About Us",    href: "/admin/about",        icon: "🏢" },
+  { type: "separator" },
+  { type: "link",      label: "Error Logs",  href: "/admin/error-logs",   icon: "🔴" },
 ];
 
 export function AdminSidebar({ session }: { session: SessionUser }) {
@@ -37,27 +46,33 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
       </div>
 
       {/* Nav */}
-      <nav style={{ flex: 1, padding: "12px 8px" }}>
-        {NAV.map(item => {
+      <nav style={{ flex: 1, padding: "12px 8px", overflowY: "auto" }}>
+        {NAV.map((item, i) => {
+          if (item.type === "separator") {
+            return (
+              <div key={`sep-${i}`} style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 10px" }} />
+            );
+          }
           const active = item.href === "/admin"
             ? pathname === "/admin"
             : pathname.startsWith(item.href);
           return (
             <Link key={item.href} href={item.href} style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "9px 10px",
-              borderRadius: 6, marginBottom: 2, textDecoration: "none", fontSize: 13, fontWeight: 600,
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "9px 10px", borderRadius: 6, marginBottom: 1,
+              textDecoration: "none", fontSize: 13, fontWeight: 600,
               background: active ? "rgba(249,115,22,0.15)" : "transparent",
               color: active ? "#f97316" : "#94a3b8",
               transition: "all 0.15s",
             }}>
-              <span style={{ fontSize: 15 }}>{item.icon}</span>
+              <span style={{ fontSize: 14 }}>{item.icon}</span>
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      {/* User + back to site */}
+      {/* Footer */}
       <div style={{ padding: "12px 8px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 6, textDecoration: "none", color: "#64748b", fontSize: 12, marginBottom: 4 }}>
           ← Back to Site
