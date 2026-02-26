@@ -14,15 +14,6 @@ type Props = {
   searchParams: Promise<{ sub?: string }>;
 };
 
-function slugToName(slug: string): string {
-  return slug
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ")
-    .replace("And", "&")
-    .replace("Ppe", "PPE");
-}
-
 function subSlugToName(slug: string): string {
   return slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
@@ -31,18 +22,20 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { sub }  = await searchParams;
 
-  const categoryName   = slugToName(slug);
+  // Always fetch category first so we get the REAL name from DB (handles & in names)
+  const category = await getCategoryBySlug(slug);
+  const categoryName = category?.name ?? slug; // fallback to slug if not found
+
   const subcategoryName = sub ? subSlugToName(sub) : undefined;
 
-  const [category, products, subcategories] = await Promise.all([
-    getCategoryBySlug(slug),
+  const [products, subcategories] = await Promise.all([
     subcategoryName
       ? getProductsBySubcategory(categoryName, subcategoryName)
       : getProductsByCategory(categoryName),
     getSubcategoriesByCategory(categoryName),
   ]);
 
-  if (!category && products.length === 0) notFound();
+  if (!category) notFound();
 
   return (
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>

@@ -27,13 +27,14 @@ function StarRating({ rating }: { rating: number }) {
 export function ProductCard({ product }: ProductCardProps) {
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
   const [quantity, setQuantity] = useState(1);
+  const imageSrc = product.image && product.image.trim() !== "" ? product.image : "/no-image.svg";
 
   return (
     <article className="flex flex-col rounded bg-white border border-[var(--color-border)] hover:shadow-lg transition-shadow">
       {/* Image */}
       <Link href={`/products/${product.slug}`} className="relative block aspect-[4/3] overflow-hidden rounded-t bg-gray-50">
         <Image
-          src={product.image}
+          src={imageSrc}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-300 hover:scale-103"

@@ -52,6 +52,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Ensure arrays are actually arrays (defensive against DB returning strings)
   const tags    = Array.isArray(product.tags)    ? product.tags    : [];
   const gallery = Array.isArray(product.gallery) ? product.gallery : [];
+  const mainImage = product.image && product.image.trim() !== "" ? product.image : "/no-image.svg";
 
   const session = await getSession();
   const { lists, activeIds } = session
@@ -83,7 +84,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Left: images */}
           <div className="space-y-4">
             <div className="relative aspect-video overflow-hidden rounded bg-white border" style={{ borderColor: "var(--color-border)" }}>
-              <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(min-width:1024px) 55vw, 100vw" priority />
+              <Image src={mainImage} alt={product.name} fill className="object-cover" sizes="(min-width:1024px) 55vw, 100vw" priority />
             </div>
             {gallery.length > 0 && (
               <div className="grid grid-cols-4 gap-3">
