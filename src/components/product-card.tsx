@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { QuantitySelector } from "@/components/quantity-selector";
 import { WishlistButton } from "@/components/wishlist-button";
+import { ProductImage } from "@/components/product-image";
 import type { Product } from "@/lib/products";
 
 type ProductCardProps = {
@@ -27,14 +27,13 @@ function StarRating({ rating }: { rating: number }) {
 export function ProductCard({ product }: ProductCardProps) {
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
   const [quantity, setQuantity] = useState(1);
-  const imageSrc = product.image && product.image.trim() !== "" ? product.image : "/no-image.svg";
 
   return (
     <article className="flex flex-col rounded bg-white border border-[var(--color-border)] hover:shadow-lg transition-shadow">
       {/* Image */}
       <Link href={`/products/${product.slug}`} className="relative block aspect-[4/3] overflow-hidden rounded-t bg-gray-50">
-        <Image
-          src={imageSrc}
+        <ProductImage
+          src={product.image}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-300 hover:scale-103"

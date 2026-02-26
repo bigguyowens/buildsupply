@@ -9,10 +9,12 @@ const nextConfig: NextConfig = {
       },
     ],
     localPatterns: [
-      {
-        pathname: "/logo-graphite.png",
-      },
+      { pathname: "/logo-graphite.png" },
+      { pathname: "/no-image.svg" },
     ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 
