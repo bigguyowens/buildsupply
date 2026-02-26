@@ -7,6 +7,7 @@ type FilterSidebarProps = {
   selectedPrice?: string;
   basePath: string;
   initialParams?: Record<string, string>;
+  onNavigate?: () => void;
 };
 
 function buildHref(basePath: string, initial: Record<string, string>, updates: Record<string, string | undefined>) {
@@ -19,7 +20,7 @@ function buildHref(basePath: string, initial: Record<string, string>, updates: R
   return query ? `${basePath}?${query}` : basePath;
 }
 
-export function FilterSidebar({ categories, selectedCategory, selectedPrice, basePath, initialParams = {} }: FilterSidebarProps) {
+export function FilterSidebar({ categories, selectedCategory, selectedPrice, basePath, initialParams = {}, onNavigate }: FilterSidebarProps) {
   const unique = Array.from(new Set(categories)).sort();
 
   return (
@@ -30,6 +31,7 @@ export function FilterSidebar({ categories, selectedCategory, selectedPrice, bas
         <div className="flex flex-col gap-1 text-sm">
           <Link
             href={buildHref(basePath, initialParams, { category: undefined })}
+            onClick={onNavigate}
             className={`rounded px-2 py-1.5 transition-colors ${!selectedCategory ? "bg-[var(--color-primary)] text-white font-semibold" : "text-[var(--color-foreground)] hover:bg-gray-100"}`}
           >
             All Categories
@@ -38,6 +40,7 @@ export function FilterSidebar({ categories, selectedCategory, selectedPrice, bas
             <Link
               key={cat}
               href={buildHref(basePath, initialParams, { category: cat })}
+              onClick={onNavigate}
               className={`rounded px-2 py-1.5 transition-colors ${selectedCategory === cat ? "bg-[var(--color-primary)] text-white font-semibold" : "text-[var(--color-foreground)] hover:bg-gray-100"}`}
             >
               {cat}
@@ -54,6 +57,7 @@ export function FilterSidebar({ categories, selectedCategory, selectedPrice, bas
             <Link
               key={option.value || "all"}
               href={buildHref(basePath, initialParams, { price: option.value || undefined })}
+              onClick={onNavigate}
               className={`rounded px-2 py-1.5 transition-colors ${
                 (selectedPrice === option.value) || (!selectedPrice && option.value === "")
                   ? "bg-[var(--color-primary)] text-white font-semibold"

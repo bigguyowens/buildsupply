@@ -175,7 +175,7 @@ export function Header({ session }: { session: SessionUser | null }) {
     <header ref={headerRef} className="sticky top-0 z-40 shadow-md" style={{ background: "var(--color-primary)" }}>
 
       {/* ── Utility bar ───────────────────────────────────── */}
-      <div style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
+      <div className="util-bar" style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 16px" }}>
           <span>Free shipping on orders $500+</span>
           <div style={{ display: "flex", gap: 16 }}>
@@ -197,7 +197,7 @@ export function Header({ session }: { session: SessionUser | null }) {
       </div>
 
       {/* ── Main bar ──────────────────────────────────────── */}
-      <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", alignItems: "center", gap: 12, padding: "10px 16px" }}>
+      <div className="header-main" style={{ maxWidth: 1280, margin: "0 auto", display: "flex", alignItems: "center", gap: 12, padding: "10px 16px" }}>
         {/* Logo */}
         <Link href="/" style={{ flexShrink: 0, color: "white", fontWeight: 700, fontSize: 20, textDecoration: "none", letterSpacing: "-0.02em", marginRight: 8 }}>
           <span style={{ color: "var(--color-accent)" }}>Build</span>Supply
@@ -207,6 +207,7 @@ export function Header({ session }: { session: SessionUser | null }) {
         <div style={{ position: "relative", flexShrink: 0 }} onMouseEnter={openMega} onMouseLeave={closeMega}>
           <button
             onClick={() => setMegaOpen(o => !o)}
+            className="shop-btn"
             style={{
               display: "flex", alignItems: "center", gap: 6,
               background: megaOpen ? "var(--color-accent)" : "rgba(255,255,255,0.12)",
@@ -218,7 +219,7 @@ export function Header({ session }: { session: SessionUser | null }) {
             <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-            Shop by Category
+            <span className="shop-btn-text">Shop by Category</span>
             <svg
               width="12" height="12" fill="none" viewBox="0 0 10 6" stroke="currentColor" strokeWidth={2}
               style={{ transition: "transform 0.2s", transform: megaOpen ? "rotate(180deg)" : "rotate(0deg)" }}
@@ -228,11 +229,8 @@ export function Header({ session }: { session: SessionUser | null }) {
           </button>
         </div>
 
-        {/* Search bar */}
-        <div style={{ flex: 1, display: "none" }} className="md-search">
-          <HeaderSearch />
-        </div>
-        <div className="hidden md:flex flex-1">
+        {/* Search bar — hidden on mobile, shown in mobile menu */}
+        <div className="header-desktop-search hidden md:flex flex-1">
           <HeaderSearch />
         </div>
 
@@ -242,6 +240,7 @@ export function Header({ session }: { session: SessionUser | null }) {
         {/* Cart */}
         <Link
           href="/cart"
+          className="cart-btn"
           style={{
             display: "flex", alignItems: "center", gap: 8,
             color: "white", textDecoration: "none", border: "1px solid rgba(255,255,255,0.3)",
@@ -252,7 +251,7 @@ export function Header({ session }: { session: SessionUser | null }) {
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          Cart
+          <span className="cart-btn-text">Cart</span>
           {itemCount > 0 && (
             <span style={{ background: "var(--color-accent)", color: "white", borderRadius: 9999, padding: "1px 7px", fontSize: 11, fontWeight: 700 }}>
               {itemCount}

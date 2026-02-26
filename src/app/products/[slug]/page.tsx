@@ -79,7 +79,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </div>
 
       <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
+        <div className="pdp-grid grid gap-8 lg:grid-cols-[1fr_380px]">
 
           {/* Left: images */}
           <div className="space-y-4">

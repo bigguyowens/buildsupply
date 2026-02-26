@@ -83,7 +83,7 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 24px", display: "grid", gridTemplateColumns: "1fr 440px", gap: 48, alignItems: "start" }}>
+      <div className="contact-layout" style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 24px", display: "grid", gridTemplateColumns: "1fr 440px", gap: 48, alignItems: "start" }}>
 
         {/* ── Contact Form ───────────────────────────── */}
         <div>
@@ -103,7 +103,7 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={submit}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }} className="contact-form-grid">
                   <div>
                     <label style={labelStyle}>Full Name *</label>
                     <input required value={form.name} onChange={e => set("name", e.target.value)} placeholder="Jane Smith" style={inputStyle} />

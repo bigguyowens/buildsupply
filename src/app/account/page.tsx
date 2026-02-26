@@ -47,10 +47,27 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 16px", display: "grid", gridTemplateColumns: "240px 1fr", gap: 24, alignItems: "start" }}>
+      <main className="account-layout" style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 16px", display: "grid", gridTemplateColumns: "240px 1fr", gap: 24, alignItems: "start" }}>
+
+        {/* Mobile quick-nav (shows when sidebar is hidden) */}
+        <div className="md:hidden" style={{ gridColumn: "1 / -1", display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 }}>
+          {[
+            { label: "Dashboard", href: "/account" },
+            { label: "Orders",    href: "/account/orders" },
+            { label: "Wishlists", href: "/account/wishlist" },
+            { label: "Profile",   href: "/account/profile" },
+            { label: "Shop",      href: "/products" },
+          ].map(item => (
+            <Link key={item.href} href={item.href} style={{
+              flexShrink: 0, padding: "7px 14px", borderRadius: 20, fontSize: 13, fontWeight: 600,
+              background: "white", border: "1px solid var(--color-border)",
+              color: "var(--color-foreground)", textDecoration: "none", whiteSpace: "nowrap",
+            }}>{item.label}</Link>
+          ))}
+        </div>
 
         {/* Sidebar */}
-        <aside>
+        <aside className="account-sidebar">
           <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", overflow: "hidden" }}>
             <div style={{ padding: "16px", borderBottom: "1px solid var(--color-border)" }}>
               <div style={{
@@ -106,7 +123,7 @@ export default async function AccountPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
           {/* Stats row */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }} className="account-stats">
             {[
               { label: "Total Orders",   value: orders.length },
               { label: "Pending",        value: orders.filter(o => o.status === "pending").length },
@@ -140,7 +157,7 @@ export default async function AccountPage() {
                 </Link>
               </div>
             ) : (
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <table className="orders-table" style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid var(--color-border)", background: "#f9fafb" }}>
                     {["Order #", "Date", "Items", "Total", "Status"].map((h) => (
@@ -151,17 +168,17 @@ export default async function AccountPage() {
                 <tbody>
                   {orders.map((order) => (
                     <tr key={order.id} style={{ borderBottom: "1px solid var(--color-border)" }}>
-                      <td style={{ padding: "12px 16px", fontWeight: 600 }}>#{order.id}</td>
-                      <td style={{ padding: "12px 16px", color: "var(--color-muted)" }}>
+                      <td data-label="Order #" style={{ padding: "12px 16px", fontWeight: 600 }}>#{order.id}</td>
+                      <td data-label="Date" style={{ padding: "12px 16px", color: "var(--color-muted)" }}>
                         {new Date(order.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       </td>
-                      <td style={{ padding: "12px 16px", color: "var(--color-muted)" }}>
+                      <td data-label="Items" style={{ padding: "12px 16px", color: "var(--color-muted)" }}>
                         {Array.isArray(order.items) ? order.items.length : 0} item{order.items?.length === 1 ? "" : "s"}
                       </td>
-                      <td style={{ padding: "12px 16px", fontWeight: 600 }}>
+                      <td data-label="Total" style={{ padding: "12px 16px", fontWeight: 600 }}>
                         ${Number(order.total).toFixed(2)}
                       </td>
-                      <td style={{ padding: "12px 16px" }}>
+                      <td data-label="Status" style={{ padding: "12px 16px" }}>
                         <span style={{
                           padding: "3px 10px", borderRadius: 9999, fontSize: 11, fontWeight: 700, textTransform: "uppercase",
                           background: order.status === "completed" ? "#dcfce7" : order.status === "pending" ? "#fef9c3" : "#f3f4f6",

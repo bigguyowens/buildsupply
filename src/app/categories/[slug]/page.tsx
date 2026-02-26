@@ -22,10 +22,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { slug } = await params;
   const { sub }  = await searchParams;
 
-  // Always fetch category first so we get the REAL name from DB (handles & in names)
   const category = await getCategoryBySlug(slug);
-  const categoryName = category?.name ?? slug; // fallback to slug if not found
-
+  const categoryName = category?.name ?? slug;
   const subcategoryName = sub ? subSlugToName(sub) : undefined;
 
   const [products, subcategories] = await Promise.all([
@@ -41,12 +39,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
 
       {/* Category hero */}
-      <div className="relative overflow-hidden border-b" style={{ background: "var(--color-primary)", minHeight: 180 }}>
+      <div className="relative overflow-hidden border-b" style={{ background: "var(--color-primary)", minHeight: 160 }}>
         {category?.image && (
           <Image src={category.image} alt={category.name ?? ""} fill className="object-cover opacity-20" />
         )}
-        <div className="relative z-10 mx-auto max-w-7xl px-4 py-8">
-          <div className="flex items-center gap-2 text-xs text-white/50 mb-3">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-6">
+          <div className="flex items-center gap-2 text-xs text-white/50 mb-2">
             <Link href="/categories" className="hover:text-white/80">All Categories</Link>
             <span>/</span>
             {subcategoryName ? (
@@ -59,22 +57,47 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               <span className="text-white/80">{category?.name ?? categoryName}</span>
             )}
           </div>
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-white">
             {subcategoryName ?? category?.name ?? categoryName}
           </h1>
           {!subcategoryName && category?.description && (
-            <p className="text-white/70 mt-2 max-w-xl text-sm">{category.description}</p>
+            <p className="text-white/70 mt-1 max-w-xl text-sm">{category.description}</p>
           )}
-          <p className="text-white/40 text-xs mt-3">{products.length} products</p>
+          <p className="text-white/40 text-xs mt-2">{products.length} products</p>
         </div>
       </div>
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
+      {/* Mobile subcategory scroll bar */}
+      {subcategories.length > 0 && (
+        <div className="category-sub-mobile" style={{ display: "none" }}>
+          <Link
+            href={`/categories/${slug}`}
+            className={`category-sub-chip${!sub ? " active" : ""}`}
+          >
+            All
+          </Link>
+          {subcategories.map((subcat) => {
+            const subSlug = subcat.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+            const isActive = sub === subSlug;
+            return (
+              <Link
+                key={subcat}
+                href={`/categories/${slug}?sub=${subSlug}`}
+                className={`category-sub-chip${isActive ? " active" : ""}`}
+              >
+                {subcat}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      <main className="mx-auto max-w-7xl px-4 py-6">
         <div className="flex gap-8">
 
-          {/* Subcategory sidebar */}
+          {/* Desktop subcategory sidebar */}
           {subcategories.length > 0 && (
-            <aside className="hidden md:block w-52 flex-shrink-0">
+            <aside className="category-sub-sidebar hidden md:block w-52 flex-shrink-0">
               <div className="rounded border border-[var(--color-border)] bg-white overflow-hidden sticky top-24">
                 <div className="px-4 py-3 text-xs font-bold uppercase tracking-widest text-[var(--color-muted)] border-b border-[var(--color-border)]">
                   Filter by Type
@@ -107,7 +130,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           {/* Product grid */}
           <div className="flex-1 min-w-0">
             {products.length > 0 ? (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))" }}>
                 {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}

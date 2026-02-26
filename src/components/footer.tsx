@@ -24,9 +24,9 @@ export function Footer() {
   return (
     <footer style={{ background: "var(--color-primary)", color: "#fff" }}>
       <div className="mx-auto max-w-7xl px-4 py-12">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="footer-grid grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand column */}
-          <div className="space-y-3">
+          <div className="footer-brand space-y-3">
             <div className="text-xl font-bold tracking-tight">
               <span style={{ color: "var(--color-accent)" }}>Build</span>Supply
             </div>

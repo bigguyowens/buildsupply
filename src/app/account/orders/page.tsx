@@ -53,7 +53,7 @@ export default async function OrderHistoryPage() {
                   <div style={{
                     background: "white", borderRadius: 8, border: "1px solid var(--color-border)",
                     padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
-                  }}>
+                  }} className="order-row">
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
                         <span style={{ fontWeight: 700, fontSize: 15 }}>Order #{order.id}</span>
@@ -67,7 +67,7 @@ export default async function OrderHistoryPage() {
                         {items.length > 0 && ` · ${items[0].name}${items.length > 1 ? ` +${items.length - 1} more` : ""}`}
                       </p>
                     </div>
-                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                    <div className="order-row-right" style={{ textAlign: "right", flexShrink: 0 }}>
                       <p style={{ fontWeight: 700, fontSize: 16, margin: 0 }}>{fmt(Number(order.total))}</p>
                       <p style={{ color: "var(--color-accent)", fontSize: 12, margin: "2px 0 0", fontWeight: 600 }}>View details →</p>
                     </div>

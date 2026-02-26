@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { getAboutContent } from "@/app/actions/about";
 
-// ── Types ─────────────────────────────────────────────────
 type HeroContent     = { tag?: string; headline?: string; subtext?: string; cta_primary_text?: string; cta_primary_link?: string; cta_secondary_text?: string; cta_secondary_link?: string; bg_image?: string };
 type StatsContent    = { stats?: { value: string; label: string }[] };
 type MissionContent  = { tag?: string; headline?: string; paragraphs?: string[]; image?: string; image_caption?: string };
@@ -10,7 +9,6 @@ type ValuesContent   = { tag?: string; headline?: string; values?: { icon: strin
 type LeaderContent   = { tag?: string; headline?: string; people?: { name: string; title: string; image: string; bio: string }[] };
 type CtaContent      = { headline?: string; subtext?: string; cta_primary_text?: string; cta_primary_link?: string; cta_secondary_text?: string; cta_secondary_link?: string };
 
-// ── Fallbacks ─────────────────────────────────────────────
 const HERO_DEFAULT: HeroContent = {
   tag: "Our Story",
   headline: "Supply built for people who build things.",
@@ -47,17 +45,17 @@ export default async function AboutPage() {
 
       {/* ── Hero ──────────────────────────────────────── */}
       {heroOn && (
-        <div style={{ position: "relative", overflow: "hidden", background: "var(--color-primary)", minHeight: 420, display: "flex", alignItems: "center" }}>
+        <div style={{ position: "relative", overflow: "hidden", background: "var(--color-primary)", minHeight: 360, display: "flex", alignItems: "center" }}>
           <div style={{ position: "absolute", inset: 0, opacity: 0.08, backgroundImage: "repeating-linear-gradient(45deg, white 0, white 1px, transparent 0, transparent 50%)", backgroundSize: "20px 20px" }} />
           {hero.bg_image && (
             <div style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "45%", opacity: 0.15, backgroundImage: `url(${hero.bg_image})`, backgroundSize: "cover", backgroundPosition: "center" }} />
           )}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(90deg, var(--color-primary) 55%, transparent 100%)" }} />
-          <div style={{ position: "relative", zIndex: 2, maxWidth: 1280, margin: "0 auto", padding: "80px 24px" }}>
+          <div style={{ position: "relative", zIndex: 2, maxWidth: 1280, margin: "0 auto", padding: "60px 24px", width: "100%" }}>
             {hero.tag && <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--color-accent)", marginBottom: 16 }}>{hero.tag}</p>}
-            <h1 style={{ fontSize: "clamp(36px, 5vw, 60px)", fontWeight: 900, color: "white", lineHeight: 1.1, margin: "0 0 20px", maxWidth: 600 }}>{hero.headline}</h1>
-            <p style={{ fontSize: 18, color: "rgba(255,255,255,0.7)", maxWidth: 480, lineHeight: 1.7, margin: "0 0 32px" }}>{hero.subtext}</p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <h1 style={{ fontSize: "clamp(28px, 5vw, 52px)", fontWeight: 900, color: "white", lineHeight: 1.1, margin: "0 0 18px", maxWidth: 600 }}>{hero.headline}</h1>
+            <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", maxWidth: 480, lineHeight: 1.7, margin: "0 0 28px" }}>{hero.subtext}</p>
+            <div className="about-hero-btns" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               {hero.cta_primary_text && <Link href={hero.cta_primary_link ?? "/products"} style={{ display: "inline-block", padding: "12px 28px", borderRadius: 6, background: "var(--color-accent)", color: "white", textDecoration: "none", fontWeight: 700, fontSize: 14 }}>{hero.cta_primary_text}</Link>}
               {hero.cta_secondary_text && <Link href={hero.cta_secondary_link ?? "/contact"} style={{ display: "inline-block", padding: "12px 28px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.3)", color: "white", textDecoration: "none", fontWeight: 700, fontSize: 14 }}>{hero.cta_secondary_text}</Link>}
             </div>
@@ -68,11 +66,11 @@ export default async function AboutPage() {
       {/* ── Stats bar ──────────────────────────────────── */}
       {statsOn && stats.stats && stats.stats.length > 0 && (
         <div style={{ background: "var(--color-accent)", padding: "0 24px" }}>
-          <div style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: `repeat(${stats.stats.length}, 1fr)` }}>
+          <div className="about-stats-grid" style={{ maxWidth: 1280, margin: "0 auto", display: "grid", gridTemplateColumns: `repeat(${stats.stats.length}, 1fr)` }}>
             {stats.stats.map((s, i) => (
-              <div key={i} style={{ padding: "28px 0", textAlign: "center", borderRight: i < stats.stats!.length - 1 ? "1px solid rgba(255,255,255,0.25)" : "none" }}>
-                <p style={{ fontSize: 34, fontWeight: 900, color: "white", margin: 0, lineHeight: 1 }}>{s.value}</p>
-                <p style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.75)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</p>
+              <div key={i} className="about-stats-item" style={{ padding: "24px 0", textAlign: "center", borderRight: i < stats.stats!.length - 1 ? "1px solid rgba(255,255,255,0.25)" : "none" }}>
+                <p style={{ fontSize: 30, fontWeight: 900, color: "white", margin: 0, lineHeight: 1 }}>{s.value}</p>
+                <p style={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.75)", margin: "6px 0 0", textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</p>
               </div>
             ))}
           </div>
@@ -81,18 +79,18 @@ export default async function AboutPage() {
 
       {/* ── Mission ────────────────────────────────────── */}
       {missionOn && mission.headline && (
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "80px 24px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 24px" }}>
+          <div className="about-mission-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56, alignItems: "center" }}>
             <div>
               {mission.tag && <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--color-accent)", marginBottom: 12 }}>{mission.tag}</p>}
-              <h2 style={{ fontSize: 36, fontWeight: 900, lineHeight: 1.2, margin: "0 0 24px", color: "var(--color-foreground)" }}>{mission.headline}</h2>
+              <h2 style={{ fontSize: "clamp(26px, 3vw, 36px)", fontWeight: 900, lineHeight: 1.2, margin: "0 0 20px", color: "var(--color-foreground)" }}>{mission.headline}</h2>
               {(mission.paragraphs ?? []).map((p, i) => (
-                <p key={i} style={{ fontSize: 16, lineHeight: 1.8, color: "#475569", marginBottom: 20 }}>{p}</p>
+                <p key={i} style={{ fontSize: 15, lineHeight: 1.8, color: "#475569", marginBottom: 16 }}>{p}</p>
               ))}
             </div>
             {mission.image && (
               <div style={{ position: "relative", borderRadius: 12, overflow: "hidden", aspectRatio: "4/3" }}>
-                <Image src={mission.image} alt="Mission" fill style={{ objectFit: "cover" }} sizes="(max-width: 768px) 100vw, 50vw" />
+                <Image src={mission.image} alt="Mission" fill style={{ objectFit: "cover" }} sizes="(max-width: 480px) 100vw, 50vw" />
                 {mission.image_caption && (
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(0deg, rgba(15,23,42,0.8) 0%, transparent 100%)", padding: "24px 20px 20px" }}>
                     <p style={{ color: "rgba(255,255,255,0.9)", fontSize: 14, fontWeight: 600, margin: 0 }}>{mission.image_caption}</p>
@@ -106,18 +104,18 @@ export default async function AboutPage() {
 
       {/* ── Values ─────────────────────────────────────── */}
       {valuesOn && values.values && values.values.length > 0 && (
-        <div style={{ background: "#f8fafc", padding: "80px 24px" }}>
+        <div style={{ background: "#f8fafc", padding: "64px 24px" }}>
           <div style={{ maxWidth: 1280, margin: "0 auto" }}>
-            <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ textAlign: "center", marginBottom: 44 }}>
               {values.tag && <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--color-accent)", marginBottom: 12 }}>{values.tag}</p>}
-              {values.headline && <h2 style={{ fontSize: 36, fontWeight: 900, margin: 0, color: "var(--color-foreground)" }}>{values.headline}</h2>}
+              {values.headline && <h2 style={{ fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 900, margin: 0, color: "var(--color-foreground)" }}>{values.headline}</h2>}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
+            <div className="about-values-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20 }}>
               {values.values.map((v, i) => (
-                <div key={i} style={{ background: "white", borderRadius: 10, padding: "28px 24px", border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
-                  <div style={{ fontSize: 36, marginBottom: 16 }}>{v.icon}</div>
-                  <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 10px", color: "var(--color-foreground)" }}>{v.title}</h3>
-                  <p style={{ fontSize: 14, lineHeight: 1.7, color: "#64748b", margin: 0 }}>{v.body}</p>
+                <div key={i} className="about-values-item" style={{ background: "white", borderRadius: 10, padding: "24px 20px", border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+                  <div style={{ fontSize: 32, marginBottom: 12 }}>{v.icon}</div>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 8px", color: "var(--color-foreground)" }}>{v.title}</h3>
+                  <p style={{ fontSize: 13, lineHeight: 1.7, color: "#64748b", margin: 0 }}>{v.body}</p>
                 </div>
               ))}
             </div>
@@ -127,23 +125,23 @@ export default async function AboutPage() {
 
       {/* ── Leadership ─────────────────────────────────── */}
       {leadershipOn && leadership.people && leadership.people.length > 0 && (
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "80px 24px" }}>
-          <div style={{ textAlign: "center", marginBottom: 48 }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "64px 24px" }}>
+          <div style={{ textAlign: "center", marginBottom: 40 }}>
             {leadership.tag && <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--color-accent)", marginBottom: 12 }}>{leadership.tag}</p>}
-            {leadership.headline && <h2 style={{ fontSize: 36, fontWeight: 900, margin: 0, color: "var(--color-foreground)" }}>{leadership.headline}</h2>}
+            {leadership.headline && <h2 style={{ fontSize: "clamp(24px, 3vw, 34px)", fontWeight: 900, margin: 0, color: "var(--color-foreground)" }}>{leadership.headline}</h2>}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 28 }}>
+          <div className="about-leadership-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 24 }}>
             {leadership.people.map((person, i) => (
               <div key={i} style={{ background: "white", borderRadius: 10, overflow: "hidden", border: "1px solid #e2e8f0", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
                 {person.image && (
-                  <div style={{ position: "relative", height: 220 }}>
+                  <div style={{ position: "relative", height: 200 }}>
                     <Image src={person.image} alt={person.name} fill style={{ objectFit: "cover" }} sizes="300px" />
                   </div>
                 )}
-                <div style={{ padding: "20px" }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 3px", color: "var(--color-foreground)" }}>{person.name}</h3>
-                  <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--color-accent)", margin: "0 0 12px" }}>{person.title}</p>
-                  <p style={{ fontSize: 13, lineHeight: 1.6, color: "#64748b", margin: 0 }}>{person.bio}</p>
+                <div style={{ padding: "18px" }}>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, margin: "0 0 3px", color: "var(--color-foreground)" }}>{person.name}</h3>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--color-accent)", margin: "0 0 10px" }}>{person.title}</p>
+                  <p style={{ fontSize: 12, lineHeight: 1.6, color: "#64748b", margin: 0 }}>{person.bio}</p>
                 </div>
               </div>
             ))}
@@ -153,12 +151,12 @@ export default async function AboutPage() {
 
       {/* ── CTA ────────────────────────────────────────── */}
       {ctaOn && cta.headline && (
-        <div style={{ background: "var(--color-primary)", padding: "64px 24px", textAlign: "center" }}>
-          <h2 style={{ fontSize: 30, fontWeight: 900, color: "white", margin: "0 0 12px" }}>{cta.headline}</h2>
-          {cta.subtext && <p style={{ fontSize: 16, color: "rgba(255,255,255,0.65)", maxWidth: 480, margin: "0 auto 28px" }}>{cta.subtext}</p>}
-          <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            {cta.cta_primary_text && <Link href={cta.cta_primary_link ?? "/contact"} style={{ display: "inline-block", padding: "13px 32px", borderRadius: 6, background: "var(--color-accent)", color: "white", textDecoration: "none", fontWeight: 700, fontSize: 14 }}>{cta.cta_primary_text}</Link>}
-            {cta.cta_secondary_text && <Link href={cta.cta_secondary_link ?? "/register"} style={{ display: "inline-block", padding: "13px 32px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.3)", color: "white", textDecoration: "none", fontWeight: 700, fontSize: 14 }}>{cta.cta_secondary_text}</Link>}
+        <div style={{ background: "var(--color-primary)", padding: "56px 24px", textAlign: "center" }}>
+          <h2 style={{ fontSize: "clamp(22px, 3vw, 30px)", fontWeight: 900, color: "white", margin: "0 0 12px" }}>{cta.headline}</h2>
+          {cta.subtext && <p style={{ fontSize: 15, color: "rgba(255,255,255,0.65)", maxWidth: 480, margin: "0 auto 24px" }}>{cta.subtext}</p>}
+          <div className="about-cta-btns" style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+            {cta.cta_primary_text && <Link href={cta.cta_primary_link ?? "/contact"} style={{ display: "inline-block", padding: "12px 28px", borderRadius: 6, background: "var(--color-accent)", color: "white", textDecoration: "none", fontWeight: 700, fontSize: 14 }}>{cta.cta_primary_text}</Link>}
+            {cta.cta_secondary_text && <Link href={cta.cta_secondary_link ?? "/register"} style={{ display: "inline-block", padding: "12px 28px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.3)", color: "white", textDecoration: "none", fontWeight: 700, fontSize: 14 }}>{cta.cta_secondary_text}</Link>}
           </div>
         </div>
       )}

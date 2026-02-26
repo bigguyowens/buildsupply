@@ -1,7 +1,7 @@
 'use client';
 
-import Image from "next/image";
 import Link from "next/link";
+import { ProductImage } from "@/components/product-image";
 import { CartSummary } from "@/components/cart-summary";
 import { QuantitySelector } from "@/components/quantity-selector";
 import { useCart } from "@/context/cart-context";
@@ -19,7 +19,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 grid gap-6 lg:grid-cols-[1fr_360px]">
+      <main className="mx-auto max-w-7xl px-4 py-8 grid gap-6 cart-layout lg:grid-cols-[1fr_360px]">
         {/* Cart items */}
         <section>
           {items.length === 0 ? (
@@ -36,9 +36,9 @@ export default function CartPage() {
           ) : (
             <div className="rounded bg-white border divide-y" style={{ borderColor: "var(--color-border)" }}>
               {items.map((item) => (
-                <div key={item.id} className="flex gap-4 p-4">
-                  <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded border" style={{ borderColor: "var(--color-border)" }}>
-                    <Image src={item.image} alt={item.name} fill className="object-cover" />
+                <div key={item.id} className="cart-item flex gap-4 p-4">
+                  <div className="cart-item-thumb relative h-24 w-24 flex-shrink-0 overflow-hidden rounded border" style={{ borderColor: "var(--color-border)" }}>
+                    <ProductImage src={item.image} alt={item.name} fill className="object-cover" />
                   </div>
                   <div className="flex flex-1 flex-col gap-1.5">
                     <div className="flex items-start justify-between gap-2">

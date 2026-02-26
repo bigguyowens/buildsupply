@@ -16,7 +16,7 @@ function Field({ label, name, placeholder, type = "text", required = true, colSp
   label: string; name: string; placeholder?: string; type?: string; required?: boolean; colSpan2?: boolean;
 }) {
   return (
-    <div style={{ gridColumn: colSpan2 ? "span 2" : undefined }}>
+    <div className={colSpan2 ? "checkout-span2" : ""} style={{ gridColumn: colSpan2 ? "span 2" : undefined }}>
       <label style={{ display: "block", fontSize: 12, fontWeight: 600, marginBottom: 5, color: "var(--color-foreground)" }}>
         {label}{required && <span style={{ color: "var(--color-accent)" }}> *</span>}
       </label>
@@ -88,7 +88,7 @@ export default function CheckoutPage() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <main style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 16px", display: "grid", gridTemplateColumns: "1fr 360px", gap: 24, alignItems: "start" }}>
+        <main className="checkout-layout" style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 16px", display: "grid", gridTemplateColumns: "1fr 360px", gap: 24, alignItems: "start" }}>
 
           {/* Left — forms */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -102,7 +102,7 @@ export default function CheckoutPage() {
             {/* Contact */}
             <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", padding: 24 }}>
               <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 16 }}>Contact Information</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="checkout-form-grid">
                 <Field label="First Name" name="firstName" placeholder="Jane" />
                 <Field label="Last Name"  name="lastName"  placeholder="Smith" />
                 <Field label="Email"      name="email"     placeholder="jane@company.com" type="email" />
@@ -114,7 +114,7 @@ export default function CheckoutPage() {
             {/* Shipping */}
             <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", padding: 24 }}>
               <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 16 }}>Shipping Address</h2>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="checkout-form-grid">
                 <Field label="Street Address" name="address" placeholder="123 Main St" colSpan2 />
                 <Field label="City"    name="city"    placeholder="Atlanta" />
                 <Field label="State"   name="state"   placeholder="GA" />
@@ -133,7 +133,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Right — order summary */}
-          <aside style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", position: "sticky", top: 24 }}>
+          <aside style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", position: "sticky", top: 24 }} className="checkout-aside">
             <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--color-border)" }}>
               <h3 style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--color-muted)", margin: 0 }}>
                 Order Summary ({items.length} item{items.length !== 1 ? "s" : ""})
