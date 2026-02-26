@@ -351,9 +351,41 @@ export function Header({ session }: { session: SessionUser | null }) {
       {/* ── Mobile menu ───────────────────────────────────── */}
       {mobileOpen && (
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", background: "var(--color-primary-hover)" }}>
+
+          {/* Account strip */}
+          <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            {session ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 34, height: 34, borderRadius: "50%", background: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "white", flexShrink: 0 }}>
+                  {session.firstName[0]}{session.lastName[0]}
+                </div>
+                <div>
+                  <p style={{ color: "white", fontSize: 13, fontWeight: 700, margin: 0 }}>{session.firstName} {session.lastName}</p>
+                  <div style={{ display: "flex", gap: 12, marginTop: 2 }}>
+                    <Link href="/account" onClick={() => setMobileOpen(false)} style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, textDecoration: "none" }}>My Account</Link>
+                    <Link href="/account/orders" onClick={() => setMobileOpen(false)} style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, textDecoration: "none" }}>Orders</Link>
+                    <Link href="/account/wishlist" onClick={() => setMobileOpen(false)} style={{ color: "rgba(255,255,255,0.6)", fontSize: 12, textDecoration: "none" }}>Wishlists</Link>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", gap: 8 }}>
+                <Link href="/login" onClick={() => setMobileOpen(false)} style={{ padding: "8px 18px", borderRadius: 6, background: "var(--color-accent)", color: "white", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
+                  Sign In
+                </Link>
+                <Link href="/register" onClick={() => setMobileOpen(false)} style={{ padding: "8px 18px", borderRadius: 6, border: "1px solid rgba(255,255,255,0.3)", color: "white", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>
+                  Register
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Search */}
           <div style={{ padding: "12px 16px" }}>
             <HeaderSearch />
           </div>
+
+          {/* Categories */}
           <nav style={{ display: "flex", flexDirection: "column", paddingBottom: 12 }}>
             <Link
               href="/categories"
