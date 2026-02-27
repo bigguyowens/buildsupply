@@ -2,6 +2,7 @@ import { query } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AdminRoleToggle } from "@/components/admin-role-toggle";
+import { getCustomerPromoUses } from "@/app/actions/promotions";
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   pending:    { bg: "#fef9c3", color: "#854d0e" },
@@ -21,7 +22,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
 
   if (!customer) notFound();
 
-  const [orders, wishlists] = await Promise.all([
+  const [orders, wishlists, promoUses] = await Promise.all([
     query<{ id: number; status: string; total: number; created_at: string; item_count: number }>(
       `SELECT id, status, total, created_at, jsonb_array_length(items) AS item_count
        FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
@@ -33,6 +34,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
        WHERE w.user_id = $1 GROUP BY w.id ORDER BY w.created_at ASC`,
       [customer.id]
     ),
+    getCustomerPromoUses(customer.id),
   ]);
 
   const totalSpent = orders.filter(o => o.status !== "cancelled").reduce((s, o) => s + Number(o.total), 0);
@@ -99,6 +101,30 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
               ))}
             </div>
           )}
+
+          {/* Promo usage */}
+          <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 12px", display: "flex", alignItems: "center", gap: 8 }}>
+              🎟 Promo Codes Used
+              {promoUses.length > 0 && (
+                <span style={{ fontSize: 11, fontWeight: 700, background: "#fff7ed", color: "#f97316", padding: "1px 8px", borderRadius: 9999, border: "1px solid #fed7aa" }}>
+                  {promoUses.length}
+                </span>
+              )}
+            </h2>
+            {promoUses.length === 0 ? (
+              <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, fontStyle: "italic" }}>No promo codes used.</p>
+            ) : promoUses.map((u, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: i < promoUses.length - 1 ? "1px solid #f1f5f9" : "none" }}>
+                <div>
+                  <span style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 13, background: "#f8fafc", padding: "1px 7px", borderRadius: 4, border: "1px solid #e2e8f0" }}>{u.code}</span>
+                  <span style={{ marginLeft: 8, fontSize: 12, color: "#15803d", fontWeight: 700 }}>{u.discount_percent}% off</span>
+                  {u.order_id && <span style={{ marginLeft: 8, fontSize: 11, color: "#94a3b8" }}>Order #{u.order_id}</span>}
+                </div>
+                <span style={{ fontSize: 11, color: "#94a3b8" }}>{new Date(u.used_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+              </div>
+            ))}
+          </div>
 
           {/* Role management */}
           <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>

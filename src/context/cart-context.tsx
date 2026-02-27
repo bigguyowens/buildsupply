@@ -7,7 +7,8 @@ import {
 import type { Product } from "@/lib/products";
 
 export type CartItem = Product & { quantity: number };
-type CartState = { items: CartItem[]; hydrated: boolean };
+export type AppliedPromo = { id: number; code: string; discount_percent: number; description: string };
+type CartState = { items: CartItem[]; hydrated: boolean; promo: AppliedPromo | null };
 
 type CartAction =
   | { type: "ADD_ITEM";        product: Product; quantity: number }
@@ -15,17 +16,20 @@ type CartAction =
   | { type: "REMOVE_ITEM";     productId: string }
   | { type: "CLEAR_CART" }
   | { type: "MERGE_ITEMS";     items: CartItem[] }
-  | { type: "HYDRATE";         items: CartItem[] };
+  | { type: "HYDRATE";         items: CartItem[] }
+  | { type: "SET_PROMO";       promo: AppliedPromo | null };
 
 type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   hydrated: boolean;
+  promo: AppliedPromo | null;
   addItem:             (product: Product, quantity?: number) => void;
   updateItemQuantity:  (productId: string, quantity: number) => void;
   removeItem:          (productId: string) => void;
   clearCart:           () => void;
   mergeItems:          (items: CartItem[]) => void;
+  setPromo:            (promo: AppliedPromo | null) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -34,7 +38,10 @@ const LS_KEY = "bs_cart";
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "HYDRATE":
-      return { items: action.items, hydrated: true };
+      return { items: action.items, hydrated: true, promo: state.promo };
+
+    case "SET_PROMO":
+      return { ...state, promo: action.promo };
 
     case "ADD_ITEM": {
       const idx = state.items.findIndex(i => i.id === action.product.id);
@@ -53,7 +60,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       return { ...state, items: state.items.filter(i => i.id !== action.productId) };
 
     case "CLEAR_CART":
-      return { ...state, items: [] };
+      return { ...state, items: [], promo: null };
 
     case "MERGE_ITEMS": {
       const merged = [...state.items];
@@ -70,7 +77,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 }
 
 export function CartProvider({ children, isLoggedIn }: { children: React.ReactNode; isLoggedIn: boolean }) {
-  const [state, dispatch] = useReducer(cartReducer, { items: [], hydrated: false });
+  const [state, dispatch] = useReducer(cartReducer, { items: [], hydrated: false, promo: null });
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevLoggedIn = useRef(isLoggedIn);
 
@@ -156,12 +163,14 @@ export function CartProvider({ children, isLoggedIn }: { children: React.ReactNo
   const value = useMemo<CartContextValue>(() => ({
     items:     state.items,
     hydrated:  state.hydrated,
+    promo:     state.promo,
     itemCount: state.items.reduce((t, i) => t + i.quantity, 0),
     addItem:            (product, quantity = 1) => dispatch({ type: "ADD_ITEM",        product, quantity }),
     updateItemQuantity: (productId, quantity)   => dispatch({ type: "UPDATE_QUANTITY", productId, quantity }),
     removeItem:         (productId)             => dispatch({ type: "REMOVE_ITEM",     productId }),
     clearCart:          ()                      => dispatch({ type: "CLEAR_CART" }),
     mergeItems:         (items)                 => dispatch({ type: "MERGE_ITEMS",     items }),
+    setPromo:           (promo)                 => dispatch({ type: "SET_PROMO",       promo }),
   }), [state]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
