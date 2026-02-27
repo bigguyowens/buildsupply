@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ProductImage } from "@/components/product-image";
 import { query } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { notFound } from "next/navigation";
@@ -144,7 +145,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             {items.map((item, i) => (
               <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: i < items.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                 <div style={{ position: "relative", width: 56, height: 56, borderRadius: 6, overflow: "hidden", flexShrink: 0, border: "1px solid var(--color-border)" }}>
-                  <Image src={item.image} alt={item.name} fill style={{ objectFit: "cover" }} sizes="56px" />
+                  <ProductImage src={item.image} alt={item.name} fill sizes="56px" style={{ objectFit: "cover" }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontWeight: 600, margin: 0, fontSize: 14 }}>{item.name}</p>

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import { ProductImage } from "@/components/product-image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/cart-context";
@@ -151,7 +152,7 @@ export default function CheckoutPage() {
                   {items.map(item => (
                     <div key={item.id} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <div style={{ position: "relative", width: 44, height: 44, borderRadius: 6, overflow: "hidden", flexShrink: 0, border: "1px solid var(--color-border)" }}>
-                        <Image src={item.image} alt={item.name} fill style={{ objectFit: "cover" }} sizes="44px" />
+                        <ProductImage src={item.image} alt={item.name} fill sizes="44px" style={{ objectFit: "cover" }} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 12, fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</p>
