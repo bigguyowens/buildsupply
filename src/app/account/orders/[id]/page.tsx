@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ProductImage } from "@/components/product-image";
 import { getSession } from "@/lib/auth";
 import { query } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
@@ -7,7 +8,7 @@ import { ReorderButton } from "@/components/reorder-button";
 
 type OrderItem = { id: string; name: string; image: string; price: number; quantity: number; brand: string; sku: string; slug: string };
 type Shipping  = { firstName: string; lastName: string; email: string; phone: string; company: string; address: string; city: string; state: string; zip: string; country: string };
-type OrderRow  = { id: number; status: string; total: number; created_at: string; items: OrderItem[]; shipping: Shipping; user_id: number };
+type OrderRow  = { id: number; status: string; total: number; created_at: string; items: OrderItem[]; shipping: Shipping; user_id: number; promo_code: string | null; discount_amount: number };
 
 const STATUS_COLORS: Record<string, { bg: string; color: string; label: string }> = {
   pending:    { bg: "#fef9c3", color: "#854d0e", label: "Pending" },
@@ -28,7 +29,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   if (!session) redirect("/login");
 
   const rows = await query<OrderRow>(
-    `SELECT id, status, total, created_at, items, shipping, user_id FROM orders WHERE id = $1 AND user_id = $2`,
+    `SELECT id, status, total, created_at, items, shipping, user_id, promo_code, discount_amount FROM orders WHERE id = $1 AND user_id = $2`,
     [id, session.id]
   );
   if (!rows.length) notFound();
@@ -39,8 +40,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const statusStyle = STATUS_COLORS[order.status] ?? STATUS_COLORS.pending;
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const shippingCost = subtotal < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
-  const tax = subtotal * TAX_RATE;
+  const discountAmount = Number(order.discount_amount ?? 0);
+  const discountedSub = subtotal - discountAmount;
+  const shippingCost = discountedSub < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
+  const tax = discountedSub * TAX_RATE;
 
   // Status timeline steps
   const allStatuses = ["pending", "processing", "shipped", "completed"];
@@ -146,7 +149,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
             {items.map((item, i) => (
               <div key={`${item.id}-${i}`} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: i < items.length - 1 ? "1px solid var(--color-border)" : "none" }}>
                 <div style={{ position: "relative", width: 60, height: 60, borderRadius: 6, overflow: "hidden", flexShrink: 0, border: "1px solid var(--color-border)" }}>
-                  <Image src={item.image} alt={item.name} fill style={{ objectFit: "cover" }} sizes="60px" />
+                  <ProductImage src={item.image} alt={item.name} fill sizes="60px" style={{ objectFit: "cover" }} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <Link href={`/products/${item.slug}`} style={{ fontWeight: 600, fontSize: 14, color: "var(--color-foreground)", textDecoration: "none" }}>
@@ -165,8 +168,16 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           {/* Totals footer */}
           <div style={{ borderTop: "2px solid var(--color-border)", padding: "16px 20px", display: "flex", justifyContent: "flex-end" }}>
             <div style={{ minWidth: 220, fontSize: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", color: "var(--color-muted)" }}>
+                <span>Subtotal</span><span>{fmt(subtotal)}</span>
+              </div>
+              {discountAmount > 0 && (
+                <div style={{ display: "flex", justifyContent: "space-between", color: "#15803d", fontWeight: 700 }}>
+                  <span>Discount ({order.promo_code})</span>
+                  <span>−{fmt(discountAmount)}</span>
+                </div>
+              )}
               {[
-                ["Subtotal", fmt(subtotal)],
                 ["Shipping", shippingCost === 0 ? "Free" : fmt(shippingCost)],
                 ["Tax (7%)", fmt(tax)],
               ].map(([label, value]) => (
