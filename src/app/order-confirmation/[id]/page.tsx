@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 
 type OrderItem = { id: string; name: string; image: string; price: number; quantity: number; brand: string; sku: string };
 type Shipping  = { firstName: string; lastName: string; email: string; phone: string; company: string; address: string; city: string; state: string; zip: string; country: string };
-type OrderRow  = { id: number; status: string; total: number; created_at: string; items: OrderItem[]; shipping: Shipping; user_id: number | null };
+type OrderRow  = { id: number; status: string; total: number; created_at: string; items: OrderItem[]; shipping: Shipping; user_id: number | null; promo_code: string | null; discount_amount: number };
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
@@ -23,7 +23,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
   const session = await getSession();
 
   const rows = await query<OrderRow>(
-    `SELECT id, status, total, created_at, items, shipping, user_id FROM orders WHERE id = $1`,
+    `SELECT id, status, total, created_at, items, shipping, user_id, promo_code, discount_amount FROM orders WHERE id = $1`,
     [id]
   );
   if (!rows.length) notFound();
@@ -35,6 +35,8 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
   const items: OrderItem[] = Array.isArray(order.items) ? order.items : JSON.parse(order.items as unknown as string ?? "[]");
   const shipping: Shipping = typeof order.shipping === "object" ? order.shipping : JSON.parse(order.shipping as unknown as string ?? "{}");
   const statusStyle = STATUS_COLORS[order.status] ?? STATUS_COLORS.pending;
+  const subtotal        = items.reduce((s, i) => s + i.price * i.quantity, 0);
+  const discountAmount  = Number(order.discount_amount ?? 0);
   const isGuest = !order.user_id;
 
   return (
@@ -104,11 +106,13 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
                   ["Order #", `#${order.id}`],
                   ["Date", new Date(order.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })],
                   ["Status", order.status.charAt(0).toUpperCase() + order.status.slice(1)],
+                  ["Subtotal", fmt(subtotal)],
+                  ...(discountAmount > 0 ? [[`Promo (${order.promo_code})`, `−${fmt(discountAmount)}`]] : []),
                   ["Total", fmt(Number(order.total))],
                 ].map(([label, value]) => (
                   <tr key={label} style={{ borderBottom: "1px solid var(--color-border)" }}>
                     <td style={{ padding: "8px 0", color: "var(--color-muted)", fontWeight: 500 }}>{label}</td>
-                    <td style={{ padding: "8px 0", fontWeight: 600, textAlign: "right" }}>{value}</td>
+                    <td style={{ padding: "8px 0", fontWeight: label === `Promo (${order.promo_code})` ? 700 : 600, color: label === `Promo (${order.promo_code})` ? "#15803d" : undefined, textAlign: "right" }}>{value}</td>
                   </tr>
                 ))}
               </tbody>

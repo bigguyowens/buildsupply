@@ -32,16 +32,18 @@ function Field({ label, name, placeholder, type = "text", required = true, colSp
 }
 
 export default function CheckoutPage() {
-  const { items, clearCart } = useCart();
+  const { items, clearCart, promo } = useCart();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { subtotal, shipping, tax, total } = useMemo(() => {
-    const sub = items.reduce((s, i) => s + i.price * i.quantity, 0);
-    const shp = sub > 0 && sub < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
-    return { subtotal: sub, shipping: shp, tax: sub * TAX_RATE, total: sub + shp + sub * TAX_RATE };
-  }, [items]);
+  const { subtotal, discount, shipping, tax, total } = useMemo(() => {
+    const sub  = items.reduce((s, i) => s + i.price * i.quantity, 0);
+    const disc = promo ? sub * (promo.discount_percent / 100) : 0;
+    const discSub = sub - disc;
+    const shp  = discSub > 0 && discSub < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
+    return { subtotal: sub, discount: disc, shipping: shp, tax: discSub * TAX_RATE, total: discSub + shp + discSub * TAX_RATE };
+  }, [items, promo]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -67,7 +69,7 @@ export default function CheckoutPage() {
       price: i.price, quantity: i.quantity, sku: i.sku, brand: i.brand,
     }));
 
-    const result = await placeOrderAction(orderItems, shipping, total);
+    const result = await placeOrderAction(orderItems, shipping, total, promo);
     if (result.success) {
       clearCart();
       router.push(`/order-confirmation/${result.orderId}`);
@@ -163,8 +165,18 @@ export default function CheckoutPage() {
 
               {/* Totals */}
               <div style={{ borderTop: "1px solid var(--color-border)", paddingTop: 14, display: "flex", flexDirection: "column", gap: 8, fontSize: 14 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", color: "var(--color-muted)" }}>
+                  <span>Subtotal</span><span>{fmt(subtotal)}</span>
+                </div>
+                {promo && discount > 0 && (
+                  <>
+                    <div style={{ display: "flex", justifyContent: "space-between", color: "#15803d", fontWeight: 700 }}>
+                      <span>Discount ({promo.code} · {promo.discount_percent}% off)</span>
+                      <span>−{fmt(discount)}</span>
+                    </div>
+                  </>
+                )}
                 {[
-                  { label: "Subtotal", value: fmt(subtotal) },
                   { label: "Shipping", value: shipping === 0 ? "Free" : fmt(shipping) },
                   { label: "Tax (7%)", value: fmt(tax) },
                 ].map(row => (
