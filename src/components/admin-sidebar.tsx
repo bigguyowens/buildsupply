@@ -20,10 +20,10 @@ const NAV: NavItem[] = [
   { type: "separator" },
   { type: "link",      label: "Wishlists",    href: "/admin/wishlists",   icon: "♡"  },
   { type: "link",      label: "Contact Forms", href: "/admin/contact",    icon: "✉️"  },
-  { type: "link",      label: "Contact Page",  href: "/admin/contact-cms", icon: "📍" },
-  { type: "separator" },
-  { type: "link",      label: "Homepage",    href: "/admin/homepage",     icon: "🏠" },
-  { type: "link",      label: "About Us",    href: "/admin/about",        icon: "🏢" },
+  { type: "separator", label: "Content" },
+  { type: "link",      label: "Homepage",     href: "/admin/homepage",    icon: "🏠" },
+  { type: "link",      label: "About Us",     href: "/admin/about",       icon: "🏢" },
+  { type: "link",      label: "Contact Page", href: "/admin/contact-cms", icon: "📍" },
   { type: "separator" },
   { type: "link",      label: "Error Logs",  href: "/admin/error-logs",   icon: "🔴" },
 ];
@@ -52,9 +52,14 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
       <nav style={{ flex: 1, padding: "12px 8px", overflowY: "auto" }}>
         {NAV.map((item, i) => {
           if (item.type === "separator") {
-            return (
-              <div key={`sep-${i}`} style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 10px" }} />
-            );
+            return item.label
+              ? (
+                <div key={`sep-${i}`} style={{ padding: "14px 10px 4px" }}>
+                  <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "#334155" }}>{item.label}</span>
+                </div>
+              ) : (
+                <div key={`sep-${i}`} style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 10px" }} />
+              );
           }
           const active = item.href === "/admin"
             ? pathname === "/admin"
