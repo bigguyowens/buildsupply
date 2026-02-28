@@ -22,14 +22,13 @@ const NAV: NavItem[] = [
   { type: "link",      label: "Promotions",   href: "/admin/promotions",  icon: "🎟️" },
   { type: "link",      label: "Contact Forms", href: "/admin/contact",    icon: "✉️"  },
   { type: "separator", label: "Content" },
+  { type: "link",      label: "Theme",        href: "/admin/theme",       icon: "🎨" },
   { type: "link",      label: "Homepage",     href: "/admin/homepage",    icon: "🏠" },
   { type: "link",      label: "About Us",     href: "/admin/about",       icon: "🏢" },
   { type: "link",      label: "Contact Page", href: "/admin/contact-cms", icon: "📍" },
   { type: "link",      label: "Blog",         href: "/admin/blog",        icon: "📝" },
   { type: "separator" },
   { type: "link",      label: "Error Logs",  href: "/admin/error-logs",   icon: "🔴" },
-  { type: "separator" },
-  { type: "link",      label: "Theme",       href: "/admin/theme",        icon: "🎨" },
 ];
 
 export function AdminSidebar({ session }: { session: SessionUser }) {
