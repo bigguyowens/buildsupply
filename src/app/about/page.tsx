@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getAboutContent } from "@/app/actions/about";
+import { getRecentPosts } from "@/app/actions/blog";
+import type { BlogPost } from "@/app/actions/blog";
 
 type HeroContent     = { tag?: string; headline?: string; subtext?: string; cta_primary_text?: string; cta_primary_link?: string; cta_secondary_text?: string; cta_secondary_link?: string; bg_image?: string };
 type StatsContent    = { stats?: { value: string; label: string }[] };
@@ -24,7 +26,10 @@ const STATS_DEFAULT: StatsContent = { stats: [
 ]};
 
 export default async function AboutPage() {
-  const cms = await getAboutContent();
+  const [cms, recentPosts] = await Promise.all([
+    getAboutContent(),
+    getRecentPosts(3),
+  ]);
 
   const hero       = (cms.hero?.content       ?? HERO_DEFAULT)   as HeroContent;
   const stats      = (cms.stats?.content      ?? STATS_DEFAULT)  as StatsContent;
@@ -145,6 +150,39 @@ export default async function AboutPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Latest News ────────────────────────────────── */}
+      {recentPosts.length > 0 && (
+        <div style={{ background: "#f8fafc", padding: "64px 24px" }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 36 }}>
+              <div>
+                <p style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--color-accent)", marginBottom: 8 }}>What&apos;s New</p>
+                <h2 style={{ fontSize: "clamp(22px, 3vw, 32px)", fontWeight: 900, margin: 0, color: "var(--color-foreground)" }}>Latest News & Updates</h2>
+              </div>
+              <Link href="/blog" style={{ fontSize: 13, fontWeight: 700, color: "var(--color-accent)", textDecoration: "none", whiteSpace: "nowrap" }}>
+                View all posts →
+              </Link>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
+              {(recentPosts as BlogPost[]).map(post => (
+                <Link key={post.id} href={`/blog/${post.slug}`} style={{ textDecoration: "none", background: "white", borderRadius: 10, border: "1px solid #e2e8f0", overflow: "hidden", display: "flex", flexDirection: "column", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+                  <div style={{ padding: "18px 20px 20px", flex: 1, display: "flex", flexDirection: "column" }}>
+                    <span style={{ display: "inline-block", marginBottom: 10, padding: "2px 10px", borderRadius: 9999, fontSize: 10, fontWeight: 700, background: post.category_color ?? "#f97316", color: "white" }}>
+                      {post.category_name}
+                    </span>
+                    <h3 style={{ fontSize: 14, fontWeight: 800, color: "#0f172a", margin: "0 0 8px", lineHeight: 1.35, flex: 1 }}>{post.title}</h3>
+                    <p style={{ fontSize: 12, color: "#64748b", margin: "0 0 12px", lineHeight: 1.6 }}>{post.excerpt}</p>
+                    <span style={{ fontSize: 11, color: "#94a3b8" }}>
+                      {new Date(post.published_at ?? post.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       )}

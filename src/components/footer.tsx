@@ -12,6 +12,14 @@ const FOOTER_LINKS = {
     { label: "About Us",   href: "/about"   },
     { label: "Contact",    href: "/contact" },
     { label: "Careers",    href: "/careers" },
+    { label: "News & Updates", href: "/blog" },
+  ],
+  "News": [
+    { label: "All Posts",          href: "/blog"                             },
+    { label: "Press Releases",     href: "/blog?category=press-releases"     },
+    { label: "Industry News",      href: "/blog?category=industry-news"      },
+    { label: "Internal Wins",      href: "/blog?category=internal-wins"      },
+    { label: "Product Spotlight",  href: "/blog?category=product-spotlight"  },
   ],
   "Support": [
     { label: "Order History", href: "/orders"  },
@@ -24,7 +32,7 @@ export function Footer() {
   return (
     <footer style={{ background: "var(--color-primary)", color: "#fff" }}>
       <div className="mx-auto max-w-7xl px-4 py-12">
-        <div className="footer-grid grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="footer-grid grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand column */}
           <div className="footer-brand space-y-3">
             <div className="text-xl font-bold tracking-tight">
