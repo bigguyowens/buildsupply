@@ -28,6 +28,8 @@ const NAV: NavItem[] = [
   { type: "link",      label: "Blog",         href: "/admin/blog",        icon: "📝" },
   { type: "separator" },
   { type: "link",      label: "Error Logs",  href: "/admin/error-logs",   icon: "🔴" },
+  { type: "separator" },
+  { type: "link",      label: "Theme",       href: "/admin/theme",        icon: "🎨" },
 ];
 
 export function AdminSidebar({ session }: { session: SessionUser }) {
