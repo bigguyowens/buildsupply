@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AdminRoleToggle } from "@/components/admin-role-toggle";
 import { getCustomerPromoUses } from "@/app/actions/promotions";
-import { adminGetProductViews } from "@/app/actions/product-views";
+import { adminGetProductViews } from "@/lib/product-views";
 import { ProductImage } from "@/components/product-image";
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {

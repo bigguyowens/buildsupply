@@ -9,7 +9,7 @@ import { RecentlyViewedTracker } from "@/components/recently-viewed-tracker";
 import { getSession } from "@/lib/auth";
 import { getProductBySlug } from "@/lib/products";
 import { query } from "@/lib/db";
-import { getSimilarProducts, getRecentlyViewed } from "@/app/actions/product-views";
+import { getSimilarProducts, getRecentlyViewedProducts } from "@/lib/product-views";
 import type { Product } from "@/lib/products";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
@@ -65,7 +65,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       : Promise.resolve({ lists: [], activeIds: [] }),
     getSimilarProducts(product.category, product.id, 12),
     session
-      ? getRecentlyViewed(product.id, 12)
+      ? getRecentlyViewedProducts(session.id, product.id, 12)
       : Promise.resolve([]),
   ]);
 
