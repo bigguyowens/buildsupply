@@ -4,9 +4,12 @@ import { notFound } from "next/navigation";
 import { PdpPurchaseSection } from "@/components/pdp-purchase-section";
 import { WishlistButton } from "@/components/wishlist-button";
 import { ProductImage } from "@/components/product-image";
+import { ProductCarousel } from "@/components/product-carousel";
+import { RecentlyViewedTracker } from "@/components/recently-viewed-tracker";
 import { getSession } from "@/lib/auth";
 import { getProductBySlug } from "@/lib/products";
 import { query } from "@/lib/db";
+import { getSimilarProducts, getRecentlyViewed } from "@/app/actions/product-views";
 import type { Product } from "@/lib/products";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
@@ -50,14 +53,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product: Product | null = await getProductBySlug(slug);
   if (!product) notFound();
 
-  // Ensure arrays are actually arrays (defensive against DB returning strings)
   const tags    = Array.isArray(product.tags)    ? product.tags    : [];
   const gallery = Array.isArray(product.gallery) ? product.gallery : [];
 
   const session = await getSession();
-  const { lists, activeIds } = session
-    ? await getWishlistData(session.id, product.id)
-    : { lists: [], activeIds: [] };
+
+  // Fetch all data in parallel
+  const [{ lists, activeIds }, similarProducts, recentlyViewed] = await Promise.all([
+    session
+      ? getWishlistData(session.id, product.id)
+      : Promise.resolve({ lists: [], activeIds: [] }),
+    getSimilarProducts(product.category, product.id, 12),
+    session
+      ? getRecentlyViewed(product.id, 12)
+      : Promise.resolve([]),
+  ]);
 
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
 
@@ -78,7 +88,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
+      {/* Silent tracker — fires recordProductView on mount (logged-in only) */}
+      {session && <RecentlyViewedTracker productId={product.id} />}
+
       <main className="mx-auto max-w-7xl px-4 py-8">
+        {/* ── Main product grid ─────────────────────────────────── */}
         <div className="pdp-grid grid gap-8 lg:grid-cols-[1fr_380px]">
 
           {/* Left: images */}
@@ -113,7 +127,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <span className="text-sm text-[var(--color-muted)]">/ {product.unit}</span>
             </div>
 
-            {/* Key specs */}
             <div className="rounded border" style={{ borderColor: "var(--color-border)" }}>
               <table className="w-full text-sm">
                 <tbody>
@@ -163,6 +176,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
             )}
           </div>
+        </div>
+
+        {/* ── Carousels ─────────────────────────────────────────── */}
+        <div style={{ borderTop: "1px solid #e2e8f0", marginTop: 48, paddingTop: 8 }}>
+          <ProductCarousel
+            title={`More in ${product.category}`}
+            products={similarProducts}
+            accentBar
+          />
+
+          {recentlyViewed.length > 0 && (
+            <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 8 }}>
+              <ProductCarousel
+                title="Recently Viewed"
+                products={recentlyViewed}
+                accentBar
+              />
+            </div>
+          )}
         </div>
       </main>
     </div>
