@@ -209,11 +209,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
                     display: "flex", alignItems: "center", gap: 14,
                     padding: "10px 20px",
                     borderBottom: i < productViews.length - 1 ? "1px solid #f8fafc" : "none",
-                    transition: "background 0.1s",
-                  }}
-                    onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.background = "#f8fafc"}
-                    onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.background = "transparent"}
-                  >
+                  }}>
                     {/* Thumbnail */}
                     <div style={{ width: 44, height: 44, borderRadius: 6, overflow: "hidden", border: "1px solid #e2e8f0", flexShrink: 0, position: "relative", background: "#f1f5f9" }}>
                       <ProductImage src={v.image} alt={v.product_name} fill sizes="44px" />
