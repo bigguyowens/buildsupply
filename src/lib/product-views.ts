@@ -1,5 +1,4 @@
 import { query } from "@/lib/db";
-import { getSession } from "@/lib/auth";
 import type { Product } from "@/lib/products";
 
 const PRODUCT_SELECT = `
@@ -25,7 +24,7 @@ export async function getSimilarProducts(category: string, excludeId: string, li
     const rows = await query<Record<string, unknown>>(`
       ${PRODUCT_SELECT}
       WHERE LOWER(category) = LOWER($1)
-        AND id != $2
+        AND id::text != $2
         AND inventory > 0
       ORDER BY featured DESC, rating DESC, RANDOM()
       LIMIT $3
@@ -43,7 +42,7 @@ export async function getRecentlyViewedProducts(userId: number, excludeId: strin
         p.rating_count, p.inventory, p.featured, p.brand, p.sku, p.unit,
         pv.viewed_at
       FROM product_views pv
-      JOIN products p ON p.id = pv.product_id
+      JOIN products p ON p.id::text = pv.product_id
       WHERE pv.user_id = $1 AND pv.product_id != $2
       ORDER BY p.id, pv.viewed_at DESC
       LIMIT $3
@@ -59,8 +58,6 @@ export async function adminGetProductViews(userId: number): Promise<{
   product_id: string; product_name: string; slug: string; image: string;
   category: string; price: number; viewed_at: string; view_count: number;
 }[]> {
-  const session = await getSession();
-  if (!session || session.role !== "admin") return [];
   try {
     return query(`
       SELECT
@@ -73,7 +70,7 @@ export async function adminGetProductViews(userId: number): Promise<{
         MAX(pv.viewed_at) AS viewed_at,
         COUNT(*)::int     AS view_count
       FROM product_views pv
-      JOIN products p ON p.id = pv.product_id
+      JOIN products p ON p.id::text = pv.product_id
       WHERE pv.user_id = $1
       GROUP BY pv.product_id, p.name, p.slug, p.image, p.category, p.price
       ORDER BY viewed_at DESC
