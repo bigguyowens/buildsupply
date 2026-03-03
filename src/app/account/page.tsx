@@ -84,6 +84,7 @@ export default async function AccountPage() {
               {[
                 { label: "Dashboard",      href: "/account" },
                 { label: "Order History",  href: "/account/orders" },
+                { label: "My Quotes",      href: "/account/quotes" },
                 { label: "Wishlists",      href: "/account/wishlist" },
                 { label: "Profile",        href: "/account/profile" },
                 { label: "Browse Products",href: "/products" },
