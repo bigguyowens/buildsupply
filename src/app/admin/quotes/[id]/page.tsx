@@ -1,8 +1,8 @@
 import { query } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { sendQuoteAction } from "@/app/actions/quotes";
 import { ProductImage } from "@/components/product-image";
+import { SendQuoteButton } from "./send-button";
 
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
   draft:    { bg: "#f1f5f9", color: "#475569", label: "Draft"    },
@@ -66,11 +66,7 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
         {/* Actions */}
         <div style={{ display: "flex", gap: 8 }}>
           {quote.status === "draft" && (
-            <form action={async () => { "use server"; await sendQuoteAction(quote.id); }}>
-              <button type="submit" style={{ padding: "8px 18px", borderRadius: 8, background: "#f97316", color: "white", border: "none", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-                💌 Send to Customer
-              </button>
-            </form>
+            <SendQuoteButton quoteId={quote.id} />
           )}
           {quote.order_id && (
             <Link href={`/admin/orders/${quote.order_id}`} style={{ padding: "8px 18px", borderRadius: 8, background: "#dcfce7", color: "#15803d", fontWeight: 700, fontSize: 13, textDecoration: "none" }}>
