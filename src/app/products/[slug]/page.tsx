@@ -52,33 +52,6 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
   );
 }
 
-// ── Compact meta row ───────────────────────────────────────────────────────────
-function MetaRow({ product }: { product: Product }) {
-  const inStock = product.inventory > 0;
-  const items = [
-    { label: "Brand",    value: product.brand },
-    { label: "SKU",      value: product.sku },
-    { label: "Category", value: product.category },
-  ];
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", padding: "10px 0", borderTop: "1px solid var(--color-border)", borderBottom: "1px solid var(--color-border)" }}>
-      {items.map(({ label, value }) => (
-        <div key={label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--color-muted)" }}>{label}:</span>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-foreground)" }}>{value}</span>
-        </div>
-      ))}
-      {/* divider */}
-      <div style={{ width: 1, height: 14, background: "var(--color-border)" }} />
-      <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 9999,
-        background: inStock ? "#dcfce7" : "#fee2e2",
-        color:      inStock ? "#15803d" : "#dc2626" }}>
-        {inStock ? `✓ ${product.inventory} In Stock` : "Out of Stock"}
-      </span>
-    </div>
-  );
-}
-
 // ── Specs table ────────────────────────────────────────────────────────────────
 function SpecsTable({ specs }: { specs: Record<string, string> }) {
   const entries = Object.entries(specs);
@@ -199,12 +172,38 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <span style={{ fontSize: 13, color: "var(--color-muted)" }}>/ {product.unit}</span>
             </div>
 
-            {/* Compact meta + wishlist on same row */}
+            {/* Meta rows + wishlist */}
             <div>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-                <MetaRow product={product} />
+              {/* Brand / SKU / Category */}
+              <div style={{ display: "flex", alignItems: "center", gap: 20, padding: "9px 0", borderTop: "1px solid var(--color-border)" }}>
+                {[
+                  { label: "Brand",    value: product.brand },
+                  { label: "SKU",      value: product.sku },
+                  { label: "Category", value: product.category },
+                ].map(({ label, value }, i) => (
+                  <div key={label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                    {i > 0 && <span style={{ color: "#d1d5db", marginRight: 4 }}>·</span>}
+                    <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--color-muted)" }}>{label}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-foreground)" }}>{value}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Availability + Wishlist on same row */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderTop: "1px solid var(--color-border)", borderBottom: "1px solid var(--color-border)" }}>
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  fontSize: 13, fontWeight: 700, padding: "4px 12px", borderRadius: 9999,
+                  background: product.inventory > 0 ? "#dcfce7" : "#fee2e2",
+                  color:      product.inventory > 0 ? "#15803d" : "#dc2626",
+                }}>
+                  <span style={{ fontSize: 9 }}>{product.inventory > 0 ? "●" : "○"}</span>
+                  {product.inventory > 0 ? `${product.inventory.toLocaleString()} In Stock` : "Out of Stock"}
+                </span>
                 {session && (
-                  <div style={{ flexShrink: 0, paddingTop: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 12, color: "var(--color-muted)" }}>
+                      {activeIds.length > 0 ? "Saved" : "Save"}
+                    </span>
                     <WishlistButton
                       productId={product.id}
                       initialLists={lists}
