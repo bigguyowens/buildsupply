@@ -93,7 +93,7 @@ function WishlistCard({ list, onUpdate }: { list: WishlistWithItems; onUpdate: (
       unit: item.unit,
       inventory: item.inventory,
       description: "", category: "", subcategory: "",
-      tags: [], gallery: [], rating: 0, ratingCount: 0, featured: false,
+      tags: [], gallery: [], rating: 0, ratingCount: 0, featured: false, specs: null,
     } as Product;
     addItem(product, 1);
   }

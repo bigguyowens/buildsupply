@@ -19,6 +19,7 @@ export type Product = {
   brand: string;
   sku: string;
   unit: string;
+  specs: Record<string, string> | null;
 };
 
 export type Category = {
@@ -43,6 +44,7 @@ function mapRow(row: ProductRow): Product {
     rating:      Number(row.rating),
     ratingCount: Number(row.rating_count),
     inventory:   Number(row.inventory),
+    specs:       row.specs ?? null,
     tags:    Array.isArray(row.tags)    ? row.tags    : JSON.parse(row.tags    as string ?? "[]"),
     gallery: Array.isArray(row.gallery) ? row.gallery : JSON.parse(row.gallery as string ?? "[]"),
   };
@@ -50,7 +52,7 @@ function mapRow(row: ProductRow): Product {
 
 const SELECT = `
   SELECT id, name, slug, description, price, currency, category, subcategory,
-         tags, image, gallery, rating, rating_count, inventory, featured, brand, sku, unit
+         tags, image, gallery, rating, rating_count, inventory, featured, brand, sku, unit, specs
   FROM products
 `;
 

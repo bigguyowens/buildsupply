@@ -33,6 +33,7 @@ export function ReorderButton({ items }: { items: OrderItem[] }) {
       brand: i.brand,
       sku: i.sku,
       unit: "",
+      specs: null,
       quantity: i.quantity,
     } as CartItem & Product));
 

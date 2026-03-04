@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PdpPurchaseSection } from "@/components/pdp-purchase-section";
@@ -11,6 +10,7 @@ import { getProductBySlug } from "@/lib/products";
 import { query } from "@/lib/db";
 import { getSimilarProducts, getRecentlyViewedProducts } from "@/lib/product-views";
 import type { Product } from "@/lib/products";
+import Image from "next/image";
 
 type ProductPageProps = { params: Promise<{ slug: string }> };
 
@@ -34,169 +34,240 @@ async function getWishlistData(userId: number, productId: string) {
 
 function StarRating({ rating, count }: { rating: number; count: number }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-0.5">
-        {[1,2,3,4,5].map((s) => (
-          <svg key={s} className="h-4 w-4" fill={rating >= s ? "var(--color-accent)" : "none"} stroke="var(--color-accent)" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", gap: 2 }}>
+        {[1,2,3,4,5].map(s => (
+          <svg key={s} width="16" height="16" viewBox="0 0 24 24"
+            fill={rating >= s ? "var(--color-accent)" : "none"}
+            stroke="var(--color-accent)" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
           </svg>
         ))}
       </div>
-      <span className="text-sm text-[var(--color-muted)]">{rating.toFixed(1)} ({count.toLocaleString()} reviews)</span>
+      <span style={{ fontSize: 13, color: "var(--color-muted)" }}>
+        {rating.toFixed(1)} <span style={{ opacity: 0.6 }}>({count.toLocaleString()} reviews)</span>
+      </span>
+    </div>
+  );
+}
+
+// ── Compact meta row ───────────────────────────────────────────────────────────
+function MetaRow({ product }: { product: Product }) {
+  const inStock = product.inventory > 0;
+  const items = [
+    { label: "Brand",    value: product.brand },
+    { label: "SKU",      value: product.sku },
+    { label: "Category", value: product.category },
+  ];
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap", padding: "10px 0", borderTop: "1px solid var(--color-border)", borderBottom: "1px solid var(--color-border)" }}>
+      {items.map(({ label, value }) => (
+        <div key={label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--color-muted)" }}>{label}:</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--color-foreground)" }}>{value}</span>
+        </div>
+      ))}
+      {/* divider */}
+      <div style={{ width: 1, height: 14, background: "var(--color-border)" }} />
+      <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 10px", borderRadius: 9999,
+        background: inStock ? "#dcfce7" : "#fee2e2",
+        color:      inStock ? "#15803d" : "#dc2626" }}>
+        {inStock ? `✓ ${product.inventory} In Stock` : "Out of Stock"}
+      </span>
+    </div>
+  );
+}
+
+// ── Specs table ────────────────────────────────────────────────────────────────
+function SpecsTable({ specs }: { specs: Record<string, string> }) {
+  const entries = Object.entries(specs);
+  const half = Math.ceil(entries.length / 2);
+  const col1 = entries.slice(0, half);
+  const col2 = entries.slice(half);
+
+  return (
+    <div style={{ background: "white", borderRadius: 12, border: "1px solid var(--color-border)", overflow: "hidden", marginTop: 24 }}>
+      <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--color-border)", background: "#f8fafc" }}>
+        <h2 style={{ fontSize: 15, fontWeight: 800, margin: 0, color: "var(--color-foreground)", letterSpacing: "-0.01em" }}>
+          Product Specifications
+        </h2>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }} className="specs-grid">
+        {[col1, col2].map((col, ci) => (
+          <div key={ci} style={{ borderRight: ci === 0 ? "1px solid var(--color-border)" : "none" }}>
+            {col.map(([k, v], i) => (
+              <div key={k} style={{
+                display: "grid", gridTemplateColumns: "44% 56%",
+                borderBottom: i < col.length - 1 ? "1px solid #f1f5f9" : "none",
+              }}>
+                <div style={{ padding: "10px 16px", background: "#fafafa", fontSize: 12, fontWeight: 700, color: "var(--color-muted)", borderRight: "1px solid #f1f5f9" }}>
+                  {k}
+                </div>
+                <div style={{ padding: "10px 16px", fontSize: 13, color: "var(--color-foreground)", fontWeight: 500 }}>
+                  {v}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-
   const product: Product | null = await getProductBySlug(slug);
   if (!product) notFound();
 
   const tags    = Array.isArray(product.tags)    ? product.tags    : [];
   const gallery = Array.isArray(product.gallery) ? product.gallery : [];
-
   const session = await getSession();
 
-  // Fetch all data in parallel
   const [{ lists, activeIds }, similarProducts, recentlyViewed] = await Promise.all([
-    session
-      ? getWishlistData(session.id, product.id)
-      : Promise.resolve({ lists: [], activeIds: [] }),
+    session ? getWishlistData(session.id, product.id) : Promise.resolve({ lists: [], activeIds: [] }),
     getSimilarProducts(product.category, product.id, 12),
-    session
-      ? getRecentlyViewedProducts(session.id, product.id, 12)
-      : Promise.resolve([]),
+    session ? getRecentlyViewedProducts(session.id, product.id, 12) : Promise.resolve([]),
   ]);
 
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--color-background)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
       {/* Breadcrumb */}
-      <div className="bg-white border-b text-xs" style={{ borderColor: "var(--color-border)" }}>
-        <div className="mx-auto max-w-7xl px-4 py-2 flex items-center gap-1.5 text-[var(--color-muted)]">
-          <Link href="/" className="hover:text-[var(--color-accent)]">Home</Link>
+      <div style={{ background: "white", borderBottom: "1px solid var(--color-border)", fontSize: 12 }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "8px 16px", display: "flex", alignItems: "center", gap: 6, color: "var(--color-muted)", flexWrap: "wrap" }}>
+          <Link href="/" style={{ color: "inherit", textDecoration: "none" }} className="hover:text-accent">Home</Link>
           <span>/</span>
-          <Link href="/categories" className="hover:text-[var(--color-accent)]">Categories</Link>
+          <Link href="/categories" style={{ color: "inherit", textDecoration: "none" }}>Categories</Link>
           <span>/</span>
-          <Link href={`/products?category=${encodeURIComponent(product.category)}`} className="hover:text-[var(--color-accent)]">
+          <Link href={`/products?category=${encodeURIComponent(product.category)}`} style={{ color: "inherit", textDecoration: "none" }}>
             {product.category}
           </Link>
           <span>/</span>
-          <span className="text-[var(--color-foreground)] truncate max-w-[200px]">{product.name}</span>
+          <span style={{ color: "var(--color-foreground)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>{product.name}</span>
         </div>
       </div>
 
-      {/* Silent tracker — fires recordProductView on mount (logged-in only) */}
       {session && <RecentlyViewedTracker productId={product.id} />}
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        {/* ── Main product grid ─────────────────────────────────── */}
-        <div className="pdp-grid grid gap-8 lg:grid-cols-[1fr_380px]">
+      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 16px" }}>
 
-          {/* Left: images */}
-          <div className="space-y-4">
-            <div className="relative aspect-video overflow-hidden rounded bg-white border" style={{ borderColor: "var(--color-border)" }}>
+        {/* ── Main grid: image left, info right ─────────────────── */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: 36, alignItems: "start" }} className="pdp-grid">
+
+          {/* LEFT: image stack */}
+          <div>
+            <div style={{ position: "relative", aspectRatio: "4/3", overflow: "hidden", borderRadius: 12, background: "white", border: "1px solid var(--color-border)" }}>
               <ProductImage src={product.image} alt={product.name} fill sizes="(min-width:1024px) 55vw, 100vw" priority />
             </div>
             {gallery.length > 0 && (
-              <div className="grid grid-cols-4 gap-3">
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10, marginTop: 10 }}>
                 {gallery.map((src, i) => (
-                  <div key={i} className="relative aspect-square overflow-hidden rounded bg-white border" style={{ borderColor: "var(--color-border)" }}>
-                    <Image src={src} alt={`${product.name} ${i + 1}`} fill className="object-cover" />
+                  <div key={i} style={{ position: "relative", aspectRatio: "1", overflow: "hidden", borderRadius: 8, background: "white", border: "1px solid var(--color-border)" }}>
+                    <Image src={src} alt={`${product.name} ${i + 1}`} fill style={{ objectFit: "cover" }} />
                   </div>
                 ))}
               </div>
             )}
+
+            {/* Specs below image */}
+            {product.specs && Object.keys(product.specs).length > 0 && (
+              <SpecsTable specs={product.specs} />
+            )}
           </div>
 
-          {/* Right: info + purchase */}
-          <div className="space-y-5">
+          {/* RIGHT: product info */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 18, position: "sticky", top: 24 }}>
+
+            {/* Category label + title */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-[var(--color-muted)] mb-1">
+              <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--color-accent)", margin: "0 0 6px" }}>
                 {product.subcategory || product.category}
               </p>
-              <h1 className="text-2xl font-bold text-[var(--color-foreground)] leading-tight">{product.name}</h1>
+              <h1 style={{ fontSize: 26, fontWeight: 800, color: "var(--color-foreground)", lineHeight: 1.25, margin: 0 }}>
+                {product.name}
+              </h1>
             </div>
 
             <StarRating rating={product.rating} count={product.ratingCount} />
 
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-[var(--color-foreground)]">{priceLabel}</span>
-              <span className="text-sm text-[var(--color-muted)]">/ {product.unit}</span>
+            {/* Price */}
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+              <span style={{ fontSize: 34, fontWeight: 900, color: "var(--color-foreground)", letterSpacing: "-0.02em" }}>{priceLabel}</span>
+              <span style={{ fontSize: 13, color: "var(--color-muted)" }}>/ {product.unit}</span>
             </div>
 
-            <div className="rounded border" style={{ borderColor: "var(--color-border)" }}>
-              <table className="w-full text-sm">
-                <tbody>
-                  {[
-                    ["Brand",        product.brand],
-                    ["SKU",          product.sku],
-                    ["Category",     product.category],
-                    ["Availability", product.inventory > 0 ? `${product.inventory} In Stock` : "Out of Stock"],
-                  ].map(([label, value]) => (
-                    <tr key={label} className="border-b last:border-0" style={{ borderColor: "var(--color-border)" }}>
-                      <td className="px-4 py-2.5 font-semibold text-[var(--color-muted)] bg-gray-50 w-32">{label}</td>
-                      <td className="px-4 py-2.5 text-[var(--color-foreground)]">{value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            {/* Compact meta + wishlist on same row */}
+            <div>
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                <MetaRow product={product} />
+                {session && (
+                  <div style={{ flexShrink: 0, paddingTop: 8 }}>
+                    <WishlistButton
+                      productId={product.id}
+                      initialLists={lists}
+                      initialActive={activeIds}
+                      size="md"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* Purchase section */}
             <PdpPurchaseSection product={product} maxQuantity={product.inventory} />
 
-            {session && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, paddingTop: 4 }}>
-                <WishlistButton
-                  productId={product.id}
-                  initialLists={lists}
-                  initialActive={activeIds}
-                  size="md"
-                />
-                <span style={{ fontSize: 13, color: "var(--color-muted)" }}>
-                  {activeIds.length > 0 ? "Saved to wishlist" : "Save to wishlist"}
-                </span>
-              </div>
-            )}
-
-            <div>
-              <p className="text-sm font-semibold text-[var(--color-foreground)] mb-2">Description</p>
-              <p className="text-sm text-[var(--color-muted)] leading-relaxed">{product.description}</p>
+            {/* Description — bigger + more breathing room */}
+            <div style={{ paddingTop: 4 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--color-muted)", margin: "0 0 10px" }}>
+                About this product
+              </p>
+              <p style={{ fontSize: 15, color: "var(--color-foreground)", lineHeight: 1.75, margin: 0 }}>
+                {product.description}
+              </p>
             </div>
 
+            {/* Tags — bigger pills */}
             {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
-                  <span key={tag} className="rounded px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)] bg-gray-100">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {tags.map(tag => (
+                  <span key={tag} style={{
+                    borderRadius: 8, padding: "5px 14px", fontSize: 12, fontWeight: 700,
+                    textTransform: "uppercase", letterSpacing: "0.05em",
+                    color: "var(--color-accent)",
+                    background: "rgba(var(--color-accent-rgb, 249 115 22) / 0.08)",
+                    border: "1px solid rgba(var(--color-accent-rgb, 249 115 22) / 0.2)",
+                  }}>
                     {tag}
                   </span>
                 ))}
               </div>
             )}
+
           </div>
         </div>
 
-        {/* ── Carousels ─────────────────────────────────────────── */}
-        <div style={{ borderTop: "1px solid #e2e8f0", marginTop: 48, paddingTop: 8 }}>
-          <ProductCarousel
-            title={`More in ${product.category}`}
-            products={similarProducts}
-            accentBar
-          />
-
+        {/* ── Carousels ──────────────────────────────────────────── */}
+        <div style={{ borderTop: "1px solid #e2e8f0", marginTop: 56, paddingTop: 8 }}>
+          <ProductCarousel title={`More in ${product.category}`} products={similarProducts} accentBar />
           {recentlyViewed.length > 0 && (
             <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 8 }}>
-              <ProductCarousel
-                title="Recently Viewed"
-                products={recentlyViewed}
-                accentBar
-              />
+              <ProductCarousel title="Recently Viewed" products={recentlyViewed} accentBar />
             </div>
           )}
         </div>
       </main>
+
+      <style>{`
+        @media (max-width: 900px) {
+          .pdp-grid { grid-template-columns: 1fr !important; }
+          .pdp-grid > div:last-child { position: static !important; }
+          .specs-grid { grid-template-columns: 1fr !important; }
+          .specs-grid > div:first-child { border-right: none !important; }
+        }
+      `}</style>
     </div>
   );
 }
