@@ -223,4 +223,14 @@ a, button { transition: all 0.15s ease; }
     height: 180px !important;
     border-radius: 6px 6px 0 0 !important;
   }
+
+  /* ── Careers ─────────────────────────────────────────────── */
+  .careers-layout { grid-template-columns: 1fr !important; }
+
+  /* ── Career detail ───────────────────────────────────────── */
+  .career-detail-layout { grid-template-columns: 1fr !important; }
+  .career-detail-layout > div:last-child { position: static !important; }
+
+  /* ── Apply form grid ─────────────────────────────────────── */
+  .apply-grid { grid-template-columns: 1fr !important; }
 }
