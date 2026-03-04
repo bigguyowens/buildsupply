@@ -20,7 +20,10 @@ export type JobApplication = {
   cover_letter: string | null; resume_text: string | null;
   resume_filename: string | null; resume_size: number | null;
   has_resume: boolean;
-  status: string; admin_notes: string | null;
+  status: string;
+  decline_reason: string | null;
+  start_date: string | null;
+  admin_notes: string | null;
   created_at: string; updated_at: string;
   posting_title?: string;
 };
@@ -196,7 +199,7 @@ export async function adminGetApplications(postingId: number): Promise<JobApplic
     `SELECT id, posting_id, name, email, phone, linkedin, portfolio,
             cover_letter, resume_text, resume_filename, resume_size,
             (resume_data IS NOT NULL) AS has_resume,
-            status, admin_notes, created_at, updated_at
+            status, decline_reason, start_date, admin_notes, created_at, updated_at
      FROM job_applications WHERE posting_id = $1 ORDER BY created_at DESC`, [postingId]
   );
 }
@@ -206,8 +209,8 @@ export async function adminGetAllApplications(): Promise<JobApplication[]> {
     SELECT ja.id, ja.posting_id, ja.name, ja.email, ja.phone, ja.linkedin, ja.portfolio,
            ja.cover_letter, ja.resume_text, ja.resume_filename, ja.resume_size,
            (ja.resume_data IS NOT NULL) AS has_resume,
-           ja.status, ja.admin_notes, ja.created_at, ja.updated_at,
-           jp.title AS posting_title
+           ja.status, ja.decline_reason, ja.start_date, ja.admin_notes,
+           ja.created_at, ja.updated_at, jp.title AS posting_title
     FROM job_applications ja
     JOIN job_postings jp ON jp.id = ja.posting_id
     ORDER BY ja.created_at DESC
@@ -215,14 +218,22 @@ export async function adminGetAllApplications(): Promise<JobApplication[]> {
 }
 
 export async function adminUpdateApplicationStatus(
-  id: number, status: string, notes?: string
+  id: number,
+  status: string,
+  opts?: { notes?: string; declineReason?: string; startDate?: string }
 ): Promise<{ success: boolean; error?: string }> {
   const session = await getSession();
   if (!session || session.role !== "admin") return { success: false, error: "Unauthorized" };
   try {
     await query(
-      `UPDATE job_applications SET status=$1, admin_notes=COALESCE($2, admin_notes), updated_at=NOW() WHERE id=$3`,
-      [status, notes ?? null, id]
+      `UPDATE job_applications
+       SET status       = $1,
+           admin_notes  = COALESCE($2, admin_notes),
+           decline_reason = CASE WHEN $3::text IS NOT NULL THEN $3 ELSE decline_reason END,
+           start_date   = CASE WHEN $4::date IS NOT NULL THEN $4::date ELSE start_date END,
+           updated_at   = NOW()
+       WHERE id = $5`,
+      [status, opts?.notes ?? null, opts?.declineReason ?? null, opts?.startDate ?? null, id]
     );
     revalidatePath("/admin/careers");
     return { success: true };

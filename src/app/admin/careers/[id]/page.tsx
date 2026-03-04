@@ -20,11 +20,15 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
   const ss = STATUS_STYLE[posting.status] ?? STATUS_STYLE.draft;
   const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 
-  const pipeline = ["new","reviewing","interviewed","offered","rejected"].map(s => ({
-    label: s.charAt(0).toUpperCase() + s.slice(1),
-    count: applications.filter(a => a.status === s).length,
-    s,
-  }));
+  const pipeline = [
+    { s: "new",            label: "New",         icon: "📋", color: "#3b82f6" },
+    { s: "phone_review",   label: "Phone",        icon: "📞", color: "#f59e0b" },
+    { s: "interview_1",    label: "1st Interview",icon: "🤝", color: "#8b5cf6" },
+    { s: "interview_2",    label: "2nd Interview",icon: "💼", color: "#06b6d4" },
+    { s: "offer_sent",     label: "Offer Sent",   icon: "📨", color: "#10b981" },
+    { s: "offer_accepted", label: "Accepted",     icon: "🎉", color: "#15803d" },
+    { s: "declined",       label: "Declined",     icon: "✕",  color: "#ef4444" },
+  ].map(p => ({ ...p, count: applications.filter(a => a.status === p.s).length }));
 
   return (
     <div style={{ padding: 28 }}>
@@ -59,11 +63,12 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
       </div>
 
       {/* Pipeline summary */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10, marginBottom: 28 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10, marginBottom: 28 }}>
         {pipeline.map(p => (
-          <div key={p.s} style={{ background: "white", borderRadius: 10, padding: "14px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)", textAlign: "center" }}>
-            <p style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px", color: p.count > 0 ? "#0f172a" : "#cbd5e1" }}>{p.count}</p>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: 0 }}>{p.label}</p>
+          <div key={p.s} style={{ background: "white", borderRadius: 10, padding: "12px 10px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)", textAlign: "center", borderTop: p.count > 0 ? `3px solid ${p.color}` : "3px solid #f1f5f9" }}>
+            <p style={{ fontSize: 18, margin: "0 0 2px" }}>{p.icon}</p>
+            <p style={{ fontSize: 22, fontWeight: 800, margin: "0 0 4px", color: p.count > 0 ? p.color : "#cbd5e1" }}>{p.count}</p>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: 0, lineHeight: 1.3 }}>{p.label}</p>
           </div>
         ))}
       </div>
