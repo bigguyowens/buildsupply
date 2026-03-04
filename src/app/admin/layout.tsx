@@ -9,11 +9,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <AdminThemeWrapper>
-      <div style={{ display: "flex", minHeight: "100vh", background: "var(--ad-bg)" }}>
-        <AdminSidebar session={session} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {children}
-        </div>
+      <AdminSidebar session={session} />
+      <div style={{ flex: 1, minWidth: 0, background: "var(--ad-bg)" }}>
+        {children}
       </div>
     </AdminThemeWrapper>
   );

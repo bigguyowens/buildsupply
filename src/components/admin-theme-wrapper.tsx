@@ -25,7 +25,7 @@ export function AdminThemeWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider value={{ theme, toggle }}>
-      <div data-admin-theme={theme} style={{ display: "contents" }}>
+      <div data-admin-theme={theme} style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
         {children}
       </div>
     </Ctx.Provider>
