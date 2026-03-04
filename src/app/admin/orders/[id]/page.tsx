@@ -21,7 +21,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   return (
     <div style={{ padding: 28 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 24 }}>
-        <Link href="/admin/orders" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 13 }}>← Orders</Link>
+        <Link href="/admin/orders" style={{ color: "var(--ad-muted2)", textDecoration: "none", fontSize: 13 }}>← Orders</Link>
         <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Order #{orderRow.id}</h1>
       </div>
       <AdminOrderDetailClient order={orderRow as any} />

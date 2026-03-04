@@ -26,8 +26,8 @@ const STATUS_COLORS: Record<string, string> = {
 const ChartTooltip = ({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{ background: "white", border: "1px solid #e2e8f0", borderRadius: 8, padding: "10px 14px", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: 13 }}>
-      {label && <p style={{ fontWeight: 700, margin: "0 0 6px", color: "#0f172a" }}>{label}</p>}
+    <div style={{ background: "var(--ad-surface)", border: "1px solid var(--ad-border)", borderRadius: 8, padding: "10px 14px", boxShadow: "0 4px 16px rgba(0,0,0,0.12)", fontSize: 13 }}>
+      {label && <p style={{ fontWeight: 700, margin: "0 0 6px", color: "var(--ad-text)" }}>{label}</p>}
       {payload.map(p => (
         <p key={p.name} style={{ margin: "3px 0", color: p.color }}>
           <span style={{ fontWeight: 600 }}>{p.name}: </span>
@@ -45,19 +45,19 @@ function KpiCard({ label, value, sub, color, trend, icon }: {
 }) {
   const up = (trend ?? 0) >= 0;
   return (
-    <div style={{ background: "white", borderRadius: 12, padding: "20px 22px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)", borderTop: `3px solid ${color}`, display: "flex", flexDirection: "column", gap: 6 }}>
+    <div style={{ background: "var(--ad-surface)", borderRadius: 12, padding: "20px 22px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)", borderTop: `3px solid ${color}`, display: "flex", flexDirection: "column", gap: 6 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#94a3b8", margin: 0 }}>{label}</p>
+        <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--ad-muted2)", margin: 0 }}>{label}</p>
         <span style={{ fontSize: 22 }}>{icon}</span>
       </div>
-      <p style={{ fontSize: 28, fontWeight: 900, margin: 0, color: "#0f172a", lineHeight: 1 }}>{value}</p>
+      <p style={{ fontSize: 28, fontWeight: 900, margin: 0, color: "var(--ad-text)", lineHeight: 1 }}>{value}</p>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         {trend !== undefined && (
           <span style={{ fontSize: 12, fontWeight: 700, padding: "1px 8px", borderRadius: 9999, background: up ? "#dcfce7" : "#fee2e2", color: up ? "#15803d" : "#dc2626" }}>
             {up ? "▲" : "▼"} {Math.abs(trend).toFixed(0)}%
           </span>
         )}
-        <p style={{ fontSize: 12, color: "#94a3b8", margin: 0 }}>{sub}</p>
+        <p style={{ fontSize: 12, color: "var(--ad-muted2)", margin: 0 }}>{sub}</p>
       </div>
     </div>
   );
@@ -66,11 +66,11 @@ function KpiCard({ label, value, sub, color, trend, icon }: {
 // ── Section card wrapper ──────────────────────────────────────────────────────
 function Card({ title, subtitle, children, action }: { title: string; subtitle?: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div style={{ background: "white", borderRadius: 12, padding: "22px 24px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)" }}>
+    <div style={{ background: "var(--ad-surface)", borderRadius: 12, padding: "22px 24px", boxShadow: "0 1px 6px rgba(0,0,0,0.07)" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
         <div>
-          <h2 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: "#0f172a" }}>{title}</h2>
-          {subtitle && <p style={{ fontSize: 12, color: "#94a3b8", margin: "3px 0 0" }}>{subtitle}</p>}
+          <h2 style={{ fontSize: 14, fontWeight: 800, margin: 0, color: "var(--ad-text)" }}>{title}</h2>
+          {subtitle && <p style={{ fontSize: 12, color: "var(--ad-muted2)", margin: "3px 0 0" }}>{subtitle}</p>}
         </div>
         {action}
       </div>
@@ -126,11 +126,11 @@ export function DashboardCharts({
           { label: "New Applications",  value: String(kpi.pending_apps),         sub: "awaiting review",   color: "#ec4899", icon: "💼"  },
           { label: "Promo Savings Given", value: fmt(kpi.promo_savings),          sub: "all time",          color: "#84cc16", icon: "🎟️" },
         ].map(s => (
-          <div key={s.label} style={{ background: "white", borderRadius: 10, padding: "14px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 14, borderLeft: `3px solid ${s.color}` }}>
+          <div key={s.label} style={{ background: "var(--ad-surface)", borderRadius: 10, padding: "14px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 14, borderLeft: `3px solid ${s.color}` }}>
             <span style={{ fontSize: 24 }}>{s.icon}</span>
             <div>
-              <p style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "#0f172a" }}>{s.value}</p>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#94a3b8", margin: "2px 0 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.label}</p>
+              <p style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "var(--ad-text)" }}>{s.value}</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--ad-muted2)", margin: "2px 0 0", textTransform: "uppercase", letterSpacing: "0.05em" }}>{s.label}</p>
               <p style={{ fontSize: 11, color: "#cbd5e1", margin: 0 }}>{s.sub}</p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export function DashboardCharts({
         title="Revenue Over Time"
         subtitle={revenueRange === "30d" ? "Daily — last 30 days" : "Monthly — last 12 months"}
         action={
-          <div style={{ display: "flex", background: "#f1f5f9", borderRadius: 8, padding: 3 }}>
+          <div style={{ display: "flex", background: "var(--ad-surface2)", borderRadius: 8, padding: 3 }}>
             {(["30d","12m"] as const).map(r => (
               <button key={r} onClick={() => setRevenueRange(r)} style={{ padding: "5px 14px", borderRadius: 6, border: "none", fontSize: 12, fontWeight: 700, cursor: "pointer", background: revenueRange === r ? "white" : "transparent", color: revenueRange === r ? "#0f172a" : "#94a3b8", boxShadow: revenueRange === r ? "0 1px 3px rgba(0,0,0,0.1)" : "none" }}>
                 {r === "30d" ? "30 Days" : "12 Months"}
@@ -194,10 +194,10 @@ export function DashboardCharts({
               <div key={row.status} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <div style={{ width: 10, height: 10, borderRadius: "50%", background: STATUS_COLORS[row.status] ?? COLORS[i % COLORS.length] }} />
-                  <span style={{ fontSize: 12, color: "#64748b", textTransform: "capitalize" }}>{row.status}</span>
+                  <span style={{ fontSize: 12, color: "var(--ad-muted)", textTransform: "capitalize" }}>{row.status}</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "#0f172a" }}>{row.count}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ad-text)" }}>{row.count}</span>
                   <span style={{ fontSize: 11, color: "#cbd5e1" }}>{totalOrders > 0 ? ((row.count / totalOrders) * 100).toFixed(0) : 0}%</span>
                 </div>
               </div>
@@ -207,7 +207,7 @@ export function DashboardCharts({
 
         <Card title="Top Products by Revenue" subtitle="All time, non-cancelled orders">
           {topProducts.length === 0 ? (
-            <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No product data yet</p>
+            <p style={{ color: "var(--ad-muted2)", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No product data yet</p>
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={topProducts.map(p => ({ ...p, name: p.name.length > 28 ? p.name.slice(0, 28) + "…" : p.name }))} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
@@ -229,7 +229,7 @@ export function DashboardCharts({
 
         <Card title="Revenue by Category" subtitle="All time breakdown">
           {byCat.length === 0 ? (
-            <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No data yet</p>
+            <p style={{ color: "var(--ad-muted2)", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No data yet</p>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={byCat} margin={{ top: 5, right: 10, left: 0, bottom: 40 }}>
@@ -247,7 +247,7 @@ export function DashboardCharts({
 
         <Card title="New Customers" subtitle="Last 6 months">
           {custGrowth.length === 0 ? (
-            <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No data yet</p>
+            <p style={{ color: "var(--ad-muted2)", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No data yet</p>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={custGrowth} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
@@ -283,7 +283,7 @@ export function DashboardCharts({
 
         <Card title="Most Viewed Products" subtitle="Last 30 days">
           {viewedProducts.length === 0 ? (
-            <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No view data yet</p>
+            <p style={{ color: "var(--ad-muted2)", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No view data yet</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
               {viewedProducts.map((p, i) => {
@@ -292,10 +292,10 @@ export function DashboardCharts({
                 return (
                   <div key={p.name}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, color: "#374151", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginRight: 8 }}>{p.name}</span>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#0f172a", flexShrink: 0 }}>{p.views} views</span>
+                      <span style={{ fontSize: 12, fontWeight: 600, color: "var(--ad-text2)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginRight: 8 }}>{p.name}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ad-text)", flexShrink: 0 }}>{p.views} views</span>
                     </div>
-                    <div style={{ height: 5, borderRadius: 3, background: "#f1f5f9", overflow: "hidden" }}>
+                    <div style={{ height: 5, borderRadius: 3, background: "var(--ad-surface2)", overflow: "hidden" }}>
                       <div style={{ height: "100%", width: `${pct}%`, background: COLORS[i % COLORS.length], borderRadius: 3 }} />
                     </div>
                   </div>
@@ -314,7 +314,7 @@ export function DashboardCharts({
             <thead>
               <tr>
                 {["Order", "Customer", "Date", "Total", "Status"].map(h => (
-                  <th key={h} style={{ padding: "0 0 10px", textAlign: "left", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8" }}>{h}</th>
+                  <th key={h} style={{ padding: "0 0 10px", textAlign: "left", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-muted2)" }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -326,8 +326,8 @@ export function DashboardCharts({
                     <td style={{ padding: "10px 0", fontWeight: 700 }}>
                       <Link href={`/admin/orders/${o.id}`} style={{ color: ACCENT, textDecoration: "none" }}>#{o.id}</Link>
                     </td>
-                    <td style={{ padding: "10px 8px 10px 0", color: "#475569" }}>{o.first_name ? `${o.first_name} ${o.last_name}` : "Guest"}</td>
-                    <td style={{ padding: "10px 8px 10px 0", color: "#94a3b8", fontSize: 11 }}>
+                    <td style={{ padding: "10px 8px 10px 0", color: "var(--ad-text2)" }}>{o.first_name ? `${o.first_name} ${o.last_name}` : "Guest"}</td>
+                    <td style={{ padding: "10px 8px 10px 0", color: "var(--ad-muted2)", fontSize: 11 }}>
                       {new Date(o.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                     </td>
                     <td style={{ padding: "10px 8px 10px 0", fontWeight: 700 }}>{fmt(Number(o.total))}</td>
@@ -345,14 +345,14 @@ export function DashboardCharts({
 
         <Card title="⚠️ Low Stock" action={<Link href="/admin/products" style={{ fontSize: 12, color: ACCENT, textDecoration: "none", fontWeight: 700 }}>View all →</Link>}>
           {lowStock.length === 0 ? (
-            <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "32px 0" }}>All products well stocked ✓</p>
+            <p style={{ color: "var(--ad-muted2)", fontSize: 13, textAlign: "center", padding: "32px 0" }}>All products well stocked ✓</p>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {lowStock.map(p => (
                 <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #f8fafc" }}>
                   <div style={{ flex: 1, minWidth: 0, marginRight: 8 }}>
                     <p style={{ fontSize: 12, fontWeight: 600, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</p>
-                    <p style={{ fontSize: 10, color: "#94a3b8", margin: "2px 0 0" }}>{p.category}</p>
+                    <p style={{ fontSize: 10, color: "var(--ad-muted2)", margin: "2px 0 0" }}>{p.category}</p>
                   </div>
                   <span style={{ padding: "2px 10px", borderRadius: 9999, fontSize: 11, fontWeight: 700, flexShrink: 0, background: p.inventory <= 5 ? "#fee2e2" : "#fef9c3", color: p.inventory <= 5 ? "#991b1b" : "#854d0e" }}>
                     {p.inventory} left

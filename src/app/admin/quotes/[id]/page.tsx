@@ -5,7 +5,7 @@ import { ProductImage } from "@/components/product-image";
 import { SendQuoteButton } from "./send-button";
 
 const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }> = {
-  draft:    { bg: "#f1f5f9", color: "#475569", label: "Draft"    },
+  draft:    { bg: "#f1f5f9", color: "var(--ad-text2)", label: "Draft"    },
   sent:     { bg: "#dbeafe", color: "#1e40af", label: "Sent"     },
   accepted: { bg: "#dcfce7", color: "#15803d", label: "Accepted" },
   declined: { bg: "#fee2e2", color: "#991b1b", label: "Declined" },
@@ -56,7 +56,7 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link href="/admin/quotes" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 13 }}>← Quotes</Link>
+          <Link href="/admin/quotes" style={{ color: "var(--ad-muted2)", textDecoration: "none", fontSize: 13 }}>← Quotes</Link>
           <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Quote #{quote.id}</h1>
           <span style={{ padding: "2px 12px", borderRadius: 9999, fontSize: 12, fontWeight: 700, textTransform: "uppercase", background: isExpired ? "#fef9c3" : ss.bg, color: isExpired ? "#854d0e" : ss.color }}>
             {isExpired ? "Expired" : ss.label}
@@ -82,15 +82,15 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Line items */}
-          <div style={{ background: "white", borderRadius: 10, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden" }}>
-            <div style={{ padding: "14px 20px", borderBottom: "1px solid #f1f5f9" }}>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 10, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--ad-border2)" }}>
               <h2 style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Line Items</h2>
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
-                <tr style={{ background: "#f8fafc" }}>
+                <tr style={{ background: "var(--ad-surface2)" }}>
                   {["Product", "Qty", "List Price", "Quoted Price", "Line Total", "Saving"].map(h => (
-                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8" }}>{h}</th>
+                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -99,20 +99,20 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
                   const lineSaving = (Number(item.original_price) - Number(item.quoted_price)) * item.quantity;
                   const pct = Number(item.original_price) > 0 ? ((Number(item.original_price) - Number(item.quoted_price)) / Number(item.original_price)) * 100 : 0;
                   return (
-                    <tr key={item.id} style={{ borderTop: "1px solid #f1f5f9" }}>
+                    <tr key={item.id} style={{ borderTop: "1px solid var(--ad-border2)" }}>
                       <td style={{ padding: "12px 16px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <div style={{ width: 36, height: 36, borderRadius: 6, overflow: "hidden", border: "1px solid #e2e8f0", flexShrink: 0, position: "relative", background: "#f8fafc" }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 6, overflow: "hidden", border: "1px solid var(--ad-border)", flexShrink: 0, position: "relative", background: "var(--ad-surface2)" }}>
                             <ProductImage src={item.product_image} alt={item.product_name} fill sizes="36px" />
                           </div>
                           <div>
-                            <Link href={`/products/${item.product_slug}`} target="_blank" style={{ fontWeight: 700, fontSize: 13, color: "#0f172a", textDecoration: "none" }}>{item.product_name}</Link>
-                            <p style={{ fontSize: 11, color: "#94a3b8", margin: "1px 0 0" }}>SKU: {item.product_sku || "—"}</p>
+                            <Link href={`/products/${item.product_slug}`} target="_blank" style={{ fontWeight: 700, fontSize: 13, color: "var(--ad-text)", textDecoration: "none" }}>{item.product_name}</Link>
+                            <p style={{ fontSize: 11, color: "var(--ad-muted2)", margin: "1px 0 0" }}>SKU: {item.product_sku || "—"}</p>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: "12px 16px", color: "#64748b" }}>{item.quantity}</td>
-                      <td style={{ padding: "12px 16px", color: "#64748b" }}>{fmt(Number(item.original_price))}</td>
+                      <td style={{ padding: "12px 16px", color: "var(--ad-muted)" }}>{item.quantity}</td>
+                      <td style={{ padding: "12px 16px", color: "var(--ad-muted)" }}>{fmt(Number(item.original_price))}</td>
                       <td style={{ padding: "12px 16px", fontWeight: 700 }}>{fmt(Number(item.quoted_price))}</td>
                       <td style={{ padding: "12px 16px", fontWeight: 700 }}>{fmt(Number(item.quoted_price) * item.quantity)}</td>
                       <td style={{ padding: "12px 16px" }}>
@@ -127,9 +127,9 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
                 })}
               </tbody>
               <tfoot>
-                <tr style={{ borderTop: "2px solid #f1f5f9", background: "#f8fafc" }}>
+                <tr style={{ borderTop: "2px solid #f1f5f9", background: "var(--ad-surface2)" }}>
                   <td colSpan={3} style={{ padding: "12px 16px" }} />
-                  <td style={{ padding: "12px 16px", fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8" }}>Quoted Total</td>
+                  <td style={{ padding: "12px 16px", fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)" }}>Quoted Total</td>
                   <td style={{ padding: "12px 16px", fontWeight: 800, fontSize: 15 }}>{fmt(quotedTotal)}</td>
                   <td style={{ padding: "12px 16px" }}>
                     {savings > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: "#15803d" }}>Saves {fmt(savings)}</span>}
@@ -141,12 +141,12 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
 
           {/* Notes */}
           {(quote.notes || quote.internal_notes) && (
-            <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
               <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px" }}>Notes</h2>
               {quote.notes && (
                 <div style={{ marginBottom: 12 }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: "0 0 6px" }}>Customer Message</p>
-                  <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{quote.notes}</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)", margin: "0 0 6px" }}>Customer Message</p>
+                  <p style={{ fontSize: 13, color: "var(--ad-text2)", lineHeight: 1.6, margin: 0, whiteSpace: "pre-wrap" }}>{quote.notes}</p>
                 </div>
               )}
               {quote.internal_notes && (
@@ -163,17 +163,17 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Customer */}
-          <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px" }}>Customer</h2>
             <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>{quote.customer_name}</p>
-            <p style={{ color: "#94a3b8", fontSize: 12, margin: "3px 0 12px" }}>{quote.customer_email}</p>
+            <p style={{ color: "var(--ad-muted2)", fontSize: 12, margin: "3px 0 12px" }}>{quote.customer_email}</p>
             <Link href={`/admin/customers/${quote.customer_id}`} style={{ fontSize: 12, color: "#f97316", fontWeight: 700, textDecoration: "none" }}>
               View customer profile →
             </Link>
           </div>
 
           {/* Meta */}
-          <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px" }}>Details</h2>
             {[
               ["Created",   fmtDate(quote.created_at)],
@@ -182,14 +182,14 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
               ["Expires",   quote.expires_at ? fmtDate(quote.expires_at) : "No expiry"],
             ].map(([label, val]) => (
               <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #f8fafc", fontSize: 13 }}>
-                <span style={{ color: "#94a3b8", fontWeight: 600 }}>{label}</span>
-                <span style={{ fontWeight: 700, color: "#0f172a" }}>{val}</span>
+                <span style={{ color: "var(--ad-muted2)", fontWeight: 600 }}>{label}</span>
+                <span style={{ fontWeight: 700, color: "var(--ad-text)" }}>{val}</span>
               </div>
             ))}
           </div>
 
           {/* Value summary */}
-          <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
             <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px" }}>Value Summary</h2>
             {[
               { label: "List total",    val: fmt(listTotal),   style: {} },
@@ -197,7 +197,7 @@ export default async function AdminQuoteDetailPage({ params }: { params: Promise
               { label: "Customer saves", val: savings >= 0 ? fmt(savings) : `-${fmt(Math.abs(savings))}`, style: { color: savings >= 0 ? "#15803d" : "#dc2626", fontWeight: 700 } },
             ].map(r => (
               <div key={r.label} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #f8fafc", fontSize: 13 }}>
-                <span style={{ color: "#94a3b8", fontWeight: 600 }}>{r.label}</span>
+                <span style={{ color: "var(--ad-muted2)", fontWeight: 600 }}>{r.label}</span>
                 <span style={r.style}>{r.val}</span>
               </div>
             ))}

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ApplicantList } from "./applicants";
 
 const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  draft:  { bg: "#f1f5f9", color: "#475569" },
+  draft:  { bg: "#f1f5f9", color: "var(--ad-text2)" },
   active: { bg: "#dcfce7", color: "#15803d" },
   closed: { bg: "#fee2e2", color: "#991b1b" },
 };
@@ -36,7 +36,7 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-            <Link href="/admin/careers" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 13 }}>← Careers</Link>
+            <Link href="/admin/careers" style={{ color: "var(--ad-muted2)", textDecoration: "none", fontSize: 13 }}>← Careers</Link>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>{posting.title}</h1>
@@ -44,7 +44,7 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
               {posting.status}
             </span>
           </div>
-          <p style={{ fontSize: 13, color: "#94a3b8", margin: "6px 0 0" }}>
+          <p style={{ fontSize: 13, color: "var(--ad-muted2)", margin: "6px 0 0" }}>
             {posting.department} · {posting.location} · {posting.type}
             {posting.salary_range && ` · ${posting.salary_range}`}
             {" · "}Posted {fmtDate(posting.created_at)}
@@ -52,7 +52,7 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           {posting.status === "active" && (
-            <Link href={`/careers/${posting.slug}`} target="_blank" style={{ padding: "8px 16px", borderRadius: 8, background: "white", border: "1px solid #e2e8f0", color: "#374151", fontWeight: 600, fontSize: 13, textDecoration: "none" }}>
+            <Link href={`/careers/${posting.slug}`} target="_blank" style={{ padding: "8px 16px", borderRadius: 8, background: "var(--ad-surface)", border: "1px solid var(--ad-border)", color: "var(--ad-text2)", fontWeight: 600, fontSize: 13, textDecoration: "none" }}>
               View Live ↗
             </Link>
           )}
@@ -65,10 +65,10 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
       {/* Pipeline summary */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10, marginBottom: 28 }}>
         {pipeline.map(p => (
-          <div key={p.s} style={{ background: "white", borderRadius: 10, padding: "12px 10px", boxShadow: "0 1px 4px rgba(0,0,0,0.05)", textAlign: "center", borderTop: p.count > 0 ? `3px solid ${p.color}` : "3px solid #f1f5f9" }}>
+          <div key={p.s} style={{ background: "var(--ad-surface)", borderRadius: 10, padding: "12px 10px", boxShadow: "0 1px 4px var(--ad-shadow)", textAlign: "center", borderTop: p.count > 0 ? `3px solid ${p.color}` : "3px solid #f1f5f9" }}>
             <p style={{ fontSize: 18, margin: "0 0 2px" }}>{p.icon}</p>
             <p style={{ fontSize: 22, fontWeight: 800, margin: "0 0 4px", color: p.count > 0 ? p.color : "#cbd5e1" }}>{p.count}</p>
-            <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: 0, lineHeight: 1.3 }}>{p.label}</p>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)", margin: 0, lineHeight: 1.3 }}>{p.label}</p>
           </div>
         ))}
       </div>
@@ -80,16 +80,16 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
             <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0 }}>
               Applications
-              <span style={{ marginLeft: 8, fontSize: 13, fontWeight: 600, color: "#94a3b8" }}>({applications.length})</span>
+              <span style={{ marginLeft: 8, fontSize: 13, fontWeight: 600, color: "var(--ad-muted2)" }}>({applications.length})</span>
             </h2>
           </div>
 
           {applications.length === 0 ? (
-            <div style={{ background: "white", borderRadius: 10, padding: "48px 24px", textAlign: "center", boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+            <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: "48px 24px", textAlign: "center", boxShadow: "0 1px 4px var(--ad-shadow)" }}>
               <p style={{ fontSize: 32, margin: "0 0 8px" }}>📭</p>
-              <p style={{ fontWeight: 700, color: "#64748b", margin: 0 }}>No applications yet</p>
+              <p style={{ fontWeight: 700, color: "var(--ad-muted)", margin: 0 }}>No applications yet</p>
               {posting.status === "draft" && (
-                <p style={{ fontSize: 13, color: "#94a3b8", margin: "8px 0 0" }}>Set the posting to Active so applicants can find it.</p>
+                <p style={{ fontSize: 13, color: "var(--ad-muted2)", margin: "8px 0 0" }}>Set the posting to Active so applicants can find it.</p>
               )}
             </div>
           ) : (
@@ -99,8 +99,8 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
 
         {/* Posting sidebar */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 14px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8" }}>Job Summary</h3>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px var(--ad-shadow)" }}>
+            <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 14px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-muted2)" }}>Job Summary</h3>
             {[
               { label: "Department", val: posting.department },
               { label: "Type",       val: posting.type },
@@ -110,16 +110,16 @@ export default async function AdminCareerDetailPage({ params }: { params: Promis
               { label: "Updated",    val: fmtDate(posting.updated_at) },
             ].map(r => (
               <div key={r.label} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: "1px solid #f8fafc", fontSize: 13 }}>
-                <span style={{ color: "#94a3b8", fontWeight: 600 }}>{r.label}</span>
-                <span style={{ fontWeight: 700, color: "#0f172a" }}>{r.val}</span>
+                <span style={{ color: "var(--ad-muted2)", fontWeight: 600 }}>{r.label}</span>
+                <span style={{ fontWeight: 700, color: "var(--ad-text)" }}>{r.val}</span>
               </div>
             ))}
           </div>
 
           {posting.description && (
-            <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
-              <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8" }}>Description Preview</h3>
-              <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.6, margin: 0, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical" }}>
+            <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px var(--ad-shadow)" }}>
+              <h3 style={{ fontSize: 13, fontWeight: 700, margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-muted2)" }}>Description Preview</h3>
+              <p style={{ fontSize: 13, color: "var(--ad-text2)", lineHeight: 1.6, margin: 0, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical" }}>
                 {posting.description}
               </p>
               <Link href={`/admin/careers/${id}/edit`} style={{ fontSize: 12, color: "#f97316", fontWeight: 700, textDecoration: "none", display: "block", marginTop: 8 }}>

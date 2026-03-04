@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
+import { AdminThemeToggle } from "./admin-theme-toggle";
 import type { SessionUser } from "@/lib/auth";
 
 type NavItem =
@@ -48,7 +49,7 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
           <p style={{ color: "white", fontWeight: 800, fontSize: 16, margin: 0 }}>
             <span style={{ color: "#f97316" }}>Build</span>Supply
           </p>
-          <p style={{ color: "#64748b", fontSize: 11, margin: "2px 0 0", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          <p style={{ color: "var(--ad-muted)", fontSize: 11, margin: "2px 0 0", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
             Admin Panel
           </p>
         </Link>
@@ -88,9 +89,10 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
 
       {/* Footer */}
       <div style={{ padding: "12px 8px", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 6, textDecoration: "none", color: "#64748b", fontSize: 12, marginBottom: 4 }}>
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 6, textDecoration: "none", color: "var(--ad-muted)", fontSize: 12, marginBottom: 4 }}>
           ← Back to Site
         </Link>
+        <AdminThemeToggle />
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px" }}>
           <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f97316", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
             {session.firstName[0]}{session.lastName[0]}
@@ -101,7 +103,7 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
             </p>
           </div>
           <form action={logoutAction}>
-            <button type="submit" title="Sign out" style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 14, padding: 0 }}>⏻</button>
+            <button type="submit" title="Sign out" style={{ background: "none", border: "none", color: "var(--ad-muted)", cursor: "pointer", fontSize: 14, padding: 0 }}>⏻</button>
           </form>
         </div>
       </div>

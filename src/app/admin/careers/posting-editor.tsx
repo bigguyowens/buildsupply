@@ -15,7 +15,7 @@ const STATUSES = [
 
 function Label({ text, required }: { text: string; required?: boolean }) {
   return (
-    <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+    <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 6, color: "var(--ad-text2)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
       {text}{required && <span style={{ color: "#f97316" }}> *</span>}
     </label>
   );
@@ -23,7 +23,7 @@ function Label({ text, required }: { text: string; required?: boolean }) {
 
 const inputStyle = {
   width: "100%", padding: "10px 12px", borderRadius: 8,
-  border: "1px solid #e2e8f0", fontSize: 14, boxSizing: "border-box" as const,
+  border: "1px solid var(--ad-border)", fontSize: 14, boxSizing: "border-box" as const,
   fontFamily: "inherit",
 };
 
@@ -73,7 +73,7 @@ export function PostingEditor({ posting }: { posting?: JobPosting }) {
           <div style={{ background: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 8, padding: "12px 16px", color: "#dc2626", fontSize: 14 }}>{error}</div>
         )}
 
-        <div style={{ background: "white", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 18px" }}>Job Details</h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
@@ -107,9 +107,9 @@ export function PostingEditor({ posting }: { posting?: JobPosting }) {
           </div>
         </div>
 
-        <div style={{ background: "white", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <Label text="About the Role" required />
-          <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 10px" }}>Describe the role, team, and day-to-day responsibilities.</p>
+          <p style={{ fontSize: 12, color: "var(--ad-muted2)", margin: "0 0 10px" }}>Describe the role, team, and day-to-day responsibilities.</p>
           <textarea
             value={form.description}
             onChange={e => set("description", e.target.value)}
@@ -119,9 +119,9 @@ export function PostingEditor({ posting }: { posting?: JobPosting }) {
           />
         </div>
 
-        <div style={{ background: "white", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <Label text="Requirements" />
-          <p style={{ fontSize: 12, color: "#94a3b8", margin: "0 0 10px" }}>Skills, experience, and qualifications. Use bullet points (one per line).</p>
+          <p style={{ fontSize: 12, color: "var(--ad-muted2)", margin: "0 0 10px" }}>Skills, experience, and qualifications. Use bullet points (one per line).</p>
           <textarea
             value={form.requirements}
             onChange={e => set("requirements", e.target.value)}
@@ -134,7 +134,7 @@ export function PostingEditor({ posting }: { posting?: JobPosting }) {
 
       {/* ── Right sidebar ── */}
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <Label text="Status" />
           <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 2 }}>
             {STATUSES.map(s => (
@@ -157,7 +157,7 @@ export function PostingEditor({ posting }: { posting?: JobPosting }) {
         </button>
 
         {isEdit && (
-          <a href={`/careers/${posting!.slug}`} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", fontSize: 13, color: "#64748b", textDecoration: "none", padding: "10px 0" }}>
+          <a href={`/careers/${posting!.slug}`} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", fontSize: 13, color: "var(--ad-muted)", textDecoration: "none", padding: "10px 0" }}>
             Preview public page ↗
           </a>
         )}

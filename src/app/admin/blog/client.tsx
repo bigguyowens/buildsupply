@@ -42,12 +42,12 @@ export function AdminBlogClient({ posts: initial, categories }: { posts: BlogPos
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 }}>
         <div>
-          <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#94a3b8", margin: "0 0 4px" }}>Admin</p>
-          <h1 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 4px", color: "#0f172a" }}>Blog Posts</h1>
-          <p style={{ color: "#64748b", fontSize: 13, margin: 0 }}>Manage news, press releases, and team updates</p>
+          <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--ad-muted2)", margin: "0 0 4px" }}>Admin</p>
+          <h1 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 4px", color: "var(--ad-text)" }}>Blog Posts</h1>
+          <p style={{ color: "var(--ad-muted)", fontSize: 13, margin: 0 }}>Manage news, press releases, and team updates</p>
         </div>
         <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-          <Link href="/admin/blog/categories" style={{ padding: "8px 14px", borderRadius: 7, border: "1px solid #e2e8f0", background: "white", color: "#374151", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
+          <Link href="/admin/blog/categories" style={{ padding: "8px 14px", borderRadius: 7, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", color: "var(--ad-text2)", fontSize: 12, fontWeight: 700, textDecoration: "none" }}>
             Manage Categories
           </Link>
           <Link href="/admin/blog/new" style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 7, border: "none", background: "var(--color-accent)", color: "white", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
@@ -64,9 +64,9 @@ export function AdminBlogClient({ posts: initial, categories }: { posts: BlogPos
           { label: "Published",    value: published    },
           { label: "Drafts",       value: drafts       },
         ].map(s => (
-          <div key={s.label} style={{ background: "white", borderRadius: 8, padding: "16px 20px", border: "1px solid #e2e8f0" }}>
-            <p style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px", color: "#0f172a" }}>{s.value}</p>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#94a3b8", margin: 0 }}>{s.label}</p>
+          <div key={s.label} style={{ background: "var(--ad-surface)", borderRadius: 8, padding: "16px 20px", border: "1px solid var(--ad-border)" }}>
+            <p style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px", color: "var(--ad-text)" }}>{s.value}</p>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--ad-muted2)", margin: 0 }}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -86,30 +86,30 @@ export function AdminBlogClient({ posts: initial, categories }: { posts: BlogPos
       </div>
 
       {/* Table */}
-      <div style={{ background: "white", borderRadius: 10, border: "1px solid #e2e8f0", overflow: "hidden" }}>
+      <div style={{ background: "var(--ad-surface)", borderRadius: 10, border: "1px solid var(--ad-border)", overflow: "hidden" }}>
         {visible.length === 0 ? (
-          <p style={{ padding: "48px", textAlign: "center", color: "#94a3b8", fontSize: 14 }}>No posts found. Create your first one!</p>
+          <p style={{ padding: "48px", textAlign: "center", color: "var(--ad-muted2)", fontSize: 14 }}>No posts found. Create your first one!</p>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
-              <tr style={{ background: "#f8fafc" }}>
+              <tr style={{ background: "var(--ad-surface2)" }}>
                 {["Title", "Category", "Author", "Date", "Status", ""].map(h => (
-                  <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8", borderBottom: "1px solid #e2e8f0", whiteSpace: "nowrap" }}>{h}</th>
+                  <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-muted2)", borderBottom: "1px solid var(--ad-border)", whiteSpace: "nowrap" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {visible.map(post => (
-                <tr key={post.id} style={{ borderTop: "1px solid #f1f5f9" }}>
+                <tr key={post.id} style={{ borderTop: "1px solid var(--ad-border2)" }}>
                   <td style={{ padding: "13px 16px", maxWidth: 280 }}>
-                    <p style={{ margin: 0, fontWeight: 700, color: "#0f172a", fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</p>
-                    {post.excerpt && <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.excerpt}</p>}
+                    <p style={{ margin: 0, fontWeight: 700, color: "var(--ad-text)", fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.title}</p>
+                    {post.excerpt && <p style={{ margin: "2px 0 0", fontSize: 11, color: "var(--ad-muted2)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{post.excerpt}</p>}
                   </td>
                   <td style={{ padding: "13px 16px" }}>
                     <span style={{ padding: "2px 10px", borderRadius: 9999, fontSize: 11, fontWeight: 700, background: post.category_color ?? "#f97316", color: "white" }}>{post.category_name}</span>
                   </td>
-                  <td style={{ padding: "13px 16px", color: "#64748b" }}>{post.author_name}</td>
-                  <td style={{ padding: "13px 16px", color: "#64748b", whiteSpace: "nowrap" }}>{fmt(post.published_at ?? post.created_at)}</td>
+                  <td style={{ padding: "13px 16px", color: "var(--ad-muted)" }}>{post.author_name}</td>
+                  <td style={{ padding: "13px 16px", color: "var(--ad-muted)", whiteSpace: "nowrap" }}>{fmt(post.published_at ?? post.created_at)}</td>
                   <td style={{ padding: "13px 16px" }}>
                     <span style={{ padding: "2px 10px", borderRadius: 9999, fontSize: 11, fontWeight: 700, background: post.published ? "#dcfce7" : "#f1f5f9", color: post.published ? "#15803d" : "#94a3b8" }}>
                       {post.published ? "Published" : "Draft"}
@@ -117,12 +117,12 @@ export function AdminBlogClient({ posts: initial, categories }: { posts: BlogPos
                   </td>
                   <td style={{ padding: "13px 16px" }}>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <Link href={`/admin/blog/${post.id}`} style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid #e2e8f0", background: "white", fontSize: 11, fontWeight: 700, color: "#374151", textDecoration: "none" }}>Edit</Link>
-                      <button onClick={() => handleToggle(post.id, !post.published)} style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid #e2e8f0", background: "white", fontSize: 11, fontWeight: 700, cursor: "pointer", color: post.published ? "#64748b" : "#15803d" }}>
+                      <Link href={`/admin/blog/${post.id}`} style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontSize: 11, fontWeight: 700, color: "var(--ad-text2)", textDecoration: "none" }}>Edit</Link>
+                      <button onClick={() => handleToggle(post.id, !post.published)} style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontSize: 11, fontWeight: 700, cursor: "pointer", color: post.published ? "#64748b" : "#15803d" }}>
                         {post.published ? "Unpublish" : "Publish"}
                       </button>
                       {post.published && (
-                        <Link href={`/blog/${post.slug}`} target="_blank" style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid #e2e8f0", background: "white", fontSize: 11, fontWeight: 700, color: "var(--color-accent)", textDecoration: "none" }}>View ↗</Link>
+                        <Link href={`/blog/${post.slug}`} target="_blank" style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontSize: 11, fontWeight: 700, color: "var(--color-accent)", textDecoration: "none" }}>View ↗</Link>
                       )}
                       <button onClick={() => handleDelete(post)} style={{ padding: "5px 8px", borderRadius: 5, border: "1px solid #fecaca", background: "#fff5f5", color: "#ef4444", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>✕</button>
                     </div>

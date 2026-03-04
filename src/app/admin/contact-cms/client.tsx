@@ -5,17 +5,17 @@ import { useRouter } from "next/navigation";
 import type { ContactCMS, ContactHero, ContactForm, QuickContact, HoursRow, Location } from "@/app/actions/contact-cms";
 import { saveHero, saveForm, saveQuickContacts, saveHours, saveLocations } from "@/app/actions/contact-cms";
 
-const inp: React.CSSProperties = { width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, fontFamily: "inherit", boxSizing: "border-box" };
-const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", display: "block", marginBottom: 4 };
+const inp: React.CSSProperties = { width: "100%", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--ad-border)", fontSize: 13, fontFamily: "inherit", boxSizing: "border-box" };
+const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ad-muted)", display: "block", marginBottom: 4 };
 
 function Section({ title, children, onSave, saving, saved, error }: {
   title: string; children: React.ReactNode;
   onSave: () => void; saving: boolean; saved: boolean; error: string;
 }) {
   return (
-    <div style={{ background: "white", borderRadius: 10, border: "1px solid #e2e8f0", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid #f1f5f9", background: "#f8fafc" }}>
-        <span style={{ fontSize: 14, fontWeight: 800, color: "#0f172a" }}>{title}</span>
+    <div style={{ background: "var(--ad-surface)", borderRadius: 10, border: "1px solid var(--ad-border)", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--ad-border2)", background: "var(--ad-surface2)" }}>
+        <span style={{ fontSize: 14, fontWeight: 800, color: "var(--ad-text)" }}>{title}</span>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {saved  && <span style={{ fontSize: 12, color: "#15803d", fontWeight: 600 }}>✓ Saved</span>}
           {error  && <span style={{ fontSize: 12, color: "#ef4444", fontWeight: 600 }}>{error}</span>}
@@ -96,13 +96,13 @@ function FormSection({ initial }: { initial: ContactForm }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {data.reasons.map((r, i) => (
               <div key={i} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <span style={{ fontSize: 12, color: "#94a3b8", width: 18, textAlign: "right", flexShrink: 0 }}>{i + 1}.</span>
+                <span style={{ fontSize: 12, color: "var(--ad-muted2)", width: 18, textAlign: "right", flexShrink: 0 }}>{i + 1}.</span>
                 <input value={r} onChange={e => setReason(i, e.target.value)} style={{ ...inp, flex: 1 }} />
                 <button onClick={() => removeReason(i)} style={{ padding: "6px 10px", borderRadius: 5, border: "1px solid #fecaca", background: "#fff5f5", color: "#ef4444", fontSize: 12, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}>✕</button>
               </div>
             ))}
           </div>
-          <button onClick={addReason} style={{ marginTop: 8, padding: "6px 14px", borderRadius: 6, border: "1px dashed #d1d5db", background: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#64748b" }}>
+          <button onClick={addReason} style={{ marginTop: 8, padding: "6px 14px", borderRadius: 6, border: "1px dashed #d1d5db", background: "var(--ad-surface)", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "var(--ad-muted)" }}>
             + Add Option
           </button>
         </div>
@@ -138,7 +138,7 @@ function QuickContactsSection({ initial }: { initial: QuickContact[] }) {
     <Section title="Quick Contacts" onSave={save} saving={saving} saved={saved} error={error}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {items.map((item, i) => (
-          <div key={i} style={{ display: "grid", gridTemplateColumns: "48px 1fr 1fr 1fr auto", gap: 8, alignItems: "center", background: "#f8fafc", borderRadius: 7, padding: "10px 12px", border: "1px solid #e2e8f0" }}>
+          <div key={i} style={{ display: "grid", gridTemplateColumns: "48px 1fr 1fr 1fr auto", gap: 8, alignItems: "center", background: "var(--ad-surface2)", borderRadius: 7, padding: "10px 12px", border: "1px solid var(--ad-border)" }}>
             <input value={item.icon} onChange={e => setItem(i, "icon", e.target.value)} style={{ ...inp, textAlign: "center", fontSize: 18, padding: "6px 4px" }} />
             <div><label style={{ ...lbl, marginBottom: 2 }}>Label</label><input value={item.label} onChange={e => setItem(i, "label", e.target.value)} style={inp} /></div>
             <div><label style={{ ...lbl, marginBottom: 2 }}>Display Value</label><input value={item.value} onChange={e => setItem(i, "value", e.target.value)} style={inp} /></div>
@@ -146,7 +146,7 @@ function QuickContactsSection({ initial }: { initial: QuickContact[] }) {
             <button onClick={() => remove(i)} style={{ padding: "6px 10px", borderRadius: 5, border: "1px solid #fecaca", background: "#fff5f5", color: "#ef4444", fontSize: 12, fontWeight: 700, cursor: "pointer", marginTop: 16 }}>✕</button>
           </div>
         ))}
-        <button onClick={add} style={{ padding: "8px 14px", borderRadius: 6, border: "1px dashed #d1d5db", background: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#64748b", alignSelf: "flex-start" }}>
+        <button onClick={add} style={{ padding: "8px 14px", borderRadius: 6, border: "1px dashed #d1d5db", background: "var(--ad-surface)", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "var(--ad-muted)", alignSelf: "flex-start" }}>
           + Add Contact
         </button>
       </div>
@@ -186,10 +186,10 @@ function HoursSection({ initial }: { initial: HoursRow[] }) {
             <button onClick={() => remove(i)} style={{ padding: "7px 10px", borderRadius: 5, border: "1px solid #fecaca", background: "#fff5f5", color: "#ef4444", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>✕</button>
           </div>
         ))}
-        <button onClick={add} style={{ marginTop: 4, padding: "6px 14px", borderRadius: 6, border: "1px dashed #d1d5db", background: "white", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#64748b", alignSelf: "flex-start" }}>
+        <button onClick={add} style={{ marginTop: 4, padding: "6px 14px", borderRadius: 6, border: "1px dashed #d1d5db", background: "var(--ad-surface)", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "var(--ad-muted)", alignSelf: "flex-start" }}>
           + Add Row
         </button>
-        <p style={{ fontSize: 11, color: "#94a3b8", margin: "4px 0 0" }}>Tip: type "Closed" for days off and it will render greyed out automatically.</p>
+        <p style={{ fontSize: 11, color: "var(--ad-muted2)", margin: "4px 0 0" }}>Tip: type "Closed" for days off and it will render greyed out automatically.</p>
       </div>
     </Section>
   );
@@ -223,9 +223,9 @@ function LocationsSection({ initial }: { initial: Location[] }) {
     <Section title="Locations" onSave={save} saving={saving} saved={saved} error={error}>
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {locs.map((loc, i) => (
-          <div key={i} style={{ background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", padding: "14px 16px" }}>
+          <div key={i} style={{ background: "var(--ad-surface2)", borderRadius: 8, border: "1px solid var(--ad-border)", padding: "14px 16px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{loc.city || `Location ${i + 1}`}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ad-text)" }}>{loc.city || `Location ${i + 1}`}</span>
               <button onClick={() => remove(i)} style={{ padding: "4px 10px", borderRadius: 5, border: "1px solid #fecaca", background: "#fff5f5", color: "#ef4444", fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
                 Remove
               </button>
@@ -240,7 +240,7 @@ function LocationsSection({ initial }: { initial: Location[] }) {
             </div>
           </div>
         ))}
-        <button onClick={add} style={{ padding: "8px 18px", borderRadius: 6, border: "1px dashed #d1d5db", background: "white", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#64748b", alignSelf: "flex-start" }}>
+        <button onClick={add} style={{ padding: "8px 18px", borderRadius: 6, border: "1px dashed #d1d5db", background: "var(--ad-surface)", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "var(--ad-muted)", alignSelf: "flex-start" }}>
           + Add Location
         </button>
       </div>
@@ -253,9 +253,9 @@ export function ContactCmsAdminClient({ cms }: { cms: ContactCMS }) {
   return (
     <div style={{ padding: "28px 32px", maxWidth: 1000 }}>
       <div style={{ marginBottom: 28 }}>
-        <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#94a3b8", margin: "0 0 4px" }}>Admin</p>
-        <h1 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 4px", color: "#0f172a" }}>Contact Page</h1>
-        <p style={{ color: "#64748b", fontSize: 13, margin: 0 }}>Manage all content on the public <a href="/contact" target="_blank" style={{ color: "var(--color-accent)", textDecoration: "none", fontWeight: 600 }}>/contact</a> page.</p>
+        <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--ad-muted2)", margin: "0 0 4px" }}>Admin</p>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: "0 0 4px", color: "var(--ad-text)" }}>Contact Page</h1>
+        <p style={{ color: "var(--ad-muted)", fontSize: 13, margin: 0 }}>Manage all content on the public <a href="/contact" target="_blank" style={{ color: "var(--color-accent)", textDecoration: "none", fontWeight: 600 }}>/contact</a> page.</p>
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <HeroSection        initial={cms.hero} />

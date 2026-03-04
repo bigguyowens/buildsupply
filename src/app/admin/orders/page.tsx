@@ -21,7 +21,7 @@ export default async function AdminOrdersPage() {
     <div style={{ padding: 28 }}>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Orders</h1>
-        <p style={{ color: "#64748b", fontSize: 14, margin: "4px 0 0" }}>{orders.length} total orders</p>
+        <p style={{ color: "var(--ad-muted)", fontSize: 14, margin: "4px 0 0" }}>{orders.length} total orders</p>
       </div>
       <AdminOrdersClient orders={orders} />
     </div>

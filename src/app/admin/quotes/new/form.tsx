@@ -23,32 +23,32 @@ function LineRow({
   const pct     = item.original_price > 0 ? ((savings / item.original_price) * 100) : 0;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px 110px 80px 28px", gap: 10, alignItems: "center", padding: "12px 0", borderBottom: "1px solid #f1f5f9" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px 110px 80px 28px", gap: 10, alignItems: "center", padding: "12px 0", borderBottom: "1px solid var(--ad-border2)" }}>
       <div>
         <p style={{ fontWeight: 700, fontSize: 13, margin: 0 }}>{item.product_name}</p>
-        <p style={{ fontSize: 11, color: "#94a3b8", margin: "2px 0 0" }}>{item.product_brand} · SKU {item.product_sku || "—"}</p>
+        <p style={{ fontSize: 11, color: "var(--ad-muted2)", margin: "2px 0 0" }}>{item.product_brand} · SKU {item.product_sku || "—"}</p>
       </div>
 
       <input
         type="number" min={1} value={item.quantity}
         onChange={e => onChange(index, "quantity", Math.max(1, parseInt(e.target.value) || 1))}
-        style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, width: "100%", textAlign: "center" }}
+        style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid var(--ad-border)", fontSize: 13, width: "100%", textAlign: "center" }}
       />
 
       <div style={{ textAlign: "right" }}>
-        <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>List</p>
+        <p style={{ fontSize: 11, color: "var(--ad-muted2)", margin: 0 }}>List</p>
         <p style={{ fontSize: 13, fontWeight: 600, margin: 0 }}>{fmt(item.original_price)}</p>
       </div>
 
       <div>
-        <p style={{ fontSize: 11, color: "#94a3b8", margin: "0 0 2px" }}>Quoted</p>
+        <p style={{ fontSize: 11, color: "var(--ad-muted2)", margin: "0 0 2px" }}>Quoted</p>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <span style={{ fontSize: 12, color: "#64748b" }}>$</span>
+          <span style={{ fontSize: 12, color: "var(--ad-muted)" }}>$</span>
           <input
             type="number" min={0} step={0.01}
             value={item.quoted_price}
             onChange={e => onChange(index, "quoted_price", parseFloat(e.target.value) || 0)}
-            style={{ padding: "5px 6px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, width: "100%", fontWeight: 700 }}
+            style={{ padding: "5px 6px", borderRadius: 6, border: "1px solid var(--ad-border)", fontSize: 13, width: "100%", fontWeight: 700 }}
           />
         </div>
       </div>
@@ -65,7 +65,7 @@ function LineRow({
         ) : null}
       </div>
 
-      <button onClick={() => onRemove(index)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 16, padding: 0, lineHeight: 1 }}>×</button>
+      <button onClick={() => onRemove(index)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ad-muted2)", fontSize: 16, padding: 0, lineHeight: 1 }}>×</button>
     </div>
   );
 }
@@ -154,16 +154,16 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
         )}
 
         {/* Customer picker */}
-        <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px" }}>Customer</h2>
 
           {selectedCustomer ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 8 }}>
               <div>
                 <p style={{ fontWeight: 700, fontSize: 14, margin: 0 }}>{selectedCustomer.first_name} {selectedCustomer.last_name}</p>
-                <p style={{ fontSize: 12, color: "#64748b", margin: "2px 0 0" }}>{selectedCustomer.email}</p>
+                <p style={{ fontSize: 12, color: "var(--ad-muted)", margin: "2px 0 0" }}>{selectedCustomer.email}</p>
               </div>
-              <button onClick={() => setCustomerId(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8", fontSize: 18 }}>×</button>
+              <button onClick={() => setCustomerId(null)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ad-muted2)", fontSize: 18 }}>×</button>
             </div>
           ) : (
             <div style={{ position: "relative" }}>
@@ -171,15 +171,15 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
                 placeholder="Search customers by name or email…"
                 value={customerSearch}
                 onChange={e => setCustomerSearch(e.target.value)}
-                style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 14, boxSizing: "border-box" }}
+                style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid var(--ad-border)", fontSize: 14, boxSizing: "border-box" }}
               />
               {customerSearch.length > 0 && filteredCustomers.length > 0 && (
-                <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 50, maxHeight: 240, overflowY: "auto" }}>
+                <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "var(--ad-surface)", border: "1px solid var(--ad-border)", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 50, maxHeight: 240, overflowY: "auto" }}>
                   {filteredCustomers.slice(0, 8).map(c => (
                     <button key={c.id} onClick={() => { setCustomerId(c.id); setCustomerSearch(""); }}
                       style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 14px", border: "none", background: "none", cursor: "pointer", borderBottom: "1px solid #f8fafc" }}>
                       <p style={{ fontWeight: 700, fontSize: 13, margin: 0 }}>{c.first_name} {c.last_name}</p>
-                      <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>{c.email}</p>
+                      <p style={{ fontSize: 11, color: "var(--ad-muted2)", margin: 0 }}>{c.email}</p>
                     </button>
                   ))}
                 </div>
@@ -189,7 +189,7 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
         </div>
 
         {/* Product search + line items */}
-        <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px" }}>Line Items</h2>
 
           {/* Search */}
@@ -198,18 +198,18 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
               placeholder="Search products to add…"
               value={productSearch}
               onChange={e => setProductSearch(e.target.value)}
-              style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 14, boxSizing: "border-box" }}
+              style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid var(--ad-border)", fontSize: 14, boxSizing: "border-box" }}
             />
             {filteredProducts.length > 0 && (
-              <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "white", border: "1px solid #e2e8f0", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 50 }}>
+              <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "var(--ad-surface)", border: "1px solid var(--ad-border)", borderRadius: 8, boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 50 }}>
                 {filteredProducts.map(p => (
                   <button key={p.id} onClick={() => addProduct(p)}
                     style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", textAlign: "left", padding: "10px 14px", border: "none", background: "none", cursor: "pointer", borderBottom: "1px solid #f8fafc" }}>
                     <div>
                       <p style={{ fontWeight: 700, fontSize: 13, margin: 0 }}>{p.name}</p>
-                      <p style={{ fontSize: 11, color: "#94a3b8", margin: 0 }}>{p.brand} · {p.category}</p>
+                      <p style={{ fontSize: 11, color: "var(--ad-muted2)", margin: 0 }}>{p.brand} · {p.category}</p>
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", flexShrink: 0, marginLeft: 12 }}>{fmt(p.price)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ad-text)", flexShrink: 0, marginLeft: 12 }}>{fmt(p.price)}</span>
                   </button>
                 ))}
               </div>
@@ -220,13 +220,13 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
           {items.length > 0 && (
             <div style={{ display: "grid", gridTemplateColumns: "1fr 90px 110px 110px 80px 28px", gap: 10, padding: "0 0 8px", borderBottom: "2px solid #f1f5f9" }}>
               {["Product", "Qty", "List Price", "Quoted Price", "Disc.", ""].map(h => (
-                <span key={h} style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8" }}>{h}</span>
+                <span key={h} style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)" }}>{h}</span>
               ))}
             </div>
           )}
 
           {items.length === 0 ? (
-            <p style={{ color: "#94a3b8", fontSize: 13, textAlign: "center", padding: "24px 0" }}>Search for products above to add line items</p>
+            <p style={{ color: "var(--ad-muted2)", fontSize: 13, textAlign: "center", padding: "24px 0" }}>Search for products above to add line items</p>
           ) : (
             items.map((item, i) => (
               <LineRow key={item.product_id} item={item} index={i} onChange={changeItem} onRemove={removeItem} />
@@ -235,25 +235,25 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
         </div>
 
         {/* Notes */}
-        <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px" }}>Notes</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>Customer-facing message</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ad-muted)", display: "block", marginBottom: 6 }}>Customer-facing message</label>
               <textarea
                 value={notes} onChange={e => setNotes(e.target.value)}
                 placeholder="Thank you for your interest! This quote includes custom pricing for your project…"
                 rows={3}
-                style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, boxSizing: "border-box", resize: "vertical" }}
+                style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid var(--ad-border)", fontSize: 13, boxSizing: "border-box", resize: "vertical" }}
               />
             </div>
             <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>Internal notes (admin only)</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ad-muted)", display: "block", marginBottom: 6 }}>Internal notes (admin only)</label>
               <textarea
                 value={internalNotes} onChange={e => setInternalNotes(e.target.value)}
                 placeholder="e.g. Bulk order customer, negotiate shipping…"
                 rows={2}
-                style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, boxSizing: "border-box", resize: "vertical" }}
+                style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid var(--ad-border)", fontSize: 13, boxSizing: "border-box", resize: "vertical" }}
               />
             </div>
           </div>
@@ -264,11 +264,11 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
         {/* Summary */}
-        <div style={{ background: "white", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+        <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
           <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 16px" }}>Quote Summary</h2>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 14, marginBottom: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", color: "#64748b" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", color: "var(--ad-muted)" }}>
               <span>List price</span><span>{fmt(listTotal)}</span>
             </div>
             {totalSavings !== 0 && (
@@ -277,18 +277,18 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
                 <span>{totalSavings > 0 ? "-" : "+"}{fmt(Math.abs(totalSavings))}</span>
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16, borderTop: "1px solid #f1f5f9", paddingTop: 10, color: "#0f172a" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800, fontSize: 16, borderTop: "1px solid var(--ad-border2)", paddingTop: 10, color: "var(--ad-text)" }}>
               <span>Quoted total</span><span>{fmt(quotedTotal)}</span>
             </div>
           </div>
 
           {/* Expiry */}
           <div style={{ marginBottom: 16 }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: "#64748b", display: "block", marginBottom: 6 }}>Quote expires</label>
+            <label style={{ fontSize: 12, fontWeight: 600, color: "var(--ad-muted)", display: "block", marginBottom: 6 }}>Quote expires</label>
             <input
               type="date" value={expiresAt}
               onChange={e => setExpiresAt(e.target.value)}
-              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 14, boxSizing: "border-box" }}
+              style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid var(--ad-border)", fontSize: 14, boxSizing: "border-box" }}
             />
           </div>
 
@@ -309,8 +309,8 @@ export function NewQuoteForm({ customers, products }: { customers: Customer[]; p
               onClick={() => handleSave(false)}
               disabled={saving || !customerId || !items.length}
               style={{
-                padding: "11px 0", borderRadius: 8, border: "1px solid #e2e8f0", fontWeight: 700, fontSize: 14,
-                background: "white", color: "#374151",
+                padding: "11px 0", borderRadius: 8, border: "1px solid var(--ad-border)", fontWeight: 700, fontSize: 14,
+                background: "var(--ad-surface)", color: "var(--ad-text2)",
                 cursor: saving || !customerId || !items.length ? "not-allowed" : "pointer",
                 width: "100%",
               }}

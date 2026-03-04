@@ -6,8 +6,8 @@ import Link from "next/link";
 import type { BlogPost, BlogCategory } from "@/app/actions/blog";
 import { adminSavePost } from "@/app/actions/blog";
 
-const inp: React.CSSProperties = { width: "100%", padding: "9px 12px", borderRadius: 6, border: "1px solid #e2e8f0", fontSize: 13, fontFamily: "inherit", boxSizing: "border-box", outline: "none" };
-const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b", display: "block", marginBottom: 5 };
+const inp: React.CSSProperties = { width: "100%", padding: "9px 12px", borderRadius: 6, border: "1px solid var(--ad-border)", fontSize: 13, fontFamily: "inherit", boxSizing: "border-box", outline: "none" };
+const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ad-muted)", display: "block", marginBottom: 5 };
 
 function toSlug(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -87,7 +87,7 @@ function ToolbarButton({ icon, title, onClick, isActive }: { icon: string; title
         fontWeight: 800,
         fontFamily: ["B","I"].includes(icon) ? "Georgia, serif" : "inherit",
         fontStyle: icon === "I" ? "italic" : "normal",
-        color: "#374151",
+        color: "var(--ad-text2)",
         cursor: "pointer",
         lineHeight: 1,
         transition: "all 0.1s",
@@ -108,7 +108,7 @@ function RichToolbar({ onFormat, value }: {
   value: string;
 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 2, padding: "5px 10px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", flexWrap: "wrap" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 2, padding: "5px 10px", background: "var(--ad-surface2)", borderBottom: "1px solid var(--ad-border)", flexWrap: "wrap" }}>
       {TOOLBAR_GROUPS.map((group, gi) => (
         <div key={gi} style={{ display: "flex", alignItems: "center", gap: 1 }}>
           {gi > 0 && <div style={{ width: 1, height: 18, background: "#e2e8f0", margin: "0 4px" }} />}
@@ -267,7 +267,7 @@ function BodyEditor({ value, onChange }: { value: string; onChange: (v: string) 
             style={{ padding: "5px 9px", borderRadius: 5, border: "1px solid #fcd34d", fontSize: 12, flex: 1, minWidth: 160, outline: "none" }}
           />
           <button onClick={insertLink} style={{ padding: "5px 12px", borderRadius: 5, border: "none", background: "#f59e0b", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Insert</button>
-          <button onClick={() => { setLinkPrompt(false); ref.current?.focus(); }} style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid #e2e8f0", background: "white", fontSize: 12, cursor: "pointer", color: "#64748b" }}>Cancel</button>
+          <button onClick={() => { setLinkPrompt(false); ref.current?.focus(); }} style={{ padding: "5px 10px", borderRadius: 5, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontSize: 12, cursor: "pointer", color: "var(--ad-muted)" }}>Cancel</button>
         </div>
       )}
 
@@ -283,7 +283,7 @@ function BodyEditor({ value, onChange }: { value: string; onChange: (v: string) 
           border: "none", borderRadius: 0, resize: "vertical",
           lineHeight: 1.8, fontFamily: "monospace", fontSize: 13,
           minHeight: 420, outline: "none", boxSizing: "border-box",
-          background: "white", color: "#1e293b",
+          background: "var(--ad-surface)", color: "var(--ad-text)",
         }}
       />
     </div>
@@ -347,12 +347,12 @@ export function BlogPostEditor({ categories, post }: { categories: BlogCategory[
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <Link href="/admin/blog" style={{ color: "#94a3b8", textDecoration: "none", fontSize: 13 }}>← Posts</Link>
-          <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "#0f172a" }}>{post ? "Edit Post" : "New Post"}</h1>
+          <Link href="/admin/blog" style={{ color: "var(--ad-muted2)", textDecoration: "none", fontSize: 13 }}>← Posts</Link>
+          <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "var(--ad-text)" }}>{post ? "Edit Post" : "New Post"}</h1>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           {!form.published && (
-            <button onClick={() => save(false)} disabled={busy} style={{ padding: "8px 16px", borderRadius: 7, border: "1px solid #e2e8f0", background: "white", fontSize: 13, fontWeight: 700, cursor: "pointer", color: "#374151" }}>
+            <button onClick={() => save(false)} disabled={busy} style={{ padding: "8px 16px", borderRadius: 7, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontSize: 13, fontWeight: 700, cursor: "pointer", color: "var(--ad-text2)" }}>
               Save Draft
             </button>
           )}
@@ -378,7 +378,7 @@ export function BlogPostEditor({ categories, post }: { categories: BlogCategory[
             <label style={lbl}>Slug</label>
             <div style={{ display: "flex", gap: 8 }}>
               <input value={form.slug} onChange={e => { setSlugEdited(true); set("slug", e.target.value); }} placeholder="auto-generated-from-title" style={{ ...inp, fontFamily: "monospace", fontSize: 12, flex: 1 }} />
-              <button onClick={() => { set("slug", toSlug(form.title)); setSlugEdited(true); }} style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid #e2e8f0", background: "white", fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", color: "#64748b" }}>Reset</button>
+              <button onClick={() => { set("slug", toSlug(form.title)); setSlugEdited(true); }} style={{ padding: "8px 12px", borderRadius: 6, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", color: "var(--ad-muted)" }}>Reset</button>
             </div>
           </div>
 
@@ -388,9 +388,9 @@ export function BlogPostEditor({ categories, post }: { categories: BlogCategory[
           </div>
 
           {/* Body editor */}
-          <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, overflow: "hidden" }}>
+          <div style={{ border: "1px solid var(--ad-border)", borderRadius: 8, overflow: "hidden" }}>
             {/* Tab bar */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#f8fafc", borderBottom: "1px solid #e2e8f0", padding: "0 12px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "var(--ad-surface2)", borderBottom: "1px solid var(--ad-border)", padding: "0 12px" }}>
               <div style={{ display: "flex" }}>
                 {(["write", "preview"] as const).map(t => (
                   <button key={t} onClick={() => setTab(t)} style={{ padding: "10px 16px", border: "none", background: "none", fontSize: 12, fontWeight: 700, cursor: "pointer", color: tab === t ? "var(--color-accent)" : "#94a3b8", borderBottom: tab === t ? "2px solid var(--color-accent)" : "2px solid transparent" }}>
@@ -398,16 +398,16 @@ export function BlogPostEditor({ categories, post }: { categories: BlogCategory[
                   </button>
                 ))}
               </div>
-              <span style={{ fontSize: 11, color: "#94a3b8" }}>{wordCount} words · ~{readMins} min read</span>
+              <span style={{ fontSize: 11, color: "var(--ad-muted2)" }}>{wordCount} words · ~{readMins} min read</span>
             </div>
 
             {tab === "write" ? (
               <BodyEditor value={form.body} onChange={v => set("body", v)} />
             ) : (
-              <div style={{ padding: "24px 28px", minHeight: 420, background: "white" }}>
+              <div style={{ padding: "24px 28px", minHeight: 420, background: "var(--ad-surface)" }}>
                 {form.body.trim()
                   ? <div dangerouslySetInnerHTML={{ __html: renderPreview(form.body) }} />
-                  : <p style={{ color: "#94a3b8", fontStyle: "italic" }}>Nothing to preview yet — start writing!</p>
+                  : <p style={{ color: "var(--ad-muted2)", fontStyle: "italic" }}>Nothing to preview yet — start writing!</p>
                 }
               </div>
             )}
@@ -417,34 +417,34 @@ export function BlogPostEditor({ categories, post }: { categories: BlogCategory[
         {/* Sidebar */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
-          <div style={{ background: "white", borderRadius: 8, border: "1px solid #e2e8f0", padding: 16 }}>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 8, border: "1px solid var(--ad-border)", padding: 16 }}>
             <label style={lbl}>Status</label>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px", background: "#f8fafc", borderRadius: 6, border: "1px solid #e2e8f0" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px", background: "var(--ad-surface2)", borderRadius: 6, border: "1px solid var(--ad-border)" }}>
               <input type="checkbox" id="published" checked={form.published} onChange={e => set("published", e.target.checked)} style={{ width: 16, height: 16, accentColor: "var(--color-accent)", cursor: "pointer" }} />
               <label htmlFor="published" style={{ fontSize: 13, fontWeight: 700, cursor: "pointer", color: form.published ? "#15803d" : "#374151" }}>
                 {form.published ? "✓ Published" : "Draft"}
               </label>
             </div>
-            {post?.published_at && <p style={{ fontSize: 11, color: "#94a3b8", margin: "8px 0 0" }}>Published {new Date(post.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>}
+            {post?.published_at && <p style={{ fontSize: 11, color: "var(--ad-muted2)", margin: "8px 0 0" }}>Published {new Date(post.published_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</p>}
           </div>
 
-          <div style={{ background: "white", borderRadius: 8, border: "1px solid #e2e8f0", padding: 16 }}>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 8, border: "1px solid var(--ad-border)", padding: 16 }}>
             <label style={lbl}>Category *</label>
             <select value={form.category_id} onChange={e => set("category_id", Number(e.target.value))} style={{ ...inp, cursor: "pointer" }}>
               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
           </div>
 
-          <div style={{ background: "white", borderRadius: 8, border: "1px solid #e2e8f0", padding: 16 }}>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 8, border: "1px solid var(--ad-border)", padding: 16 }}>
             <label style={lbl}>Author</label>
             <input value={form.author_name} onChange={e => set("author_name", e.target.value)} placeholder="BuildSupply Team" style={inp} />
           </div>
 
-          <div style={{ background: "white", borderRadius: 8, border: "1px solid #e2e8f0", padding: 16 }}>
+          <div style={{ background: "var(--ad-surface)", borderRadius: 8, border: "1px solid var(--ad-border)", padding: 16 }}>
             <label style={lbl}>Cover Image URL</label>
             <input value={form.cover_image} onChange={e => set("cover_image", e.target.value)} placeholder="https://…" style={inp} />
             {form.cover_image && (
-              <div style={{ marginTop: 8, borderRadius: 6, overflow: "hidden", height: 100, background: "#f1f5f9" }}>
+              <div style={{ marginTop: 8, borderRadius: 6, overflow: "hidden", height: 100, background: "var(--ad-surface2)" }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={form.cover_image} alt="Cover preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} onError={e => (e.currentTarget.style.display = "none")} />
               </div>
@@ -452,8 +452,8 @@ export function BlogPostEditor({ categories, post }: { categories: BlogCategory[
           </div>
 
           {/* Keyboard shortcuts reference */}
-          <div style={{ background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", padding: 14 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#94a3b8", margin: "0 0 10px" }}>Toolbar Reference</p>
+          <div style={{ background: "var(--ad-surface2)", borderRadius: 8, border: "1px solid var(--ad-border)", padding: 14 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--ad-muted2)", margin: "0 0 10px" }}>Toolbar Reference</p>
             {[
               ["H1 / H2 / H3", "Headings"],
               ["B",            "Bold"],
@@ -465,11 +465,11 @@ export function BlogPostEditor({ categories, post }: { categories: BlogCategory[
               ["—",            "Divider"],
             ].map(([key, desc]) => (
               <div key={key} style={{ display: "flex", justifyContent: "space-between", marginBottom: 5, fontSize: 11 }}>
-                <code style={{ background: "#e2e8f0", padding: "1px 5px", borderRadius: 3, color: "#374151", fontWeight: 700 }}>{key}</code>
-                <span style={{ color: "#64748b" }}>{desc}</span>
+                <code style={{ background: "#e2e8f0", padding: "1px 5px", borderRadius: 3, color: "var(--ad-text2)", fontWeight: 700 }}>{key}</code>
+                <span style={{ color: "var(--ad-muted)" }}>{desc}</span>
               </div>
             ))}
-            <p style={{ fontSize: 10, color: "#94a3b8", margin: "8px 0 0" }}>Tip: select text first, then click a button to wrap it. Click again to unwrap.</p>
+            <p style={{ fontSize: 10, color: "var(--ad-muted2)", margin: "8px 0 0" }}>Tip: select text first, then click a button to wrap it. Click again to unwrap.</p>
           </div>
 
         </div>

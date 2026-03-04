@@ -2,7 +2,7 @@ import { query } from "@/lib/db";
 import Link from "next/link";
 
 const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
-  draft:    { bg: "#f1f5f9", color: "#475569" },
+  draft:    { bg: "#f1f5f9", color: "var(--ad-text2)" },
   sent:     { bg: "#dbeafe", color: "#1e40af" },
   accepted: { bg: "#dcfce7", color: "#15803d" },
   declined: { bg: "#fee2e2", color: "#991b1b" },
@@ -44,7 +44,7 @@ export default async function AdminQuotesPage() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Quotes</h1>
-          <p style={{ fontSize: 13, color: "#94a3b8", margin: "4px 0 0" }}>Custom pricing proposals for customers</p>
+          <p style={{ fontSize: 13, color: "var(--ad-muted2)", margin: "4px 0 0" }}>Custom pricing proposals for customers</p>
         </div>
         <Link href="/admin/quotes/new" style={{
           padding: "9px 18px", borderRadius: 8, background: "#f97316", color: "white",
@@ -57,32 +57,32 @@ export default async function AdminQuotesPage() {
       {/* Status summary cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 12, marginBottom: 24 }}>
         {[
-          { label: "Total",    value: counts.all,      color: "#0f172a" },
-          { label: "Draft",    value: counts.draft,    color: "#475569" },
+          { label: "Total",    value: counts.all,      color: "var(--ad-text)" },
+          { label: "Draft",    value: counts.draft,    color: "var(--ad-text2)" },
           { label: "Sent",     value: counts.sent,     color: "#1e40af" },
           { label: "Accepted", value: counts.accepted, color: "#15803d" },
           { label: "Declined", value: counts.declined, color: "#991b1b" },
         ].map(s => (
-          <div key={s.label} style={{ background: "white", borderRadius: 10, padding: "16px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
+          <div key={s.label} style={{ background: "var(--ad-surface)", borderRadius: 10, padding: "16px 20px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", textAlign: "center" }}>
             <p style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px", color: s.color }}>{s.value}</p>
-            <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: 0 }}>{s.label}</p>
+            <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)", margin: 0 }}>{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      <div style={{ background: "white", borderRadius: 10, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+      <div style={{ background: "var(--ad-surface)", borderRadius: 10, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", overflow: "hidden" }}>
         {quotes.length === 0 ? (
           <div style={{ padding: "60px 20px", textAlign: "center" }}>
-            <p style={{ color: "#94a3b8", fontSize: 15, margin: "0 0 16px" }}>No quotes yet</p>
+            <p style={{ color: "var(--ad-muted2)", fontSize: 15, margin: "0 0 16px" }}>No quotes yet</p>
             <Link href="/admin/quotes/new" style={{ color: "#f97316", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>Create your first quote →</Link>
           </div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead>
-              <tr style={{ background: "#f8fafc" }}>
+              <tr style={{ background: "var(--ad-surface2)" }}>
                 {["Quote #", "Customer", "Items", "Total Value", "Status", "Expires", "Order", ""].map(h => (
-                  <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#94a3b8" }}>{h}</th>
+                  <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-muted2)" }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -91,20 +91,20 @@ export default async function AdminQuotesPage() {
                 const ss = STATUS_STYLE[q.status] ?? STATUS_STYLE.draft;
                 const isExpired = q.expires_at && new Date(q.expires_at) < new Date() && q.status === "sent";
                 return (
-                  <tr key={q.id} style={{ borderTop: "1px solid #f1f5f9" }}>
-                    <td style={{ padding: "12px 16px", fontWeight: 800, color: "#0f172a" }}>#{q.id}</td>
+                  <tr key={q.id} style={{ borderTop: "1px solid var(--ad-border2)" }}>
+                    <td style={{ padding: "12px 16px", fontWeight: 800, color: "var(--ad-text)" }}>#{q.id}</td>
                     <td style={{ padding: "12px 16px" }}>
                       <p style={{ fontWeight: 700, margin: 0, fontSize: 13 }}>{q.customer_name}</p>
-                      <p style={{ color: "#94a3b8", fontSize: 11, margin: "2px 0 0" }}>{q.customer_email}</p>
+                      <p style={{ color: "var(--ad-muted2)", fontSize: 11, margin: "2px 0 0" }}>{q.customer_email}</p>
                     </td>
-                    <td style={{ padding: "12px 16px", color: "#64748b" }}>{q.item_count}</td>
+                    <td style={{ padding: "12px 16px", color: "var(--ad-muted)" }}>{q.item_count}</td>
                     <td style={{ padding: "12px 16px", fontWeight: 700 }}>${Number(q.total_quoted).toFixed(2)}</td>
                     <td style={{ padding: "12px 16px" }}>
                       <span style={{ padding: "2px 10px", borderRadius: 9999, fontSize: 11, fontWeight: 700, textTransform: "uppercase", background: isExpired ? "#fef9c3" : ss.bg, color: isExpired ? "#854d0e" : ss.color }}>
                         {isExpired ? "expired" : q.status}
                       </span>
                     </td>
-                    <td style={{ padding: "12px 16px", fontSize: 12, color: "#94a3b8" }}>
+                    <td style={{ padding: "12px 16px", fontSize: 12, color: "var(--ad-muted2)" }}>
                       {q.expires_at ? new Date(q.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—"}
                     </td>
                     <td style={{ padding: "12px 16px" }}>

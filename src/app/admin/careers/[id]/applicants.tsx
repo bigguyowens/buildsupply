@@ -91,20 +91,20 @@ function DeclineModal({ onConfirm, onCancel, saving }: {
   const [reason, setReason] = useState("");
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: "white", borderRadius: 14, padding: 28, width: "100%", maxWidth: 420, boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
-        <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 6px", color: "#0f172a" }}>Decline Applicant</h3>
-        <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>Provide a reason for declining (internal only — not shown to applicant).</p>
+      <div style={{ background: "var(--ad-surface)", borderRadius: 14, padding: 28, width: "100%", maxWidth: 420, boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+        <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 6px", color: "var(--ad-text)" }}>Decline Applicant</h3>
+        <p style={{ fontSize: 13, color: "var(--ad-muted)", margin: "0 0 16px" }}>Provide a reason for declining (internal only — not shown to applicant).</p>
         <textarea
           autoFocus
           value={reason}
           onChange={e => setReason(e.target.value)}
           placeholder="e.g. Lacked required Next.js experience, moved forward with stronger candidate…"
           rows={4}
-          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
+          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--ad-border)", fontSize: 13, resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" }}
         />
         <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
           <button onClick={onCancel} disabled={saving}
-            style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "#64748b" }}>
+            style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "var(--ad-muted)" }}>
             Cancel
           </button>
           <button onClick={() => onConfirm(reason)} disabled={saving || !reason.trim()}
@@ -126,15 +126,15 @@ function StartDateModal({ onConfirm, onCancel, saving }: {
   const [date, setDate] = useState("");
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: "white", borderRadius: 14, padding: 28, width: "100%", maxWidth: 360, boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+      <div style={{ background: "var(--ad-surface)", borderRadius: 14, padding: 28, width: "100%", maxWidth: 360, boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
         <p style={{ fontSize: 28, margin: "0 0 8px", textAlign: "center" }}>🎉</p>
-        <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 6px", color: "#0f172a", textAlign: "center" }}>Offer Accepted!</h3>
-        <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px", textAlign: "center" }}>Set the candidate&apos;s start date.</p>
+        <h3 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 6px", color: "var(--ad-text)", textAlign: "center" }}>Offer Accepted!</h3>
+        <p style={{ fontSize: 13, color: "var(--ad-muted)", margin: "0 0 16px", textAlign: "center" }}>Set the candidate&apos;s start date.</p>
         <input type="date" value={date} onChange={e => setDate(e.target.value)}
-          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 14, boxSizing: "border-box" }} />
+          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--ad-border)", fontSize: 14, boxSizing: "border-box" }} />
         <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
           <button onClick={onCancel} disabled={saving}
-            style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "#64748b" }}>
+            style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "var(--ad-muted)" }}>
             Cancel
           </button>
           <button onClick={() => onConfirm(date)} disabled={saving || !date}
@@ -164,7 +164,7 @@ function StageActions({ status, onMoveOn, onDecline, saving }: {
         </button>
       )}
       <button onClick={onDecline} disabled={saving}
-        style={{ padding: "9px 18px", borderRadius: 8, border: `1px solid ${DECLINED_COLOR}`, background: "white", color: DECLINED_COLOR, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+        style={{ padding: "9px 18px", borderRadius: 8, border: `1px solid ${DECLINED_COLOR}`, background: "var(--ad-surface)", color: DECLINED_COLOR, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
         ✕ Decline
       </button>
     </div>
@@ -226,7 +226,7 @@ function ApplicantCard({ app }: { app: JobApplication }) {
       {modal === "decline"   && <DeclineModal   onConfirm={handleDeclineConfirm}   onCancel={() => setModal(null)} saving={saving} />}
       {modal === "startdate" && <StartDateModal onConfirm={handleStartDateConfirm} onCancel={() => setModal(null)} saving={saving} />}
 
-      <div style={{ background: "white", borderRadius: 12, border: `1px solid ${isDeclined ? "#fecaca" : "#f1f5f9"}`, boxShadow: "0 1px 3px rgba(0,0,0,0.05)", overflow: "hidden" }}>
+      <div style={{ background: "var(--ad-surface)", borderRadius: 12, border: `1px solid ${isDeclined ? "#fecaca" : "#f1f5f9"}`, boxShadow: "0 1px 3px var(--ad-shadow)", overflow: "hidden" }}>
 
         {/* Header row */}
         <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", cursor: "pointer" }} onClick={() => setExpanded(x => !x)}>
@@ -234,8 +234,8 @@ function ApplicantCard({ app }: { app: JobApplication }) {
             {app.name.charAt(0).toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontWeight: 700, fontSize: 14, margin: 0, color: "#0f172a" }}>{app.name}</p>
-            <p style={{ fontSize: 12, color: "#94a3b8", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <p style={{ fontWeight: 700, fontSize: 14, margin: 0, color: "var(--ad-text)" }}>{app.name}</p>
+            <p style={{ fontSize: 12, color: "var(--ad-muted2)", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {app.email}{app.phone ? ` · ${app.phone}` : ""}
             </p>
           </div>
@@ -245,11 +245,11 @@ function ApplicantCard({ app }: { app: JobApplication }) {
                 🗓 Starts {new Date(startDate + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
               </span>
             )}
-            <span style={{ fontSize: 11, color: "#94a3b8" }}>{fmtDate(app.created_at)}</span>
+            <span style={{ fontSize: 11, color: "var(--ad-muted2)" }}>{fmtDate(app.created_at)}</span>
             <span style={{ padding: "3px 10px", borderRadius: 9999, fontSize: 11, fontWeight: 700, textTransform: "uppercase", background: badgeBg, color: badgeColor, letterSpacing: "0.04em" }}>
               {currentPipelineStep?.icon} {badgeLabel}
             </span>
-            <span style={{ color: "#94a3b8", fontSize: 14, transition: "transform 0.2s", display: "inline-block", transform: expanded ? "rotate(180deg)" : "none" }}>▾</span>
+            <span style={{ color: "var(--ad-muted2)", fontSize: 14, transition: "transform 0.2s", display: "inline-block", transform: expanded ? "rotate(180deg)" : "none" }}>▾</span>
           </div>
         </div>
 
@@ -258,7 +258,7 @@ function ApplicantCard({ app }: { app: JobApplication }) {
 
             {/* Pipeline bar */}
             <div>
-              <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: "0 0 10px", letterSpacing: "0.06em" }}>Pipeline Progress</p>
+              <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)", margin: "0 0 10px", letterSpacing: "0.06em" }}>Pipeline Progress</p>
               <PipelineBar status={status} />
 
               {/* Decline reason banner */}
@@ -276,7 +276,7 @@ function ApplicantCard({ app }: { app: JobApplication }) {
               {/* Re-open if declined */}
               {isDeclined && (
                 <button onClick={() => doStatusUpdate("new")} disabled={saving}
-                  style={{ marginTop: 8, padding: "7px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "white", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "#64748b" }}>
+                  style={{ marginTop: 8, padding: "7px 16px", borderRadius: 8, border: "1px solid var(--ad-border)", background: "var(--ad-surface)", fontSize: 12, fontWeight: 700, cursor: "pointer", color: "var(--ad-muted)" }}>
                   ↩ Re-open Application
                 </button>
               )}
@@ -301,8 +301,8 @@ function ApplicantCard({ app }: { app: JobApplication }) {
             {/* Cover letter */}
             {app.cover_letter && (
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: "0 0 8px" }}>Cover Letter</p>
-                <div style={{ background: "#f8fafc", borderRadius: 8, padding: "12px 14px", fontSize: 13, color: "#374151", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 220, overflowY: "auto" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)", margin: "0 0 8px" }}>Cover Letter</p>
+                <div style={{ background: "var(--ad-surface2)", borderRadius: 8, padding: "12px 14px", fontSize: 13, color: "var(--ad-text2)", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 220, overflowY: "auto" }}>
                   {app.cover_letter}
                 </div>
               </div>
@@ -311,8 +311,8 @@ function ApplicantCard({ app }: { app: JobApplication }) {
             {/* Resume text */}
             {app.resume_text && (
               <div>
-                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: "0 0 8px" }}>Resume</p>
-                <div style={{ background: "#f8fafc", borderRadius: 8, padding: "12px 14px", fontSize: 12, color: "#374151", lineHeight: 1.7, fontFamily: "monospace", whiteSpace: "pre-wrap", maxHeight: 300, overflowY: "auto" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)", margin: "0 0 8px" }}>Resume</p>
+                <div style={{ background: "var(--ad-surface2)", borderRadius: 8, padding: "12px 14px", fontSize: 12, color: "var(--ad-text2)", lineHeight: 1.7, fontFamily: "monospace", whiteSpace: "pre-wrap", maxHeight: 300, overflowY: "auto" }}>
                   {app.resume_text}
                 </div>
               </div>
@@ -320,13 +320,13 @@ function ApplicantCard({ app }: { app: JobApplication }) {
 
             {/* Notes */}
             <div>
-              <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#94a3b8", margin: "0 0 8px" }}>Internal Notes</p>
+              <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--ad-muted2)", margin: "0 0 8px" }}>Internal Notes</p>
               <textarea
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 rows={4}
                 placeholder="Interview feedback, skills assessment, next steps…"
-                style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, resize: "vertical", boxSizing: "border-box" as const, fontFamily: "inherit" }}
+                style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: "1px solid var(--ad-border)", fontSize: 13, resize: "vertical", boxSizing: "border-box" as const, fontFamily: "inherit" }}
               />
               <button onClick={handleSaveNotes} disabled={saving}
                 style={{ marginTop: 8, padding: "7px 16px", borderRadius: 8, border: "none", background: "#0f172a", color: "white", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
@@ -370,7 +370,7 @@ export function ApplicantList({ applications }: { applications: JobApplication[]
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px 0", color: "#94a3b8" }}>
+        <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ad-muted2)" }}>
           <p style={{ fontSize: 32, margin: "0 0 8px" }}>📭</p>
           <p style={{ margin: 0 }}>No applicants in this stage yet.</p>
         </div>
