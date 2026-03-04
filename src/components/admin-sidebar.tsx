@@ -21,6 +21,7 @@ const NAV: NavItem[] = [
   { type: "separator" },
   { type: "link",      label: "Wishlists",    href: "/admin/wishlists",   icon: "♡"  },
   { type: "link",      label: "Promotions",   href: "/admin/promotions",  icon: "🎟️" },
+  { type: "link",      label: "Careers",      href: "/admin/careers",     icon: "💼" },
   { type: "link",      label: "Contact Forms", href: "/admin/contact",    icon: "✉️"  },
   { type: "separator", label: "Content" },
   { type: "link",      label: "Theme",        href: "/admin/theme",       icon: "🎨" },
