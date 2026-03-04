@@ -18,6 +18,7 @@ export type JobApplication = {
   id: number; posting_id: number; name: string; email: string;
   phone: string | null; linkedin: string | null; portfolio: string | null;
   cover_letter: string | null; resume_text: string | null;
+  resume_url: string | null; resume_filename: string | null; resume_size: number | null;
   status: string; admin_notes: string | null;
   created_at: string; updated_at: string;
   posting_title?: string;
@@ -31,6 +32,7 @@ export type PostingInput = {
 export type ApplicationInput = {
   posting_id: number; name: string; email: string; phone: string;
   linkedin: string; portfolio: string; cover_letter: string; resume_text: string;
+  resume_url?: string; resume_filename?: string; resume_size?: number;
 };
 
 // ── Slug helper ───────────────────────────────────────────────────────────
@@ -86,11 +88,13 @@ export async function submitApplicationAction(
     if (existing) return { success: false, error: "You've already applied for this position." };
 
     await query(
-      `INSERT INTO job_applications (posting_id, name, email, phone, linkedin, portfolio, cover_letter, resume_text)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      `INSERT INTO job_applications
+         (posting_id, name, email, phone, linkedin, portfolio, cover_letter, resume_text, resume_url, resume_filename, resume_size)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
       [data.posting_id, data.name.trim(), data.email.toLowerCase().trim(),
        data.phone || null, data.linkedin || null, data.portfolio || null,
-       data.cover_letter || null, data.resume_text || null]
+       data.cover_letter || null, data.resume_text || null,
+       data.resume_url || null, data.resume_filename || null, data.resume_size || null]
     );
 
     revalidatePath(`/admin/careers/${data.posting_id}`);
