@@ -18,7 +18,8 @@ export type JobApplication = {
   id: number; posting_id: number; name: string; email: string;
   phone: string | null; linkedin: string | null; portfolio: string | null;
   cover_letter: string | null; resume_text: string | null;
-  resume_url: string | null; resume_filename: string | null; resume_size: number | null;
+  resume_filename: string | null; resume_size: number | null;
+  has_resume: boolean;
   status: string; admin_notes: string | null;
   created_at: string; updated_at: string;
   posting_title?: string;
@@ -32,7 +33,7 @@ export type PostingInput = {
 export type ApplicationInput = {
   posting_id: number; name: string; email: string; phone: string;
   linkedin: string; portfolio: string; cover_letter: string; resume_text: string;
-  resume_url?: string; resume_filename?: string; resume_size?: number;
+  resume_data?: string; resume_mime?: string; resume_filename?: string; resume_size?: number;
 };
 
 // ── Slug helper ───────────────────────────────────────────────────────────
@@ -89,12 +90,14 @@ export async function submitApplicationAction(
 
     await query(
       `INSERT INTO job_applications
-         (posting_id, name, email, phone, linkedin, portfolio, cover_letter, resume_text, resume_url, resume_filename, resume_size)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+         (posting_id, name, email, phone, linkedin, portfolio, cover_letter, resume_text,
+          resume_data, resume_mime, resume_filename, resume_size)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
       [data.posting_id, data.name.trim(), data.email.toLowerCase().trim(),
        data.phone || null, data.linkedin || null, data.portfolio || null,
        data.cover_letter || null, data.resume_text || null,
-       data.resume_url || null, data.resume_filename || null, data.resume_size || null]
+       data.resume_data || null, data.resume_mime || null,
+       data.resume_filename || null, data.resume_size || null]
     );
 
     revalidatePath(`/admin/careers/${data.posting_id}`);
@@ -190,13 +193,21 @@ export async function adminDeletePosting(id: number): Promise<{ success: boolean
 
 export async function adminGetApplications(postingId: number): Promise<JobApplication[]> {
   return query<JobApplication>(
-    `SELECT * FROM job_applications WHERE posting_id = $1 ORDER BY created_at DESC`, [postingId]
+    `SELECT id, posting_id, name, email, phone, linkedin, portfolio,
+            cover_letter, resume_text, resume_filename, resume_size,
+            (resume_data IS NOT NULL) AS has_resume,
+            status, admin_notes, created_at, updated_at
+     FROM job_applications WHERE posting_id = $1 ORDER BY created_at DESC`, [postingId]
   );
 }
 
 export async function adminGetAllApplications(): Promise<JobApplication[]> {
   return query<JobApplication>(`
-    SELECT ja.*, jp.title AS posting_title
+    SELECT ja.id, ja.posting_id, ja.name, ja.email, ja.phone, ja.linkedin, ja.portfolio,
+           ja.cover_letter, ja.resume_text, ja.resume_filename, ja.resume_size,
+           (ja.resume_data IS NOT NULL) AS has_resume,
+           ja.status, ja.admin_notes, ja.created_at, ja.updated_at,
+           jp.title AS posting_title
     FROM job_applications ja
     JOIN job_postings jp ON jp.id = ja.posting_id
     ORDER BY ja.created_at DESC

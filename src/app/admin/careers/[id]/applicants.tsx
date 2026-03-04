@@ -60,10 +60,10 @@ function ApplicantCard({ app }: { app: JobApplication }) {
 
           {/* Links row */}
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            {app.resume_url && (
-              <a href={app.resume_url} target="_blank" rel="noreferrer"
+            {app.has_resume && (
+              <a href={`/api/resume/${app.id}`} target="_blank" rel="noreferrer"
                 style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700, color: "white", background: "#0f172a", padding: "6px 14px", borderRadius: 8, textDecoration: "none" }}>
-                📄 Download Resume {app.resume_filename ? `(${app.resume_filename})` : ""} {app.resume_size ? `· ${Math.round(app.resume_size / 1024)}KB` : ""}
+                📄 Download Resume {app.resume_filename ? `· ${app.resume_filename}` : ""}{app.resume_size ? ` (${Math.round(app.resume_size / 1024)}KB)` : ""}
               </a>
             )}
             {app.linkedin && (

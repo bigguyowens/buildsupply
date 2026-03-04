@@ -26,7 +26,7 @@ function Field({ label, name, type = "text", placeholder, required = false, rows
 
 // ── Resume uploader ───────────────────────────────────────────────────────────
 function ResumeUploader({ onUpload }: {
-  onUpload: (result: { url: string; filename: string; size: number } | null) => void;
+  onUpload: (result: { base64: string; mime: string; filename: string; size: number } | null) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus]     = useState<"idle" | "uploading" | "done" | "error">("idle");
@@ -140,7 +140,7 @@ function ResumeUploader({ onUpload }: {
 export function ApplyForm({ postingId, postingTitle }: { postingId: number; postingTitle: string }) {
   const [state, setState]     = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
-  const [resume, setResume]   = useState<{ url: string; filename: string; size: number } | null>(null);
+  const [resume, setResume] = useState<{ base64: string; mime: string; filename: string; size: number } | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -156,7 +156,8 @@ export function ApplyForm({ postingId, postingTitle }: { postingId: number; post
       portfolio:       fd.get("portfolio") as string,
       cover_letter:    fd.get("cover_letter") as string,
       resume_text:     "",
-      resume_url:      resume?.url,
+      resume_data:     resume?.base64,
+      resume_mime:     resume?.mime,
       resume_filename: resume?.filename,
       resume_size:     resume?.size,
     });
