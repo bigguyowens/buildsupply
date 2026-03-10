@@ -1,4 +1,4 @@
-import { DISTRIBUTION_CENTERS } from "@/lib/geo";
+import { query } from "@/lib/db";
 import { LocationsClient } from "./locations-client";
 
 export const metadata = {
@@ -6,10 +6,23 @@ export const metadata = {
   description: "Find the nearest BuildSupply distribution center for will-call pickup, bulk freight, and same-day metro delivery.",
 };
 
-export default function LocationsPage() {
+async function getCenters() {
+  return query<{
+    id: number; name: string; city: string; state: string; zip: string;
+    address: string; phone: string; lat: number; lon: number;
+    hours: string; services: string[];
+  }>(
+    `SELECT id, name, city, state, zip, address, phone,
+            lat::float, lon::float, hours, services
+     FROM distribution_centers WHERE active = TRUE ORDER BY sort_order ASC`
+  );
+}
+
+export default async function LocationsPage() {
+  const centers = await getCenters();
+
   return (
     <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
-
       {/* Hero */}
       <div style={{ background: "#0f172a", padding: "56px 24px 48px", textAlign: "center" }}>
         <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", color: "#f97316", margin: "0 0 12px" }}>
@@ -19,7 +32,7 @@ export default function LocationsPage() {
           Distribution Centers
         </h1>
         <p style={{ color: "#94a3b8", fontSize: 16, margin: "0 auto", maxWidth: 480 }}>
-          {DISTRIBUTION_CENTERS.length} hubs across the US. Will-call pickup, bulk freight,
+          {centers.length} hubs across the US. Will-call pickup, bulk freight,
           and fast delivery to your job site.
         </p>
       </div>
@@ -28,10 +41,10 @@ export default function LocationsPage() {
       <div style={{ background: "#f97316" }}>
         <div style={{ maxWidth: 960, margin: "0 auto", padding: "16px 24px", display: "flex", justifyContent: "space-around", flexWrap: "wrap", gap: 12 }}>
           {[
-            { value: "6",      label: "Distribution Hubs" },
-            { value: "48",     label: "States Served" },
-            { value: "1–2",    label: "Day Delivery (Most US)" },
-            { value: "527+",   label: "Products In Stock" },
+            { value: String(centers.length), label: "Distribution Hubs" },
+            { value: "48",                   label: "States Served" },
+            { value: "1–2",                  label: "Day Delivery (Most US)" },
+            { value: "527+",                 label: "Products In Stock" },
           ].map(s => (
             <div key={s.label} style={{ textAlign: "center", color: "#fff" }}>
               <p style={{ fontSize: 28, fontWeight: 900, margin: 0, lineHeight: 1 }}>{s.value}</p>
@@ -42,8 +55,7 @@ export default function LocationsPage() {
       </div>
 
       {/* Map + Cards */}
-      <LocationsClient centers={DISTRIBUTION_CENTERS} />
-
+      <LocationsClient centers={centers} />
     </div>
   );
 }
