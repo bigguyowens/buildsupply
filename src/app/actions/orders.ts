@@ -4,6 +4,7 @@ import { query } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { recordPromoUse } from "@/app/actions/promotions";
 import type { ValidatedPromo } from "@/app/actions/promotions";
+import { sendOrderConfirmation } from "@/lib/email";
 
 export type OrderItem = {
   id: string; name: string; slug: string; image: string;
@@ -58,6 +59,24 @@ export async function placeOrderAction(
     if (promo) {
       await recordPromoUse(promo.id, userId, orderId);
     }
+
+    // Send order confirmation email (fire-and-forget)
+    const TAX_RATE = 0.07;
+    const SHIP_FEE = subtotal < 500 ? 29.99 : 0;
+    const tax = parseFloat((subtotal * TAX_RATE).toFixed(2));
+    sendOrderConfirmation({
+      to: shipping.email,
+      firstName: shipping.firstName,
+      orderId,
+      items: items.map(i => ({ name: i.name, sku: i.sku, quantity: i.quantity, price: i.price })),
+      subtotal,
+      discount: discountAmount,
+      shipping: SHIP_FEE,
+      tax,
+      total: verifiedTotal,
+      shippingAddress: { address: shipping.address, city: shipping.city, state: shipping.state, zip: shipping.zip },
+      promoCode: promo?.code,
+    }).catch(err => console.error("Order confirmation email failed:", err));
 
     return { success: true, orderId };
   } catch (err) {

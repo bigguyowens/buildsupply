@@ -3,6 +3,7 @@
 import { query } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { sendQuoteReady } from "@/lib/email";
 
 export type QuoteItemInput = {
   product_id: string;
@@ -58,6 +59,34 @@ export async function sendQuoteAction(quoteId: number): Promise<{ success: boole
 
   try {
     await query(`UPDATE quotes SET status='sent', updated_at=NOW() WHERE id=$1 AND status='draft'`, [quoteId]);
+
+    // Fetch quote + customer + items to send email (fire-and-forget)
+    const rows = await query<{
+      notes: string | null; expires_at: string | null;
+      email: string; first_name: string;
+    }>(
+      `SELECT q.notes, q.expires_at, u.email, u.first_name
+       FROM quotes q JOIN users u ON u.id = q.customer_id
+       WHERE q.id = $1`,
+      [quoteId]
+    );
+    if (rows.length) {
+      const { notes, expires_at, email, first_name } = rows[0];
+      const items = await query<{
+        product_name: string; product_sku: string; quantity: number; quoted_price: number;
+      }>(`SELECT product_name, product_sku, quantity, quoted_price FROM quote_items WHERE quote_id = $1`, [quoteId]);
+      const total = items.reduce((s, i) => s + Number(i.quoted_price) * i.quantity, 0);
+      sendQuoteReady({
+        to: email,
+        firstName: first_name,
+        quoteId,
+        items: items.map(i => ({ name: i.product_name, sku: i.product_sku, quantity: i.quantity, price: Number(i.quoted_price) })),
+        notes: notes ?? undefined,
+        expiresAt: expires_at ?? undefined,
+        total,
+      }).catch(err => console.error("Quote ready email failed:", err));
+    }
+
     revalidatePath("/admin/quotes");
     revalidatePath(`/admin/quotes/${quoteId}`);
     return { success: true };

@@ -3,6 +3,8 @@
 import { query } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { sendReturnConfirmation, sendReturnStatusUpdate } from "@/lib/email";
+import type { ReturnStatusUpdateData } from "@/lib/email";
 
 export type ReturnStatus = "requested" | "approved" | "received" | "refunded" | "rejected";
 
@@ -75,6 +77,22 @@ export async function submitReturn(input: SubmitReturnInput) {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
       [ret.id, item.product_id, item.name, item.sku, item.image ?? null, item.price, item.quantity, item.reason ?? null]
     );
+  }
+
+  // Send confirmation email (fire-and-forget)
+  const userRows = await query<{ email: string; first_name: string }>(
+    "SELECT email, first_name FROM users WHERE id = $1",
+    [session.id]
+  );
+  if (userRows.length) {
+    sendReturnConfirmation({
+      to: userRows[0].email,
+      firstName: userRows[0].first_name,
+      returnId: ret.id,
+      orderId: input.orderId,
+      items: input.items.map(i => ({ name: i.name, sku: i.sku, quantity: i.quantity, price: i.price })),
+      reason: input.reason,
+    }).catch(err => console.error("Return confirmation email failed:", err));
   }
 
   revalidatePath(`/account/orders/${input.orderId}`);
@@ -150,6 +168,36 @@ export async function updateReturnStatus(returnId: number, status: ReturnStatus,
      WHERE id=$4`,
     [status, adminNotes ?? null, refundAmount ?? null, returnId]
   );
+
+  // Send status update email for customer-facing statuses (fire-and-forget)
+  if (["approved", "received", "refunded", "rejected"].includes(status)) {
+    const rows = await query<{
+      email: string; first_name: string; order_id: number; guest_email: string | null;
+    }>(
+      `SELECT u.email, u.first_name, r.order_id, r.guest_email
+       FROM returns r
+       LEFT JOIN users u ON u.id = r.user_id
+       WHERE r.id = $1`,
+      [returnId]
+    );
+    if (rows.length) {
+      const row = rows[0];
+      const toEmail = row.email ?? row.guest_email;
+      const firstName = row.first_name ?? "Customer";
+      if (toEmail) {
+        sendReturnStatusUpdate({
+          to: toEmail,
+          firstName,
+          returnId,
+          orderId: row.order_id,
+          status: status as ReturnStatusUpdateData["status"],
+          refundAmount: refundAmount ?? undefined,
+          adminNotes: adminNotes ?? undefined,
+        }).catch(err => console.error("Return status email failed:", err));
+      }
+    }
+  }
+
   revalidatePath("/admin/returns");
   return { ok: true };
 }
@@ -202,6 +250,16 @@ export async function submitGuestReturn(input: SubmitReturnInput & { email: stri
       [ret.id, item.product_id, item.name, item.sku, item.image ?? null, item.price, item.quantity, item.reason ?? null]
     );
   }
+
+  // Send confirmation to guest email (fire-and-forget)
+  sendReturnConfirmation({
+    to: input.email,
+    firstName: "Valued Customer",
+    returnId: ret.id,
+    orderId: input.orderId,
+    items: input.items.map(i => ({ name: i.name, sku: i.sku, quantity: i.quantity, price: i.price })),
+    reason: input.reason,
+  }).catch(err => console.error("Guest return confirmation email failed:", err));
 
   revalidatePath("/returns");
   return { ok: true, returnId: ret.id };
