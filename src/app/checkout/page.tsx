@@ -1,20 +1,22 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { ProductImage } from "@/components/product-image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/cart-context";
 import { placeOrderAction } from "@/app/actions/orders";
+import { GeoPrefill } from "@/components/geo-prefill";
 
-const TAX_RATE = 0.07;
+const DEFAULT_TAX_RATE = 0.07;
 const SHIPPING_THRESHOLD = 500;
 const SHIPPING_FEE = 29.99;
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
-function Field({ label, name, placeholder, type = "text", required = true, colSpan2 = false }: {
+function Field({ label, name, placeholder, type = "text", required = true, colSpan2 = false, value, onChange }: {
   label: string; name: string; placeholder?: string; type?: string; required?: boolean; colSpan2?: boolean;
+  value?: string; onChange?: (v: string) => void;
 }) {
   return (
     <div className={colSpan2 ? "checkout-span2" : ""} style={{ gridColumn: colSpan2 ? "span 2" : undefined }}>
@@ -23,6 +25,8 @@ function Field({ label, name, placeholder, type = "text", required = true, colSp
       </label>
       <input
         name={name} type={type} placeholder={placeholder} required={required}
+        value={value}
+        onChange={onChange ? e => onChange(e.target.value) : undefined}
         style={{
           width: "100%", padding: "9px 12px", borderRadius: 6, fontSize: 14,
           border: "1px solid var(--color-border)", outline: "none", boxSizing: "border-box",
@@ -36,15 +40,30 @@ export default function CheckoutPage() {
   const { items, clearCart, promo } = useCart();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError]           = useState<string | null>(null);
+  const [taxRate, setTaxRate]       = useState(DEFAULT_TAX_RATE);
+  const [geoCity, setGeoCity]       = useState("");
+  const [geoState, setGeoState]     = useState("");
+  const [geoZip, setGeoZip]         = useState("");
+  const [geoCountry, setGeoCountry] = useState("");
+  const [geoDetected, setGeoDetected] = useState(false);
+
+  const handleGeoReady = useCallback((data: { city: string; region: string; zip: string; country: string; taxRate: number }) => {
+    setGeoCity(data.city);
+    setGeoState(data.region);
+    setGeoZip(data.zip);
+    setGeoCountry(data.country);
+    setTaxRate(data.taxRate);
+    setGeoDetected(true);
+  }, []);
 
   const { subtotal, discount, shipping, tax, total } = useMemo(() => {
-    const sub  = items.reduce((s, i) => s + i.price * i.quantity, 0);
-    const disc = promo ? sub * (promo.discount_percent / 100) : 0;
+    const sub     = items.reduce((s, i) => s + i.price * i.quantity, 0);
+    const disc    = promo ? sub * (promo.discount_percent / 100) : 0;
     const discSub = sub - disc;
-    const shp  = discSub > 0 && discSub < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
-    return { subtotal: sub, discount: disc, shipping: shp, tax: discSub * TAX_RATE, total: discSub + shp + discSub * TAX_RATE };
-  }, [items, promo]);
+    const shp     = discSub > 0 && discSub < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
+    return { subtotal: sub, discount: disc, shipping: shp, tax: discSub * taxRate, total: discSub + shp + discSub * taxRate };
+  }, [items, promo, taxRate]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -82,6 +101,7 @@ export default function CheckoutPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
+      <GeoPrefill onGeoReady={handleGeoReady} />
       {/* Header */}
       <div style={{ background: "var(--color-primary)", borderBottom: "3px solid var(--color-accent)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "20px 16px" }}>
@@ -116,13 +136,20 @@ export default function CheckoutPage() {
 
             {/* Shipping */}
             <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", padding: 24 }}>
-              <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 16 }}>Shipping Address</h2>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>Shipping Address</h2>
+                {geoDetected && (
+                  <span style={{ fontSize: 11, color: "#15803d", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+                    📍 Auto-detected
+                  </span>
+                )}
+              </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }} className="checkout-form-grid">
                 <Field label="Street Address" name="address" placeholder="123 Main St" colSpan2 />
-                <Field label="City"    name="city"    placeholder="Atlanta" />
-                <Field label="State"   name="state"   placeholder="GA" />
-                <Field label="ZIP Code" name="zip"    placeholder="30301" />
-                <Field label="Country" name="country" placeholder="United States" />
+                <Field label="City"    name="city"    placeholder="Atlanta" value={geoCity}    onChange={setGeoCity} />
+                <Field label="State"   name="state"   placeholder="GA"      value={geoState}   onChange={setGeoState} />
+                <Field label="ZIP Code" name="zip"    placeholder="30301"   value={geoZip}     onChange={setGeoZip} />
+                <Field label="Country" name="country" placeholder="United States" value={geoCountry} onChange={setGeoCountry} />
               </div>
             </div>
 
@@ -179,7 +206,7 @@ export default function CheckoutPage() {
                 )}
                 {[
                   { label: "Shipping", value: shipping === 0 ? "Free" : fmt(shipping) },
-                  { label: "Tax (7%)", value: fmt(tax) },
+                  { label: `Tax (${(taxRate * 100).toFixed(2).replace(/\.?0+$/, "")}%)`, value: fmt(tax) },
                 ].map(row => (
                   <div key={row.label} style={{ display: "flex", justifyContent: "space-between", color: "var(--color-muted)" }}>
                     <span>{row.label}</span><span>{row.value}</span>

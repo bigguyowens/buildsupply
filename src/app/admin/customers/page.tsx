@@ -6,10 +6,12 @@ export default async function AdminCustomersPage() {
     id: number; first_name: string; last_name: string; email: string;
     role: string; created_at: string;
     order_count: number; total_spent: number;
+    geo_city: string | null; geo_region_code: string | null;
   }>(
     `SELECT u.id, u.first_name, u.last_name, u.email, u.role, u.created_at,
             COUNT(o.id)::int AS order_count,
-            COALESCE(SUM(o.total),0) AS total_spent
+            COALESCE(SUM(o.total),0) AS total_spent,
+            u.geo_city, u.geo_region_code
      FROM users u
      LEFT JOIN orders o ON o.user_id = u.id
      GROUP BY u.id ORDER BY u.created_at DESC`
@@ -26,7 +28,7 @@ export default async function AdminCustomersPage() {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ background: "var(--ad-surface2)" }}>
-              {["Customer", "Email", "Role", "Orders", "Total Spent", "Joined", ""].map(h => (
+              {["Customer", "Email", "Location", "Role", "Orders", "Total Spent", "Joined", ""].map(h => (
                 <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--ad-muted2)" }}>{h}</th>
               ))}
             </tr>
@@ -43,6 +45,12 @@ export default async function AdminCustomersPage() {
                   </div>
                 </td>
                 <td style={{ padding: "12px 16px", color: "var(--ad-muted)" }}>{c.email}</td>
+                <td style={{ padding: "12px 16px" }}>
+                  {c.geo_city
+                    ? <span style={{ fontSize: 12, color: "var(--ad-text2)", fontWeight: 600 }}>📍 {c.geo_city}, {c.geo_region_code}</span>
+                    : <span style={{ fontSize: 12, color: "var(--ad-muted2)", fontStyle: "italic" }}>—</span>
+                  }
+                </td>
                 <td style={{ padding: "12px 16px" }}>
                   <span style={{ padding: "2px 10px", borderRadius: 9999, fontSize: 11, fontWeight: 700, textTransform: "uppercase", background: c.role === "admin" ? "#fff7ed" : "#f1f5f9", color: c.role === "admin" ? "#f97316" : "#64748b" }}>
                     {c.role}

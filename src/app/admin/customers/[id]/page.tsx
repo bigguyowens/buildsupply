@@ -24,7 +24,9 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
   const [customer] = await query<{
     id: number; first_name: string; last_name: string; email: string;
     role: string; created_at: string; updated_at: string;
-  }>("SELECT id, first_name, last_name, email, role, created_at, updated_at FROM users WHERE id = $1", [Number(id)]);
+    geo_city: string | null; geo_region: string | null; geo_region_code: string | null;
+    geo_country: string | null; geo_zip: string | null; geo_lat: number | null; geo_lon: number | null; geo_updated_at: string | null;
+  }>("SELECT id, first_name, last_name, email, role, created_at, updated_at, geo_city, geo_region, geo_region_code, geo_country, geo_zip, geo_lat, geo_lon, geo_updated_at FROM users WHERE id = $1", [Number(id)]);
 
   if (!customer) notFound();
 
@@ -175,6 +177,49 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
                 View Privacy Policy ↗
               </Link>
             </div>
+          </div>
+
+          {/* Geo location */}
+          <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8 }}>
+              📍 Location
+              {customer.geo_updated_at
+                ? <span style={{ fontSize: 11, fontWeight: 700, background: "#eff6ff", color: "#1d4ed8", padding: "1px 8px", borderRadius: 9999, border: "1px solid #bfdbfe" }}>Detected</span>
+                : <span style={{ fontSize: 11, fontWeight: 700, background: "#f1f5f9", color: "#64748b", padding: "1px 8px", borderRadius: 9999, border: "1px solid #e2e8f0" }}>Unknown</span>
+              }
+            </h2>
+            {customer.geo_city ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+                {[
+                  { label: "City",     value: customer.geo_city },
+                  { label: "Region",   value: `${customer.geo_region ?? "—"} (${customer.geo_region_code ?? "—"})` },
+                  { label: "Country",  value: customer.geo_country ?? "—" },
+                  { label: "ZIP",      value: customer.geo_zip ?? "—" },
+                  { label: "Coords",   value: customer.geo_lat && customer.geo_lon ? `${Number(customer.geo_lat).toFixed(4)}, ${Number(customer.geo_lon).toFixed(4)}` : "—" },
+                  { label: "Last Seen", value: customer.geo_updated_at ? new Date(customer.geo_updated_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "—" },
+                ].map(r => (
+                  <div key={r.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid var(--ad-border2)" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--ad-muted)" }}>{r.label}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ad-text)", textAlign: "right", maxWidth: 160 }}>{r.value}</span>
+                  </div>
+                ))}
+                {customer.geo_lat && customer.geo_lon && (
+                  <div style={{ marginTop: 12 }}>
+                    <a
+                      href={`https://www.google.com/maps?q=${customer.geo_lat},${customer.geo_lon}`}
+                      target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: 12, color: "#f97316", fontWeight: 600, textDecoration: "none" }}
+                    >
+                      View on Google Maps ↗
+                    </a>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p style={{ fontSize: 13, color: "var(--ad-muted2)", margin: 0, fontStyle: "italic" }}>
+                No location data yet. Geo is captured automatically when the customer visits while logged in.
+              </p>
+            )}
           </div>
         </div>
 

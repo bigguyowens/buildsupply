@@ -5,6 +5,7 @@ import { WishlistButton } from "@/components/wishlist-button";
 import { ProductImage } from "@/components/product-image";
 import { ProductCarousel } from "@/components/product-carousel";
 import { RecentlyViewedTracker } from "@/components/recently-viewed-tracker";
+import { ShippingEstimate } from "@/components/shipping-estimate";
 import { getSession } from "@/lib/auth";
 import { getProductBySlug } from "@/lib/products";
 import { query } from "@/lib/db";
@@ -216,6 +217,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
 
             {/* Purchase section */}
+            <ShippingEstimate />
             <PdpPurchaseSection product={product} maxQuantity={product.inventory} />
 
             {/* Description — bigger + more breathing room */}
