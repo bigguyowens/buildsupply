@@ -5,6 +5,8 @@ import { getSession } from "@/lib/auth";
 import { query } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import { ReorderButton } from "@/components/reorder-button";
+import { ReturnRequestForm } from "@/components/return-request-form";
+import { getReturnForOrder } from "@/app/actions/returns";
 
 type OrderItem = { id: string; name: string; image: string; price: number; quantity: number; brand: string; sku: string; slug: string };
 type Shipping  = { firstName: string; lastName: string; email: string; phone: string; company: string; address: string; city: string; state: string; zip: string; country: string };
@@ -34,6 +36,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   );
   if (!rows.length) notFound();
   const order = rows[0];
+  const existingReturn = await getReturnForOrder(Number(id));
 
   const items: OrderItem[] = Array.isArray(order.items) ? order.items : JSON.parse(order.items as unknown as string ?? "[]");
   const shipping: Shipping = typeof order.shipping === "object" ? order.shipping : JSON.parse(order.shipping as unknown as string ?? "{}");
@@ -62,7 +65,17 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               {statusStyle.label}
             </span>
           </div>
-          <ReorderButton items={items} />
+          <div style={{ display: "flex", gap: 10 }}>
+            {["shipped", "completed"].includes(order.status) && !existingReturn && (
+              <ReturnRequestForm orderId={order.id} items={items} />
+            )}
+            {existingReturn && (
+              <span style={{ padding: "9px 16px", borderRadius: 7, background: "#fef9c3", border: "1px solid #fde047", fontSize: 12, fontWeight: 700, color: "#854d0e" }}>
+                ↩ Return {existingReturn.status.charAt(0).toUpperCase() + existingReturn.status.slice(1)}
+              </span>
+            )}
+            <ReorderButton items={items} />
+          </div>
         </div>
       </div>
 

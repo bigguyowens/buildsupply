@@ -23,6 +23,7 @@ const NAV: NavItem[] = [
   { type: "link",      label: "Wishlists",     href: "/admin/wishlists",    icon: "♡"  },
   { type: "link",      label: "Promotions",    href: "/admin/promotions",   icon: "🎟️" },
   { type: "link",      label: "Contact Forms", href: "/admin/contact",      icon: "✉️"  },
+  { type: "link",      label: "Returns",       href: "/admin/returns",     icon: "↩️"  },
   { type: "separator", label: "Careers" },
   { type: "link",      label: "Job Postings",  href: "/admin/careers",      icon: "💼" },
   { type: "link",      label: "Locations",     href: "/admin/locations",    icon: "📍" },
