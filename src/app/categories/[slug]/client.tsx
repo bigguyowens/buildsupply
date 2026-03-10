@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import { ProductCard } from "@/components/product-card";
 import { ProductListItem } from "@/components/product-list-item";
+import { CompareBar } from "@/components/compare-bar";
+import { CompareModal } from "@/components/compare-modal";
 import type { Product, Category } from "@/lib/products";
 import Link from "next/link";
 
@@ -47,6 +49,23 @@ export function CategoryPageClient({ category, products, subcategories, slug, ac
   const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
   const [minRating, setMinRating] = useState(0);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 99999]);
+  const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
+  const [showCompare, setShowCompare] = useState(false);
+
+  const MAX_COMPARE = 4;
+  const compareProducts = useMemo(() => products.filter(p => compareIds.has(p.id)), [products, compareIds]);
+
+  function toggleCompare(id: string) {
+    setCompareIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else if (next.size < MAX_COMPARE) {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
   const brands = useMemo(() => Array.from(new Set(products.map(p => p.brand).filter(Boolean))).sort(), [products]);
   const maxPrice = useMemo(() => Math.ceil(Math.max(...products.map(p => p.price), 0)), [products]);
@@ -166,12 +185,27 @@ export function CategoryPageClient({ category, products, subcategories, slug, ac
         </div>
       ) : view === "list" ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {filtered.map(p => <ProductListItem key={p.id} product={p} />)}
+          {filtered.map(p => <ProductListItem key={p.id} product={p} compareItems={compareIds} onToggleCompare={toggleCompare} />)}
         </div>
       ) : (
         <div style={{ display: "grid", gap: 18, gridTemplateColumns: "repeat(4, 1fr)" }}>
-          {filtered.map(p => <ProductCard key={p.id} product={p} />)}
+          {filtered.map(p => <ProductCard key={p.id} product={p} compareItems={compareIds} onToggleCompare={toggleCompare} />)}
         </div>
+      )}
+
+      {/* ── Compare Bar + Modal ── */}
+      <CompareBar
+        items={compareProducts}
+        onRemove={id => toggleCompare(id)}
+        onClear={() => setCompareIds(new Set())}
+        onCompare={() => setShowCompare(true)}
+      />
+      {showCompare && compareProducts.length >= 2 && (
+        <CompareModal
+          items={compareProducts}
+          onClose={() => setShowCompare(false)}
+          onRemove={id => { toggleCompare(id); if (compareProducts.length <= 2) setShowCompare(false); }}
+        />
       )}
 
       {/* ── Filter Drawer ──────────────────────────────────── */}

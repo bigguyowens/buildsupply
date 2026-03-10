@@ -10,6 +10,8 @@ import type { Product } from "@/lib/products";
 
 type ProductCardProps = {
   product: Product;
+  compareItems?: Set<string>;
+  onToggleCompare?: (id: string) => void;
 };
 
 function StarRating({ rating }: { rating: number }) {
@@ -24,12 +26,13 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, compareItems, onToggleCompare }: ProductCardProps) {
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
   const [quantity, setQuantity] = useState(1);
+  const isComparing = compareItems?.has(product.id) ?? false;
 
   return (
-    <article className="flex flex-col rounded bg-white border border-[var(--color-border)] hover:shadow-lg transition-shadow">
+    <article className="flex flex-col rounded bg-white border hover:shadow-lg transition-shadow" style={{ borderColor: isComparing ? "#f97316" : "var(--color-border)", boxShadow: isComparing ? "0 0 0 2px rgba(249,115,22,0.25)" : undefined }}>
       {/* Image */}
       <Link href={`/products/${product.slug}`} className="relative block aspect-[4/3] overflow-hidden rounded-t bg-gray-50">
         <ProductImage
@@ -89,6 +92,18 @@ export function ProductCard({ product }: ProductCardProps) {
               style={{ background: "var(--color-accent)" } as React.CSSProperties}
             />
           </div>
+          {/* Compare checkbox */}
+          {onToggleCompare && (
+            <label style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 8, cursor: "pointer", fontSize: 12, fontWeight: 600, color: isComparing ? "#f97316" : "#64748b", userSelect: "none" }}>
+              <input
+                type="checkbox"
+                checked={isComparing}
+                onChange={() => onToggleCompare(product.id)}
+                style={{ accentColor: "#f97316", width: 14, height: 14, cursor: "pointer" }}
+              />
+              Compare
+            </label>
+          )}
         </div>
       </div>
     </article>

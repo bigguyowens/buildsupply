@@ -25,13 +25,16 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
   );
 }
 
-export function ProductListItem({ product }: { product: Product }) {
+type ListItemProps = { product: Product; compareItems?: Set<string>; onToggleCompare?: (id: string) => void; };
+
+export function ProductListItem({ product, compareItems, onToggleCompare }: ListItemProps) {
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
   const [quantity, setQuantity] = useState(1);
+  const isComparing = compareItems?.has(product.id) ?? false;
 
   return (
     <article
-      style={{ display: "flex", background: "white", borderRadius: 8, border: "1px solid #e2e8f0", overflow: "hidden", transition: "box-shadow 0.15s" }}
+      style={{ display: "flex", background: "white", borderRadius: 8, border: `1px solid ${isComparing ? "#f97316" : "#e2e8f0"}`, overflow: "hidden", transition: "box-shadow 0.15s", boxShadow: isComparing ? "0 0 0 2px rgba(249,115,22,0.2)" : undefined }}
       onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.08)"}
       onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = "none"}
     >
@@ -88,6 +91,12 @@ export function ProductListItem({ product }: { product: Product }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
               <WishlistButton productId={product.id} size="sm" />
+              {onToggleCompare && (
+                <label style={{ display: "flex", alignItems: "center", gap: 5, cursor: "pointer", fontSize: 12, fontWeight: 600, color: isComparing ? "#f97316" : "#64748b", userSelect: "none", whiteSpace: "nowrap" }}>
+                  <input type="checkbox" checked={isComparing} onChange={() => onToggleCompare(product.id)} style={{ accentColor: "#f97316", width: 13, height: 13, cursor: "pointer" }} />
+                  Compare
+                </label>
+              )}
               <QuantitySelector value={quantity} onChange={setQuantity} size="sm" max={product.inventory} />
             </div>
             <AddToCartButton
