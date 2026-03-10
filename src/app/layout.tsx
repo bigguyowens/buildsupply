@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { Footer } from "@/components/footer";
+import { ConsentBanner } from "@/components/consent-banner";
 import { Header } from "@/components/header";
 import { CartProvider } from "@/context/cart-context";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -81,6 +82,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Header session={session} />
             {children}
             <Footer />
+            <ConsentBanner isLoggedIn={!!session} />
           </ErrorBoundary>
         </CartProvider>
       </body>

@@ -5,6 +5,7 @@ import { AdminRoleToggle } from "@/components/admin-role-toggle";
 import { getCustomerPromoUses } from "@/app/actions/promotions";
 import { adminGetProductViews } from "@/lib/product-views";
 import { ProductImage } from "@/components/product-image";
+import { getConsentStatus } from "@/lib/consent";
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   pending:    { bg: "#fef9c3", color: "#854d0e" },
@@ -27,7 +28,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
 
   if (!customer) notFound();
 
-  const [orders, wishlists, promoUses, productViews] = await Promise.all([
+  const [orders, wishlists, promoUses, productViews, consent] = await Promise.all([
     query<{ id: number; status: string; total: number; created_at: string; item_count: number }>(
       `SELECT id, status, total, created_at, jsonb_array_length(items) AS item_count
        FROM orders WHERE user_id = $1 ORDER BY created_at DESC`,
@@ -41,6 +42,7 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
     ),
     getCustomerPromoUses(customer.id),
     adminGetProductViews(customer.id),
+    getConsentStatus(customer.id),
   ]);
 
   const totalSpent = orders.filter(o => o.status !== "cancelled").reduce((s, o) => s + Number(o.total), 0);
@@ -140,6 +142,39 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
             <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 4px" }}>Admin Access</h2>
             <p style={{ fontSize: 12, color: "var(--ad-muted2)", margin: "0 0 14px" }}>Grants full access to the admin panel</p>
             <AdminRoleToggle userId={customer.id} currentRole={customer.role} />
+          </div>
+
+          {/* Privacy consent */}
+          <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 14px", display: "flex", alignItems: "center", gap: 8 }}>
+              🔒 Privacy Consent
+              {consent?.privacy_consent
+                ? <span style={{ fontSize: 11, fontWeight: 700, background: "#dcfce7", color: "#15803d", padding: "1px 8px", borderRadius: 9999, border: "1px solid #bbf7d0" }}>Accepted</span>
+                : <span style={{ fontSize: 11, fontWeight: 700, background: "#fef9c3", color: "#854d0e", padding: "1px 8px", borderRadius: 9999, border: "1px solid #fde68a" }}>Pending</span>
+              }
+            </h2>
+            {consent?.privacy_consent ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {[
+                  { label: "Consent Given", value: consent.privacy_consent_at ? new Date(consent.privacy_consent_at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "—" },
+                  { label: "Policy Version", value: consent.privacy_policy_ver ?? "—" },
+                ].map(r => (
+                  <div key={r.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid var(--ad-border2)" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--ad-muted)" }}>{r.label}</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ad-text)" }}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: 13, color: "var(--ad-muted2)", margin: 0, fontStyle: "italic" }}>
+                This customer has not yet accepted the Privacy &amp; Security Policy.
+              </p>
+            )}
+            <div style={{ marginTop: 12 }}>
+              <Link href="/privacy" target="_blank" style={{ fontSize: 12, color: "#f97316", fontWeight: 600, textDecoration: "none" }}>
+                View Privacy Policy ↗
+              </Link>
+            </div>
           </div>
         </div>
 
