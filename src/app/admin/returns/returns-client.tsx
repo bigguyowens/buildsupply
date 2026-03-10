@@ -102,8 +102,17 @@ export function AdminReturnsClient({ initialReturns }: { initialReturns: (Return
                   onMouseLeave={e => (e.currentTarget.style.background = "")}>
                   <td style={{ padding: "13px 16px", fontWeight: 700, fontSize: 13, color: "var(--ad-text)" }}>#{r.id}</td>
                   <td style={{ padding: "13px 16px" }}>
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--ad-text)" }}>{r.first_name} {r.last_name}</p>
-                    <p style={{ margin: 0, fontSize: 11, color: "var(--ad-muted)" }}>{r.email}</p>
+                    {r.first_name ? (
+                      <>
+                        <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--ad-text)" }}>{r.first_name} {r.last_name}</p>
+                        <p style={{ margin: 0, fontSize: 11, color: "var(--ad-muted)" }}>{r.email}</p>
+                      </>
+                    ) : (
+                      <>
+                        <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: "var(--ad-text)" }}>Guest</p>
+                        <p style={{ margin: 0, fontSize: 11, color: "var(--ad-muted)" }}>{(r as typeof r & { guest_email?: string }).guest_email ?? "—"}</p>
+                      </>
+                    )}
                   </td>
                   <td style={{ padding: "13px 16px", fontSize: 13, color: "var(--ad-text2)" }}>#{r.order_id}</td>
                   <td style={{ padding: "13px 16px", fontSize: 13, color: "var(--ad-text2)" }}>{(r as typeof r & { item_count: number }).item_count} item{(r as typeof r & { item_count: number }).item_count !== 1 ? "s" : ""}</td>
@@ -135,7 +144,7 @@ export function AdminReturnsClient({ initialReturns }: { initialReturns: (Return
             <div style={{ padding: "18px 24px", borderBottom: "1px solid var(--ad-border)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <div>
                 <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "var(--ad-text)" }}>Return #{drawer.id}</h2>
-                <p style={{ fontSize: 12, color: "var(--ad-muted)", margin: "3px 0 0" }}>Order #{drawer.order_id} · {drawer.first_name} {drawer.last_name}</p>
+                <p style={{ fontSize: 12, color: "var(--ad-muted)", margin: "3px 0 0" }}>Order #{drawer.order_id} · {drawer.first_name ? `${drawer.first_name} ${drawer.last_name}` : `Guest · ${(drawer as typeof drawer & { guest_email?: string }).guest_email ?? "unknown"}`}</p>
               </div>
               <button onClick={() => setDrawer(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "var(--ad-muted)" }}>✕</button>
             </div>

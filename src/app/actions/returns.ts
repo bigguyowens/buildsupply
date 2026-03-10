@@ -15,6 +15,7 @@ export type ReturnRow = {
   notes: string | null;
   refund_amount: number | null;
   admin_notes: string | null;
+  guest_email: string | null;
   created_at: string;
   updated_at: string;
   items: ReturnItemRow[];
@@ -151,4 +152,57 @@ export async function updateReturnStatus(returnId: number, status: ReturnStatus,
   );
   revalidatePath("/admin/returns");
   return { ok: true };
+}
+
+// ── Guest: lookup order by id + email ──────────────────────────────────
+export async function lookupGuestOrder(orderId: number, email: string) {
+  const rows = await query<{
+    id: number; status: string; items: string; created_at: string;
+  }>(
+    `SELECT id, status, items, created_at FROM orders
+     WHERE id = $1
+       AND user_id IS NULL
+       AND LOWER((shipping->>'email')) = LOWER($2)`,
+    [orderId, email]
+  );
+  if (!rows.length) return { error: "No order found with that order number and email address." };
+
+  const order = rows[0];
+  if (!["shipped", "completed"].includes(order.status)) {
+    return { error: `Order #${orderId} is not eligible for return (status: ${order.status}).` };
+  }
+
+  // Check no existing open return
+  const existing = await query<{ id: number }>(
+    "SELECT id FROM returns WHERE order_id = $1 AND status NOT IN ('rejected','refunded')",
+    [orderId]
+  );
+  if (existing.length) return { error: "A return request already exists for this order." };
+
+  const items = Array.isArray(order.items) ? order.items : JSON.parse(order.items ?? "[]");
+  return { ok: true, order: { ...order, items } };
+}
+
+// ── Guest: submit return without account ───────────────────────────────
+export async function submitGuestReturn(input: SubmitReturnInput & { email: string }) {
+  // Re-validate before inserting
+  const lookup = await lookupGuestOrder(input.orderId, input.email);
+  if ("error" in lookup) return { error: lookup.error };
+
+  const [ret] = await query<{ id: number }>(
+    `INSERT INTO returns (order_id, user_id, guest_email, reason, notes)
+     VALUES ($1, NULL, $2, $3, $4) RETURNING id`,
+    [input.orderId, input.email.toLowerCase(), input.reason, input.notes ?? null]
+  );
+
+  for (const item of input.items) {
+    await query(
+      `INSERT INTO return_items (return_id, product_id, name, sku, image, price, quantity, reason)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+      [ret.id, item.product_id, item.name, item.sku, item.image ?? null, item.price, item.quantity, item.reason ?? null]
+    );
+  }
+
+  revalidatePath("/returns");
+  return { ok: true, returnId: ret.id };
 }

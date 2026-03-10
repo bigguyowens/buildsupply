@@ -25,7 +25,7 @@ const FOOTER_LINKS = {
   ],
   "Support": [
     { label: "Order History", href: "/orders"  },
-    { label: "Returns",       href: "/account/returns" },
+    { label: "Returns",       href: "/returns" },
     { label: "FAQs",          href: "/faq"     },
   ],
 };
