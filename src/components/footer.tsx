@@ -9,10 +9,11 @@ const FOOTER_LINKS = {
     { label: "Waterproofing",       href: "/categories/waterproofing-sealants"},
   ],
   "Company": [
-    { label: "About Us",   href: "/about"   },
-    { label: "Contact",    href: "/contact" },
-    { label: "Careers",    href: "/careers" },
-    { label: "News & Updates", href: "/blog" },
+    { label: "About Us",            href: "/about"   },
+    { label: "Contact",             href: "/contact" },
+    { label: "Careers",             href: "/careers" },
+    { label: "News & Updates",      href: "/blog"    },
+    { label: "Privacy & Security",  href: "/privacy" },
   ],
   "News": [
     { label: "All Posts",          href: "/blog"                             },
