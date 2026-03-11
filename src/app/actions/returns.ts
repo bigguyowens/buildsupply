@@ -133,10 +133,13 @@ export async function getReturnForOrder(orderId: number) {
 // ── Admin: get all returns ──────────────────────────────────────────────
 export async function getAdminReturns() {
   return query<ReturnRow & { first_name: string; last_name: string; email: string; item_count: number }>(
-    `SELECT r.*, u.first_name, u.last_name, u.email,
+    `SELECT r.*,
+            COALESCE(u.first_name, 'Guest')                          AS first_name,
+            COALESCE(u.last_name, '')                                AS last_name,
+            COALESCE(u.email, r.guest_email)                        AS email,
             (SELECT COUNT(*) FROM return_items ri WHERE ri.return_id = r.id)::int AS item_count
      FROM returns r
-     JOIN users u ON u.id = r.user_id
+     LEFT JOIN users u ON u.id = r.user_id
      ORDER BY r.created_at DESC`
   );
 }
@@ -144,9 +147,13 @@ export async function getAdminReturns() {
 // ── Admin: get single return with items ────────────────────────────────
 export async function getAdminReturn(returnId: number) {
   const rows = await query<ReturnRow & { first_name: string; last_name: string; email: string; order_total: number }>(
-    `SELECT r.*, u.first_name, u.last_name, u.email, o.total AS order_total
+    `SELECT r.*,
+            COALESCE(u.first_name, 'Guest')      AS first_name,
+            COALESCE(u.last_name, '')            AS last_name,
+            COALESCE(u.email, r.guest_email)     AS email,
+            o.total                              AS order_total
      FROM returns r
-     JOIN users u ON u.id = r.user_id
+     LEFT JOIN users u ON u.id = r.user_id
      JOIN orders o ON o.id = r.order_id
      WHERE r.id = $1`,
     [returnId]
