@@ -10,6 +10,8 @@ import { getSession } from "@/lib/auth";
 import { getProductBySlug } from "@/lib/products";
 import { query } from "@/lib/db";
 import { getSimilarProducts, getRecentlyViewedProducts } from "@/lib/product-views";
+import { getProductReviews } from "@/app/actions/reviews";
+import { ProductReviews } from "@/components/product-reviews";
 import type { Product } from "@/lib/products";
 import Image from "next/image";
 
@@ -99,10 +101,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const gallery = Array.isArray(product.gallery) ? product.gallery : [];
   const session = await getSession();
 
-  const [{ lists, activeIds }, similarProducts, recentlyViewed] = await Promise.all([
+  const [{ lists, activeIds }, similarProducts, recentlyViewed, { reviews, summary }] = await Promise.all([
     session ? getWishlistData(session.id, product.id) : Promise.resolve({ lists: [], activeIds: [] }),
     getSimilarProducts(product.category, product.id, 12),
     session ? getRecentlyViewedProducts(session.id, product.id, 12) : Promise.resolve([]),
+    getProductReviews(product.id),
   ]);
 
   const priceLabel = new Intl.NumberFormat("en-US", { style: "currency", currency: product.currency }).format(product.price);
@@ -259,6 +262,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           )}
         </div>
+
+        {/* ── Reviews ────────────────────────────────────────────── */}
+        <ProductReviews
+          reviews={reviews}
+          summary={summary}
+          productId={product.id}
+          isLoggedIn={!!session}
+        />
       </main>
 
       <style>{`
