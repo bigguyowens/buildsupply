@@ -67,7 +67,6 @@ export function Footer() {
           <span>© {new Date().getFullYear()} BuildSupply. All rights reserved.</span>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-white/70">Privacy Policy</Link>
-            <Link href="/terms"   className="hover:text-white/70">Terms of Use</Link>
           </div>
         </div>
       </div>
