@@ -4,6 +4,7 @@ import { Footer } from "@/components/footer";
 import { ConsentBanner } from "@/components/consent-banner";
 import { Header } from "@/components/header";
 import { CartProvider } from "@/context/cart-context";
+import { CartDrawer } from "@/components/cart-drawer";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { getSession } from "@/lib/auth";
 import type { SessionUser } from "@/lib/auth";
@@ -82,6 +83,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Header session={session} />
             {children}
             <Footer />
+            <CartDrawer />
             <ConsentBanner isLoggedIn={!!session} />
           </ErrorBoundary>
         </CartProvider>

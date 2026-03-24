@@ -136,7 +136,7 @@ const CATEGORIES = [
 ];
 
 export function Header({ session }: { session: SessionUser | null }) {
-  const { itemCount } = useCart();
+  const { itemCount, openDrawer } = useCart();
   const [mobileOpen, setMobileOpen]       = useState(false);
   const [megaOpen, setMegaOpen]           = useState(false);
   const [activeCategory, setActiveCategory] = useState(CATEGORIES[0].slug);
@@ -238,14 +238,14 @@ export function Header({ session }: { session: SessionUser | null }) {
         {session && <WishlistNavIcon />}
 
         {/* Cart */}
-        <Link
-          href="/cart"
+        <button
+          onClick={openDrawer}
           className="cart-btn"
           style={{
             display: "flex", alignItems: "center", gap: 8,
-            color: "white", textDecoration: "none", border: "1px solid rgba(255,255,255,0.3)",
+            color: "white", background: "none", textDecoration: "none", border: "1px solid rgba(255,255,255,0.3)",
             borderRadius: 6, padding: "7px 14px", fontSize: 13, fontWeight: 600,
-            flexShrink: 0, whiteSpace: "nowrap",
+            flexShrink: 0, whiteSpace: "nowrap", cursor: "pointer",
           }}
         >
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -257,7 +257,7 @@ export function Header({ session }: { session: SessionUser | null }) {
               {itemCount}
             </span>
           )}
-        </Link>
+        </button>
 
         {/* Mobile hamburger */}
         <button

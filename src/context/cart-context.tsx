@@ -2,7 +2,7 @@
 
 import {
   createContext, useContext, useMemo, useReducer,
-  useEffect, useRef, useCallback,
+  useEffect, useRef, useCallback, useState,
 } from "react";
 import type { Product } from "@/lib/products";
 
@@ -24,6 +24,10 @@ type CartContextValue = {
   itemCount: number;
   hydrated: boolean;
   promo: AppliedPromo | null;
+  drawerOpen: boolean;
+  lastAdded: CartItem | null;
+  openDrawer:  () => void;
+  closeDrawer: () => void;
   addItem:             (product: Product, quantity?: number) => void;
   updateItemQuantity:  (productId: string, quantity: number) => void;
   removeItem:          (productId: string) => void;
@@ -78,6 +82,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
 export function CartProvider({ children, isLoggedIn }: { children: React.ReactNode; isLoggedIn: boolean }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [], hydrated: false, promo: null });
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [lastAdded, setLastAdded]   = useState<CartItem | null>(null);
+  const drawerTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevLoggedIn = useRef(isLoggedIn);
 
@@ -140,6 +147,17 @@ export function CartProvider({ children, isLoggedIn }: { children: React.ReactNo
   }, [isLoggedIn]);
 
   // ── Persist after every change (debounced 600ms) ─────
+  const openDrawer = useCallback(() => {
+    if (drawerTimer.current) clearTimeout(drawerTimer.current);
+    setDrawerOpen(true);
+    drawerTimer.current = setTimeout(() => setDrawerOpen(false), 4000);
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    if (drawerTimer.current) clearTimeout(drawerTimer.current);
+    setDrawerOpen(false);
+  }, []);
+
   const persist = useCallback((items: CartItem[]) => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
@@ -165,13 +183,21 @@ export function CartProvider({ children, isLoggedIn }: { children: React.ReactNo
     hydrated:  state.hydrated,
     promo:     state.promo,
     itemCount: state.items.reduce((t, i) => t + i.quantity, 0),
-    addItem:            (product, quantity = 1) => dispatch({ type: "ADD_ITEM",        product, quantity }),
+    drawerOpen,
+    lastAdded,
+    openDrawer,
+    closeDrawer,
+    addItem: (product, quantity = 1) => {
+      dispatch({ type: "ADD_ITEM", product, quantity });
+      setLastAdded({ ...product, quantity });
+      openDrawer();
+    },
     updateItemQuantity: (productId, quantity)   => dispatch({ type: "UPDATE_QUANTITY", productId, quantity }),
     removeItem:         (productId)             => dispatch({ type: "REMOVE_ITEM",     productId }),
     clearCart:          ()                      => dispatch({ type: "CLEAR_CART" }),
     mergeItems:         (items)                 => dispatch({ type: "MERGE_ITEMS",     items }),
     setPromo:           (promo)                 => dispatch({ type: "SET_PROMO",       promo }),
-  }), [state]);
+  }), [state, drawerOpen, lastAdded, openDrawer, closeDrawer]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
