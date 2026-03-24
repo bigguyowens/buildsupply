@@ -26,7 +26,6 @@ const NAV: NavItem[] = [
   { type: "link",      label: "Returns",       href: "/admin/returns",     icon: "↩️"  },
   { type: "separator", label: "Careers" },
   { type: "link",      label: "Job Postings",  href: "/admin/careers",      icon: "💼" },
-  { type: "link",      label: "Locations",     href: "/admin/locations",    icon: "📍" },
   { type: "separator", label: "Content" },
   { type: "link",      label: "Theme",         href: "/admin/theme",        icon: "🎨" },
   { type: "link",      label: "Homepage",      href: "/admin/homepage",     icon: "🏠" },
@@ -34,6 +33,7 @@ const NAV: NavItem[] = [
   { type: "link",      label: "Contact Page",  href: "/admin/contact-cms",  icon: "📍" },
   { type: "link",      label: "Blog",          href: "/admin/blog",         icon: "📝" },
   { type: "link",      label: "FAQ",           href: "/admin/faq",          icon: "❓" },
+  { type: "link",      label: "Locations",     href: "/admin/locations",    icon: "📍" },
   { type: "separator" },
   { type: "link",      label: "Error Logs",    href: "/admin/error-logs",   icon: "🔴" },
 ];
