@@ -37,7 +37,7 @@ async function getWishlistData(userId: number, productId: string) {
 
 function StarRating({ rating, count }: { rating: number; count: number }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <a href="#reviews" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", cursor: "pointer" }}>
       <div style={{ display: "flex", gap: 2 }}>
         {[1,2,3,4,5].map(s => (
           <svg key={s} width="16" height="16" viewBox="0 0 24 24"
@@ -51,7 +51,7 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
       <span style={{ fontSize: 13, color: "var(--color-muted)" }}>
         {rating.toFixed(1)} <span style={{ opacity: 0.6 }}>({count.toLocaleString()} reviews)</span>
       </span>
-    </div>
+    </a>
   );
 }
 
@@ -264,12 +264,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
 
         {/* ── Reviews ────────────────────────────────────────────── */}
+        <div id="reviews">
         <ProductReviews
           reviews={reviews}
           summary={summary}
           productId={product.id}
           isLoggedIn={!!session}
         />
+        </div>
       </main>
 
       <style>{`

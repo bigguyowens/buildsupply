@@ -2,6 +2,8 @@
 @import "swiper/css";
 @import "swiper/css/pagination";
 
+html { scroll-behavior: smooth; }
+
 /* ── Color tokens ── */
 :root {
   --color-background: #f4f5f6;
