@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Image from "next/image";
 import { updateOrderStatusAction } from "@/app/actions/admin";
+import { OrderStatusTimeline } from "@/components/order-status-timeline";
 
 const STATUSES = ["pending", "processing", "shipped", "completed", "cancelled"];
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -18,6 +19,9 @@ type Shipping = { firstName: string; lastName: string; email: string; phone: str
 
 export function AdminOrderDetailClient({ order }: { order: any }) {
   const [status, setStatus] = useState<string>(order.status);
+  const [statusHistory, setStatusHistory] = useState<{ status: string; timestamp: string }[]>(
+    Array.isArray(order.status_history) ? order.status_history : []
+  );
   const [pending, startTransition] = useTransition();
   const style = STATUS_COLORS[status] ?? STATUS_COLORS.pending;
 
@@ -29,7 +33,9 @@ export function AdminOrderDetailClient({ order }: { order: any }) {
 
   function handleStatus(e: React.ChangeEvent<HTMLSelectElement>) {
     const next = e.target.value;
+    const newEvent = { status: next, timestamp: new Date().toISOString() };
     setStatus(next);
+    setStatusHistory(prev => [...prev, newEvent]);
     startTransition(() => updateOrderStatusAction(order.id, next));
   }
 
@@ -67,6 +73,12 @@ export function AdminOrderDetailClient({ order }: { order: any }) {
               {new Date(order.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
             </p>
           </div>
+        </div>
+
+        {/* Timeline */}
+        <div style={{ background: "white", borderRadius: 10, padding: "20px 24px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+          <p style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "#94a3b8", margin: "0 0 20px" }}>Order Timeline</p>
+          <OrderStatusTimeline status={status} statusHistory={statusHistory} compact />
         </div>
 
         {/* Line items */}

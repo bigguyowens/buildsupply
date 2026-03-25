@@ -7,10 +7,10 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   const { id } = await params;
   const [orderRow] = await query<{
     id: number; status: string; total: number; created_at: string;
-    items: unknown; shipping: unknown;
+    items: unknown; shipping: unknown; status_history: unknown;
     user_id: number | null; first_name: string | null; last_name: string | null; email: string | null;
   }>(
-    `SELECT o.id, o.status, o.total, o.created_at, o.items, o.shipping,
+    `SELECT o.id, o.status, o.total, o.created_at, o.items, o.shipping, o.status_history,
             o.user_id, u.first_name, u.last_name, u.email
      FROM orders o LEFT JOIN users u ON u.id = o.user_id
      WHERE o.id = $1`,

@@ -15,9 +15,17 @@ export async function updateOrderStatusAction(orderId: number, status: string) {
   await assertAdmin();
   const valid = ["pending", "processing", "shipped", "completed", "cancelled"];
   if (!valid.includes(status)) throw new Error("Invalid status");
-  await query("UPDATE orders SET status = $1 WHERE id = $2", [status, orderId]);
+  await query(
+    `UPDATE orders
+     SET status = $1,
+         updated_at = NOW(),
+         status_history = status_history || $2::jsonb
+     WHERE id = $3`,
+    [status, JSON.stringify([{ status, timestamp: new Date().toISOString() }]), orderId]
+  );
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath(`/account/orders/${orderId}`);
 }
 
 // ── Products ─────────────────────────────────────────────

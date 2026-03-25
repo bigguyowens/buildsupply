@@ -7,10 +7,11 @@ import { notFound, redirect } from "next/navigation";
 import { ReorderButton } from "@/components/reorder-button";
 import { ReturnRequestForm } from "@/components/return-request-form";
 import { getReturnForOrder } from "@/app/actions/returns";
+import { OrderStatusTimeline } from "@/components/order-status-timeline";
 
 type OrderItem = { id: string; name: string; image: string; price: number; quantity: number; brand: string; sku: string; slug: string };
 type Shipping  = { firstName: string; lastName: string; email: string; phone: string; company: string; address: string; city: string; state: string; zip: string; country: string };
-type OrderRow  = { id: number; status: string; total: number; created_at: string; items: OrderItem[]; shipping: Shipping; user_id: number; promo_code: string | null; discount_amount: number };
+type OrderRow  = { id: number; status: string; total: number; created_at: string; items: OrderItem[]; shipping: Shipping; user_id: number; promo_code: string | null; discount_amount: number; status_history: { status: string; timestamp: string }[] };
 
 const STATUS_COLORS: Record<string, { bg: string; color: string; label: string }> = {
   pending:    { bg: "#fef9c3", color: "#854d0e", label: "Pending" },
@@ -31,7 +32,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   if (!session) redirect("/login");
 
   const rows = await query<OrderRow>(
-    `SELECT id, status, total, created_at, items, shipping, user_id, promo_code, discount_amount FROM orders WHERE id = $1 AND user_id = $2`,
+    `SELECT id, status, total, created_at, items, shipping, user_id, promo_code, discount_amount, status_history FROM orders WHERE id = $1 AND user_id = $2`,
     [id, session.id]
   );
   if (!rows.length) notFound();
@@ -47,10 +48,6 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const discountedSub = subtotal - discountAmount;
   const shippingCost = discountedSub < SHIPPING_THRESHOLD ? SHIPPING_FEE : 0;
   const tax = discountedSub * TAX_RATE;
-
-  // Status timeline steps
-  const allStatuses = ["pending", "processing", "shipped", "completed"];
-  const currentIdx = allStatuses.indexOf(order.status);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
@@ -81,39 +78,21 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
 
       <main style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 16px", display: "flex", flexDirection: "column", gap: 20 }}>
 
-        {/* Status timeline (hidden for cancelled) */}
+        {/* Status timeline */}
         {order.status !== "cancelled" && (
           <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", padding: "20px 24px" }}>
-            <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 20 }}>Order Status</h2>
-            <div style={{ display: "flex", alignItems: "center", position: "relative" }}>
-              {allStatuses.map((s, i) => {
-                const done = i <= currentIdx;
-                const label = STATUS_COLORS[s]?.label ?? s;
-                return (
-                  <div key={s} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}>
-                    {/* Connector line */}
-                    {i > 0 && (
-                      <div style={{
-                        position: "absolute", top: 14, right: "50%", left: "-50%", height: 3,
-                        background: i <= currentIdx ? "var(--color-accent)" : "#e5e7eb",
-                      }} />
-                    )}
-                    <div style={{
-                      width: 28, height: 28, borderRadius: "50%", border: `3px solid ${done ? "var(--color-accent)" : "#e5e7eb"}`,
-                      background: done ? "var(--color-accent)" : "white", zIndex: 1,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      color: "white", fontSize: 13, fontWeight: 700,
-                    }}>
-                      {done ? "✓" : ""}
-                    </div>
-                    <p style={{ fontSize: 12, fontWeight: done ? 700 : 400, color: done ? "var(--color-foreground)" : "var(--color-muted)", marginTop: 8, textAlign: "center" }}>
-                      {label}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
+            <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--color-muted)", marginBottom: 24, marginTop: 0 }}>Order Status</h2>
+            <OrderStatusTimeline
+              status={order.status}
+              statusHistory={Array.isArray(order.status_history) ? order.status_history : []}
+            />
           </div>
+        )}
+        {order.status === "cancelled" && (
+          <OrderStatusTimeline
+            status={order.status}
+            statusHistory={Array.isArray(order.status_history) ? order.status_history : []}
+          />
         )}
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>

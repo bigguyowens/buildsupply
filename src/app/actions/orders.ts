@@ -39,8 +39,8 @@ export async function placeOrderAction(
     const verifiedTotal  = total; // caller already computed with same logic; stored as-is
 
     const rows = await query<{ id: number }>(
-      `INSERT INTO orders (user_id, status, total, items, shipping, promo_id, promo_code, discount_amount)
-       VALUES ($1, 'pending', $2, $3, $4, $5, $6, $7)
+      `INSERT INTO orders (user_id, status, total, items, shipping, promo_id, promo_code, discount_amount, status_history, updated_at)
+       VALUES ($1, 'pending', $2, $3, $4, $5, $6, $7, $8, NOW())
        RETURNING id`,
       [
         userId,
@@ -50,6 +50,7 @@ export async function placeOrderAction(
         promo?.id ?? null,
         promo?.code ?? null,
         discountAmount,
+        JSON.stringify([{ status: "pending", timestamp: new Date().toISOString() }]),
       ]
     );
 
