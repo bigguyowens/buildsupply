@@ -50,14 +50,14 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
   const tax = discountedSub * TAX_RATE;
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
-      {/* Header */}
-      <div style={{ background: "var(--color-primary)", borderBottom: "3px solid var(--color-accent)" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "20px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+    <div>
+      {/* Order header bar */}
+      <div style={{ background: "var(--color-primary)", borderBottom: "3px solid var(--color-accent)", margin: "0 0 20px", borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <Link href="/account/orders" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 13 }}>← Orders</Link>
             <span style={{ color: "rgba(255,255,255,0.3)" }}>|</span>
-            <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: 0 }}>Order #{order.id}</h1>
+            <h1 style={{ color: "white", fontSize: 18, fontWeight: 700, margin: 0 }}>Order #{order.id}</h1>
             <span style={{ padding: "3px 12px", borderRadius: 9999, fontSize: 11, fontWeight: 700, textTransform: "uppercase", background: statusStyle.bg, color: statusStyle.color }}>
               {statusStyle.label}
             </span>
@@ -76,7 +76,7 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         </div>
       </div>
 
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 16px", display: "flex", flexDirection: "column", gap: 20 }}>
+      <main style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 
         {/* Status timeline */}
         {order.status !== "cancelled" && (

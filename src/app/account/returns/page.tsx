@@ -21,16 +21,12 @@ export default async function ReturnsPage() {
   const returns = await getMyReturns();
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
-      <div style={{ background: "var(--color-primary)", borderBottom: "3px solid var(--color-accent)" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "20px 16px", display: "flex", alignItems: "center", gap: 16 }}>
-          <Link href="/account" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 13 }}>← Account</Link>
-          <span style={{ color: "rgba(255,255,255,0.3)" }}>|</span>
-          <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: 0 }}>My Returns</h1>
-        </div>
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>My Returns</h2>
+        <p style={{ color: "var(--color-muted)", fontSize: 14, margin: "4px 0 0" }}>{returns.length} return{returns.length !== 1 ? "s" : ""}</p>
       </div>
-
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 16px" }}>
+      <div>
         {returns.length === 0 ? (
           <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", padding: "64px 24px", textAlign: "center" }}>
             <p style={{ fontSize: 18, fontWeight: 600, marginBottom: 8 }}>No returns yet</p>
@@ -74,7 +70,7 @@ export default async function ReturnsPage() {
             })}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

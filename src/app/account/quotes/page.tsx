@@ -32,53 +32,19 @@ export default async function AccountQuotesPage() {
   const pendingCount = quotes.filter(q => q.status === "sent").length;
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
-      <div style={{ background: "var(--color-primary)", borderBottom: "3px solid var(--color-accent)" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 16px" }}>
-          <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: 0 }}>My Quotes</h1>
-          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, margin: "4px 0 0" }}>Custom pricing proposals from our team</p>
-        </div>
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>My Quotes</h2>
+        <p style={{ color: "var(--color-muted)", fontSize: 14, margin: "4px 0 0" }}>Custom pricing proposals from our team</p>
       </div>
-
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 16px", display: "grid", gridTemplateColumns: "240px 1fr", gap: 24, alignItems: "start" }}>
-
-        {/* Sidebar */}
-        <aside>
-          <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", overflow: "hidden" }}>
-            <div style={{ padding: "16px", borderBottom: "1px solid var(--color-border)" }}>
-              <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--color-accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontWeight: 700, fontSize: 18, marginBottom: 10 }}>
-                {session.firstName[0]}{session.lastName[0]}
-              </div>
-              <p style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>{session.firstName} {session.lastName}</p>
-              <p style={{ color: "var(--color-muted)", fontSize: 12, margin: "2px 0 0" }}>{session.email}</p>
-            </div>
-            <nav>
-              {[
-                { label: "Dashboard",     href: "/account" },
-                { label: "Order History", href: "/account/orders" },
-                { label: "My Quotes",     href: "/account/quotes" },
-                { label: "Wishlists",     href: "/account/wishlist" },
-                { label: "Profile",       href: "/account/profile" },
-              ].map(item => (
-                <Link key={item.href} href={item.href} style={{ display: "block", padding: "11px 16px", fontSize: 14, color: item.href === "/account/quotes" ? "var(--color-accent)" : "var(--color-foreground)", textDecoration: "none", borderBottom: "1px solid var(--color-border)", fontWeight: item.href === "/account/quotes" ? 700 : 400, background: item.href === "/account/quotes" ? "#fff7ed" : "transparent" }}>
-                  {item.label}{item.href === "/account/quotes" && pendingCount > 0 && (
-                    <span style={{ marginLeft: 8, background: "#f97316", color: "white", fontSize: 10, fontWeight: 800, padding: "1px 6px", borderRadius: 9999 }}>{pendingCount}</span>
-                  )}
-                </Link>
-              ))}
-            </nav>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        {quotes.length === 0 ? (
+          <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", padding: "48px 24px", textAlign: "center" }}>
+            <p style={{ fontSize: 32, margin: "0 0 8px" }}>📋</p>
+            <p style={{ fontWeight: 700, fontSize: 16, margin: "0 0 8px" }}>No quotes yet</p>
+            <p style={{ color: "var(--color-muted)", fontSize: 14 }}>Contact us to request custom pricing for large orders.</p>
           </div>
-        </aside>
-
-        {/* Content */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {quotes.length === 0 ? (
-            <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", padding: "48px 24px", textAlign: "center" }}>
-              <p style={{ fontSize: 32, margin: "0 0 8px" }}>📋</p>
-              <p style={{ fontWeight: 700, fontSize: 16, margin: "0 0 8px" }}>No quotes yet</p>
-              <p style={{ color: "var(--color-muted)", fontSize: 14 }}>Contact us to request custom pricing for large orders.</p>
-            </div>
-          ) : quotes.map(q => {
+        ) : quotes.map(q => {
             const ss = STATUS_STYLE[q.status] ?? STATUS_STYLE.sent;
             const isExpired = q.expires_at && new Date(q.expires_at) < new Date() && q.status === "sent";
             const actionNeeded = q.status === "sent" && !isExpired;
@@ -117,8 +83,7 @@ export default async function AccountQuotesPage() {
               </Link>
             );
           })}
-        </div>
-      </main>
+      </div>
     </div>
   );
 }

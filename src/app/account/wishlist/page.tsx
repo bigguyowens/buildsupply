@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getSession } from "@/lib/auth";
 import { query } from "@/lib/db";
 import { redirect } from "next/navigation";
@@ -83,21 +82,14 @@ export default async function WishlistPage() {
   const lists = Array.from(listMap.values());
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
-      <div style={{ background: "var(--color-primary)", borderBottom: "3px solid var(--color-accent)" }}>
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "20px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-          <Link href="/account" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 13 }}>← Account</Link>
-          <span style={{ color: "rgba(255,255,255,0.3)" }}>|</span>
-          <h1 style={{ color: "white", fontSize: 22, fontWeight: 700, margin: 0 }}>My Wishlists</h1>
-          <span style={{ background: "rgba(255,255,255,0.15)", color: "white", borderRadius: 9999, padding: "2px 10px", fontSize: 12, fontWeight: 700 }}>
-            {lists.length} list{lists.length !== 1 ? "s" : ""}
-          </span>
-        </div>
+    <div>
+      <div style={{ marginBottom: 20 }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>My Wishlists</h2>
+        <p style={{ color: "var(--color-muted)", fontSize: 14, margin: "4px 0 0" }}>
+          {lists.length} list{lists.length !== 1 ? "s" : ""}
+        </p>
       </div>
-
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 16px" }}>
-        <WishlistPageClient lists={lists} />
-      </main>
+      <WishlistPageClient lists={lists} />
     </div>
   );
 }
