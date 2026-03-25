@@ -1,6 +1,9 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy init — prevents "Missing API key" crash during Next.js build-time static evaluation
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 const FROM = "BuildSupply <noreply@buildsupply.dev>";
 
@@ -126,7 +129,7 @@ export async function sendOrderConfirmation(data: OrderConfirmationData) {
     ${ctaButton("View Order", `https://buildsupply.dev/account/orders/${orderId}`)}
     ${p("Questions? Just reply to this email — we're here to help.", true)}
   `;
-  return resend.emails.send({ from: FROM, to: [to], subject: `Order #${orderId} Confirmed — BuildSupply`, html: emailShell(body) });
+  return getResend().emails.send({ from: FROM, to: [to], subject: `Order #${orderId} Confirmed — BuildSupply`, html: emailShell(body) });
 }
 
 // ── 2. Return Request Confirmation ────────────────────────────────────────
@@ -162,7 +165,7 @@ export async function sendReturnConfirmation(data: ReturnConfirmationData) {
     ${ctaButton("View Return Status", `https://buildsupply.dev/account/returns`)}
     ${p("Questions? Just reply to this email — we're happy to help.", true)}
   `;
-  return resend.emails.send({ from: FROM, to: [to], subject: `Return #${returnId} Received — BuildSupply`, html: emailShell(body) });
+  return getResend().emails.send({ from: FROM, to: [to], subject: `Return #${returnId} Received — BuildSupply`, html: emailShell(body) });
 }
 
 // ── 3. Return Status Update ───────────────────────────────────────────────
@@ -203,7 +206,7 @@ export async function sendReturnStatusUpdate(data: ReturnStatusUpdateData) {
     ${ctaButton("View Return Details", `https://buildsupply.dev/account/returns`)}
     ${p("Questions? Just reply to this email.", true)}
   `;
-  return resend.emails.send({ from: FROM, to: [to], subject: `Return #${returnId} Update: ${meta.label} — BuildSupply`, html: emailShell(body) });
+  return getResend().emails.send({ from: FROM, to: [to], subject: `Return #${returnId} Update: ${meta.label} — BuildSupply`, html: emailShell(body) });
 }
 
 // ── 4. Quote Ready Notification ───────────────────────────────────────────
@@ -242,7 +245,7 @@ export async function sendQuoteReady(data: QuoteReadyData) {
     ${ctaButton("Review & Accept Quote", `https://buildsupply.dev/account/quotes/${quoteId}`)}
     ${p("This quote was prepared specifically for you. If you have questions or want to negotiate, just reply to this email.", true)}
   `;
-  return resend.emails.send({ from: FROM, to: [to], subject: `Your BuildSupply Quote #${quoteId} is Ready`, html: emailShell(body) });
+  return getResend().emails.send({ from: FROM, to: [to], subject: `Your BuildSupply Quote #${quoteId} is Ready`, html: emailShell(body) });
 }
 
 // ── 5. Update contact reply to use verified domain ─────────────────────────
@@ -251,7 +254,7 @@ export async function sendContactReplyEmail(
   subject: string,
   body: string
 ) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to: [toEmail],
     subject,
@@ -263,3 +266,4 @@ export async function sendContactReplyEmail(
     `),
   });
 }
+
