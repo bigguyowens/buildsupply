@@ -12,7 +12,7 @@ export async function sendContactReply(
   body: string
 ): Promise<{ ok: boolean; error?: string }> {
   const session = await getSession();
-  if (!session || session.role !== "admin") return { ok: false, error: "Unauthorized" };
+  if (!session || !["admin", "account_manager"].includes(session.role)) return { ok: false, error: "Unauthorized" };
 
   try {
     await sendContactReplyEmail(toEmail, subject, body);

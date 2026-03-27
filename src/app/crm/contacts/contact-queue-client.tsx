@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { sendContactReply } from "@/app/actions/send-reply";
 
-type Contact = { id: number; name: string; email: string; subject: string; message: string; status: string; created_at: string; replied_at: string | null };
+type Contact = { id: number; name: string; email: string; reason: string | null; message: string; status: string; created_at: string; replied_at: string | null };
 
 export function ContactQueueClient({ contacts }: { contacts: Contact[] }) {
   const [tab, setTab] = useState<"new" | "replied" | "all">("new");
@@ -20,7 +20,7 @@ export function ContactQueueClient({ contacts }: { contacts: Contact[] }) {
   function sendReply() {
     if (!selected || !replyBody.trim()) return;
     startT(async () => {
-      await sendContactReply(selected.id, selected.email, selected.name, `Re: ${selected.subject}`, replyBody);
+      await sendContactReply(selected.id, selected.email, selected.name, `Re: ${selected.reason ?? "Your inquiry"}`, replyBody);
       setSent(s => [...s, selected.id]);
       setReplyBody("");
       setSelected(null);
@@ -83,7 +83,7 @@ export function ContactQueueClient({ contacts }: { contacts: Contact[] }) {
                 </span>
               </div>
             </div>
-            <p style={{ fontSize: 12, fontWeight: 600, color: "#374151", margin: "0 0 2px" }}>{c.subject}</p>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "#374151", margin: "0 0 2px" }}>{c.reason ?? "General Inquiry"}</p>
             <p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>
               {c.message.slice(0, 80)}{c.message.length > 80 ? "…" : ""}
             </p>
@@ -101,7 +101,7 @@ export function ContactQueueClient({ contacts }: { contacts: Contact[] }) {
         ) : (
           <div>
             <div style={{ padding: "14px 18px", borderBottom: "1px solid #f1f1f1", background: "#0d0d0d" }}>
-              <p style={{ fontWeight: 800, fontSize: 14, color: "#f5c700", margin: "0 0 2px" }}>{selected.subject}</p>
+              <p style={{ fontWeight: 800, fontSize: 14, color: "#f5c700", margin: "0 0 2px" }}>{selected.reason ?? "General Inquiry"}</p>
               <p style={{ fontSize: 12, color: "#6b6b6b", margin: 0 }}>{selected.name} · {selected.email}</p>
             </div>
             <div style={{ padding: "16px 18px", borderBottom: "1px solid #f9f9f9",

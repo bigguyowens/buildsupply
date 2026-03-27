@@ -143,8 +143,8 @@ export async function getCRMCustomer(customerId: number) {
        WHERE a.customer_id = $1 ORDER BY a.created_at DESC LIMIT 50`,
       [customerId]
     ),
-    query<{ id: number; name: string; email: string; subject: string; message: string; status: string; created_at: string }>(
-      "SELECT id, name, email, subject, message, status, created_at FROM contact_submissions WHERE LOWER(email) = (SELECT LOWER(email) FROM users WHERE id = $1) ORDER BY created_at DESC LIMIT 10",
+    query<{ id: number; name: string; email: string; reason: string | null; message: string; status: string; created_at: string }>(
+      "SELECT id, name, email, reason, message, status, created_at FROM contact_submissions WHERE LOWER(email) = (SELECT LOWER(email) FROM users WHERE id = $1) ORDER BY created_at DESC LIMIT 10",
       [customerId]
     ),
   ]);
@@ -199,8 +199,8 @@ export async function logCRMActivity(
 // ── Contact form queue ─────────────────────────────────────────────────────
 export async function getCRMContactQueue() {
   await assertCRM();
-  return query<{ id: number; name: string; email: string; subject: string; message: string; status: string; created_at: string; replied_at: string | null }>(
-    `SELECT id, name, email, subject, message, status, created_at, updated_at AS replied_at
+  return query<{ id: number; name: string; email: string; reason: string | null; message: string; status: string; created_at: string; replied_at: string | null }>(
+    `SELECT id, name, email, reason, message, status, created_at, updated_at AS replied_at
      FROM contact_submissions ORDER BY created_at DESC`
   );
 }

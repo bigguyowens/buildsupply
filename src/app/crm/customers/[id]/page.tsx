@@ -123,7 +123,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
                 <div key={c.id} style={{ padding: "12px 18px",
                   borderBottom: i < contacts.length - 1 ? "1px solid #f9f9f9" : "none" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                    <span style={{ fontWeight: 700, fontSize: 13, color: "#0d0d0d" }}>{c.subject}</span>
+                    <span style={{ fontWeight: 700, fontSize: 13, color: "#0d0d0d" }}>{c.reason ?? "General Inquiry"}</span>
                     <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
                       background: c.status === "new" ? "#fee2e2" : "#dcfce7",
                       color: c.status === "new" ? "#991b1b" : "#15803d" }}>
