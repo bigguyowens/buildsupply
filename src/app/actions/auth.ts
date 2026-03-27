@@ -55,6 +55,8 @@ export async function loginAction(
   try {
     const user = await verifyCredentials(email, password);
     await setSessionCookie(user);
+    if (user.role === "admin")           redirect("/admin");
+    if (user.role === "account_manager") redirect("/crm");
   } catch (err) {
     await logger.warn("Login failed", { source: "auth/login", context: { email } });
     return { error: err instanceof Error ? err.message : "Login failed." };

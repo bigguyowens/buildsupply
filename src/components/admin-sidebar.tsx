@@ -12,6 +12,7 @@ type NavItem =
 
 const NAV: NavItem[] = [
   { type: "link",      label: "Dashboard",     href: "/admin",              icon: "▦"  },
+  { type: "link",      label: "CRM",           href: "/crm",                icon: "🏢" },
   { type: "separator" },
   { type: "link",      label: "Orders",        href: "/admin/orders",       icon: "📦" },
   { type: "link",      label: "Quotes",        href: "/admin/quotes",       icon: "📋" },
@@ -28,7 +29,6 @@ const NAV: NavItem[] = [
   { type: "separator", label: "Careers" },
   { type: "link",      label: "Job Postings",  href: "/admin/careers",      icon: "💼" },
   { type: "separator", label: "Content" },
-  { type: "link",      label: "CRM",           href: "/crm",                icon: "🏢" },
   { type: "link",      label: "Theme",         href: "/admin/theme",        icon: "🎨" },
   { type: "link",      label: "Homepage",      href: "/admin/homepage",     icon: "🏠" },
   { type: "link",      label: "About Us",      href: "/admin/about",        icon: "🏢" },
