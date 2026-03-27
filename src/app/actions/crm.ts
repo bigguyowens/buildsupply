@@ -241,6 +241,33 @@ export async function getCRMContactQueue() {
   );
 }
 
+// ── Get staff (AMs + admins) ───────────────────────────────────────────────
+export type CRMStaff = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: string;
+  created_at: string;
+  assigned_customers: number;
+  assigned_companies: number;
+};
+
+export async function getCRMStaff(): Promise<CRMStaff[]> {
+  await assertCRM();
+  return query<CRMStaff>(
+    `SELECT u.id, u.first_name, u.last_name, u.email, u.role, u.created_at,
+            COUNT(DISTINCT c.id)::int AS assigned_customers,
+            COUNT(DISTINCT co.id)::int AS assigned_companies
+     FROM users u
+     LEFT JOIN users c ON c.account_manager_id = u.id
+     LEFT JOIN companies co ON co.account_manager_id = u.id
+     WHERE u.role IN ('admin','account_manager')
+     GROUP BY u.id
+     ORDER BY u.role ASC, u.first_name ASC`
+  );
+}
+
 // ── Companies ──────────────────────────────────────────────────────────────
 export type CRMCompany = {
   id: number;
