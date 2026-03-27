@@ -68,6 +68,9 @@ export async function getAnalytics() {
         SUM((item->>'quantity')::int)::int AS units
       FROM orders, jsonb_array_elements(items) AS item
       WHERE status != 'cancelled'
+        AND item->>'name' IS NOT NULL
+        AND item->>'price' IS NOT NULL
+        AND item->>'quantity' IS NOT NULL
       GROUP BY item->>'name'
       ORDER BY revenue DESC LIMIT 8
     `)),
@@ -78,6 +81,8 @@ export async function getAnalytics() {
       FROM orders, jsonb_array_elements(items) AS item
       JOIN products p ON p.id::text = item->>'id'
       WHERE orders.status != 'cancelled'
+        AND item->>'price' IS NOT NULL
+        AND item->>'quantity' IS NOT NULL
       GROUP BY p.category ORDER BY revenue DESC LIMIT 7
     `)),
 

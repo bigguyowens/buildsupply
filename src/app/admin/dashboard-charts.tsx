@@ -81,8 +81,9 @@ function Card({ title, subtitle, children, action }: { title: string; subtitle?:
 
 // ── Main dashboard ────────────────────────────────────────────────────────────
 export function DashboardCharts({
-  kpi, daily30, monthly12, topProducts, byCat,
-  buckets, custGrowth, statusRows, viewedProducts, recentOrders, lowStock,
+  kpi: kpiRaw, daily30: daily30Raw, monthly12: monthly12Raw, topProducts: topProductsRaw, byCat: byCatRaw,
+  buckets: bucketsRaw, custGrowth: custGrowthRaw, statusRows: statusRowsRaw, viewedProducts: viewedProductsRaw,
+  recentOrders: recentOrdersRaw, lowStock: lowStockRaw,
 }: {
   kpi: KpiTrend;
   daily30: DailyRevenue[];
@@ -96,6 +97,19 @@ export function DashboardCharts({
   recentOrders: { id: number; status: string; total: number; created_at: string; first_name: string; last_name: string }[];
   lowStock: { id: string; name: string; inventory: number; category: string }[];
 }) {
+  // Null-safe all props — production can return null if a query errors
+  const kpi           = kpiRaw           ?? { rev_cur:0, rev_prev:0, ord_cur:0, ord_prev:0, cust_total:0, cust_new:0, open_quotes:0, pending_apps:0, views_30:0, promo_savings:0 };
+  const daily30       = daily30Raw       ?? [];
+  const monthly12     = monthly12Raw     ?? [];
+  const topProducts   = topProductsRaw   ?? [];
+  const byCat         = byCatRaw         ?? [];
+  const buckets       = bucketsRaw       ?? [];
+  const custGrowth    = custGrowthRaw    ?? [];
+  const statusRows    = statusRowsRaw    ?? [];
+  const viewedProducts= viewedProductsRaw?? [];
+  const recentOrders  = recentOrdersRaw  ?? [];
+  const lowStock      = lowStockRaw      ?? [];
+
   const [revenueRange, setRevenueRange] = useState<"30d" | "12m">("30d");
   const revenueData = revenueRange === "30d" ? daily30 : monthly12;
   const revenueKey  = revenueRange === "30d" ? "day" : "month";
@@ -210,7 +224,7 @@ export function DashboardCharts({
             <p style={{ color: "var(--ad-muted2)", fontSize: 13, textAlign: "center", padding: "40px 0" }}>No product data yet</p>
           ) : (
             <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={topProducts.map(p => ({ ...p, name: p.name.length > 28 ? p.name.slice(0, 28) + "…" : p.name }))} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
+              <BarChart data={topProducts.filter(p => p.name).map(p => ({ ...p, name: p.name.length > 28 ? p.name.slice(0, 28) + "…" : p.name }))} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
                 <XAxis type="number" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={fmtK} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "#64748b" }} axisLine={false} tickLine={false} width={160} />

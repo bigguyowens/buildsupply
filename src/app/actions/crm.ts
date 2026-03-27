@@ -639,13 +639,15 @@ export async function getTaskCounts() {
 }
 
 // ── Analytics ──────────────────────────────────────────────────────────────
+const safeQuery = async <T>(fn: () => Promise<T[]>, fallback: T[] = []): Promise<T[]> => {
+  try { return await fn(); } catch (e) { console.error("[crm analytics]", (e as Error).message); return fallback; }
+};
+
 export async function getRevenueAnalytics() {
   const session = await assertCRM();
 
-  // Monthly revenue (last 12 months)
-  const monthlyRevenue = await query<{ month: string; revenue: number; orders: number }>(
-    `SELECT TO_CHAR(DATE_TRUNC('month', o.created_at), 'Mon YY') AS month,
-            DATE_TRUNC('month', o.created_at) AS month_date,
+  const monthlyRevenue = await safeQuery(() => query<{ month: string; revenue: number; orders: number }>(
+    `SELECT TO_CHAR(gs.month_date, 'Mon YY') AS month,
             COALESCE(SUM(o.total),0)::numeric AS revenue,
             COUNT(o.id)::int AS orders
      FROM generate_series(
@@ -657,11 +659,11 @@ export async function getRevenueAnalytics() {
        AND o.status != 'cancelled'
      GROUP BY gs.month_date
      ORDER BY gs.month_date ASC`
-  );
+  ));
 
-  // Revenue by AM (for admins/managers see based on role)
+  // Revenue by AM
   const isAdmin = ["admin", "manager"].includes(session.role);
-  const revenueByAM = await query<{ am_name: string; revenue: number; orders: number; customers: number }>(
+  const revenueByAM = await safeQuery(() => query<{ am_name: string; revenue: number; orders: number; customers: number }>(
     isAdmin
       ? `SELECT COALESCE(am.first_name || ' ' || am.last_name, 'Unassigned') AS am_name,
                 COALESCE(SUM(o.total),0)::numeric AS revenue,
@@ -683,10 +685,9 @@ export async function getRevenueAnalytics() {
          WHERE am.id = $1
          GROUP BY am.id, am.first_name, am.last_name`,
     isAdmin ? [] : [session.id]
-  );
+  ));
 
-  // Quote pipeline
-  const quotePipeline = await query<{ status: string; count: number; value: number }>(
+  const quotePipeline = await safeQuery(() => query<{ status: string; count: number; value: number }>(
     `SELECT q.status,
             COUNT(q.id)::int AS count,
             COALESCE(SUM(qi.quantity * qi.quoted_price),0)::numeric AS value
@@ -694,10 +695,9 @@ export async function getRevenueAnalytics() {
      LEFT JOIN quote_items qi ON qi.quote_id = q.id
      WHERE q.status != 'draft'
      GROUP BY q.status`
-  );
+  ));
 
-  // Top customers by spend
-  const topCustomers = await query<{ name: string; email: string; revenue: number; orders: number }>(
+  const topCustomers = await safeQuery(() => query<{ name: string; email: string; revenue: number; orders: number }>(
     `SELECT u.first_name || ' ' || u.last_name AS name,
             u.email,
             COALESCE(SUM(o.total),0)::numeric AS revenue,
@@ -708,18 +708,19 @@ export async function getRevenueAnalytics() {
      GROUP BY u.id
      ORDER BY revenue DESC
      LIMIT 8`
-  );
+  ));
 
-  // Win rate stats
-  const winRate = await query<{ total: number; accepted: number; declined: number; pending: number }>(
+  const winRateRows = await safeQuery(() => query<{ total: number; accepted: number; declined: number; pending: number }>(
     `SELECT COUNT(*)::int AS total,
             COUNT(*) FILTER (WHERE status='accepted')::int AS accepted,
             COUNT(*) FILTER (WHERE status='declined')::int AS declined,
             COUNT(*) FILTER (WHERE status='sent')::int AS pending
      FROM quotes WHERE status != 'draft'`
-  );
+  ), [{ total: 0, accepted: 0, declined: 0, pending: 0 }]);
 
-  return { monthlyRevenue, revenueByAM, quotePipeline, topCustomers, winRate: winRate[0] };
+  const winRate = winRateRows[0] ?? { total: 0, accepted: 0, declined: 0, pending: 0 };
+
+  return { monthlyRevenue, revenueByAM, quotePipeline, topCustomers, winRate };
 }
 
 // ── AM Performance ─────────────────────────────────────────────────────────
