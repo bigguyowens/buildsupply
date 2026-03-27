@@ -45,14 +45,14 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
 
   return (
     <aside style={{
-      width: 220, flexShrink: 0, background: "#0f172a", minHeight: "100vh",
+      width: 220, flexShrink: 0, background: "#0d0d0d", minHeight: "100vh",
       display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "100vh",
     }}>
       {/* Logo */}
       <div style={{ padding: "20px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/admin" style={{ textDecoration: "none" }}>
           <p style={{ color: "white", fontWeight: 800, fontSize: 16, margin: 0 }}>
-            <span style={{ color: "#f97316" }}>Build</span>Supply
+            <span style={{ color: "#f5c700" }}>Build</span>Supply
           </p>
           <p style={{ color: "var(--ad-muted)", fontSize: 11, margin: "2px 0 0", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>
             Admin Panel
@@ -67,7 +67,7 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
             return item.label
               ? (
                 <div key={`sep-${i}`} style={{ padding: "14px 10px 4px" }}>
-                  <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "#334155" }}>{item.label}</span>
+                  <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.12em", color: "#333" }}>{item.label}</span>
                 </div>
               ) : (
                 <div key={`sep-${i}`} style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 10px" }} />
@@ -81,8 +81,8 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
               display: "flex", alignItems: "center", gap: 10,
               padding: "9px 10px", borderRadius: 6, marginBottom: 1,
               textDecoration: "none", fontSize: 13, fontWeight: 600,
-              background: active ? "rgba(249,115,22,0.15)" : "transparent",
-              color: active ? "#f97316" : "#94a3b8",
+              background: active ? "rgba(245,199,0,0.15)" : "transparent",
+              color: active ? "#f5c700" : "#94a3b8",
               transition: "all 0.15s",
             }}>
               <span style={{ fontSize: 14 }}>{item.icon}</span>
@@ -99,7 +99,7 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
         </Link>
         <AdminThemeToggle />
         <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px" }}>
-          <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f97316", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+          <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f5c700", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
             {session.firstName[0]}{session.lastName[0]}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>

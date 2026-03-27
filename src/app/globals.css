@@ -20,16 +20,16 @@ html { scroll-behavior: smooth; }
   --nav-height: 64px;
 
   /* ── Admin theme tokens (light) ── */
-  --ad-bg:      #f1f5f9;
+  --ad-bg:      #f2f2f2;
   --ad-surface: #ffffff;
-  --ad-surface2:#f8fafc;
-  --ad-border:  #e2e8f0;
-  --ad-border2: #f1f5f9;
-  --ad-text:    #0f172a;
-  --ad-text2:   #374151;
-  --ad-muted:   #64748b;
-  --ad-muted2:  #94a3b8;
-  --ad-shadow:  rgba(0,0,0,0.05);
+  --ad-surface2:#f5f5f5;
+  --ad-border:  #e5e5e5;
+  --ad-border2: #f0f0f0;
+  --ad-text:    #0d0d0d;
+  --ad-text2:   #1a1a1a;
+  --ad-muted:   #6b6b6b;
+  --ad-muted2:  #9ca3af;
+  --ad-shadow:  rgba(0,0,0,0.06);
 }
 
 /* ── Admin dark theme ── */
