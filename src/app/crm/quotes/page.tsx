@@ -123,17 +123,9 @@ export default async function CRMQuotesPage() {
                   </div>
                 ) : cols.map(q => (
                   <Link key={q.id} href={`/crm/quotes/${q.id}`} style={{ textDecoration: "none" }}>
-                    <div style={{ background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5",
-                      padding: "14px 16px", borderTop: `3px solid ${meta.border}`,
-                      cursor: "pointer", transition: "box-shadow 0.15s, transform 0.15s" }}
-                      onMouseEnter={e => {
-                        (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)";
-                        (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)";
-                      }}
-                      onMouseLeave={e => {
-                        (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                        (e.currentTarget as HTMLElement).style.transform = "none";
-                      }}>
+                    <div className="crm-quote-card" style={{ background: "#fff", borderRadius: 8,
+                      border: "1px solid #e5e5e5", padding: "14px 16px",
+                      borderTop: `3px solid ${meta.border}` }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
                         <span style={{ fontWeight: 800, fontSize: 14, color: "#0d0d0d" }}>
                           Quote #{q.id}

@@ -32,7 +32,14 @@ html { scroll-behavior: smooth; }
   --ad-shadow:  rgba(0,0,0,0.06);
 }
 
-/* ── Admin dark theme ── */
+/* CRM quote card hover */
+a:hover .crm-quote-card {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  transform: translateY(-1px);
+}
+.crm-quote-card {
+  transition: box-shadow 0.15s, transform 0.15s;
+}
 [data-admin-theme="dark"] {
   --ad-bg:      #0d1117;
   --ad-surface: #161b22;
