@@ -105,13 +105,19 @@ export function RoleManager({ customerId, currentRole, sessionRole }:
 
   const ROLES = [
     { value: "customer",        label: "Customer",        desc: "Standard account" },
+    { value: "company_admin",   label: "Company Admin",   desc: "Manages their team" },
     { value: "account_manager", label: "Account Manager", desc: "CRM access" },
-    ...(sessionRole === "admin" ? [{ value: "admin", label: "Admin", desc: "Full platform access" }] : []),
+    ...(sessionRole === "admin" ? [
+      { value: "manager",       label: "Manager",         desc: "Manages AMs" },
+      { value: "admin",         label: "Admin",           desc: "Full platform access" },
+    ] : []),
   ];
 
   const ROLE_COLORS: Record<string, { bg: string; color: string }> = {
     customer:        { bg: "#f1f5f9", color: "#475569" },
+    company_admin:   { bg: "#ede9fe", color: "#5b21b6" },
     account_manager: { bg: "#fef3c7", color: "#92400e" },
+    manager:         { bg: "#f0fdf4", color: "#15803d" },
     admin:           { bg: "#fce7f3", color: "#9d174d" },
   };
 

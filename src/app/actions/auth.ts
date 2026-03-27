@@ -63,8 +63,8 @@ export async function loginAction(
   }
 
   // Redirect outside try/catch — Next.js redirect() throws internally
-  if (role === "admin")           redirect("/admin");
-  if (role === "account_manager") redirect("/crm");
+  if (role === "admin")                              redirect("/admin");
+  if (role === "account_manager" || role === "manager") redirect("/crm");
   redirect("/account");
 }
 

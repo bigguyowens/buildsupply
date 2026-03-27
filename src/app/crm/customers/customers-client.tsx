@@ -18,7 +18,8 @@ function timeAgo(dateStr: string | null) {
 }
 
 const ROLE_META: Record<string, { label: string; bg: string; color: string }> = {
-  admin:           { label: "Admin",           bg: "#fff7ed", color: "#f97316" },
+  admin:           { label: "Admin",   bg: "#fff7ed", color: "#f97316" },
+  manager:         { label: "Manager", bg: "#f0fdf4", color: "#15803d" },
   account_manager: { label: "Account Manager", bg: "#fef3c7", color: "#92400e" },
 };
 
@@ -202,7 +203,7 @@ function StaffRow({ member }: { member: CRMStaff }) {
       <td style={{ padding: "12px 16px" }}>
         {changing ? (
           <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-            {["admin", "account_manager", "customer"].map(r => (
+            {["admin", "manager", "account_manager", "customer"].map(r => (
               <button key={r} onClick={() => changeRole(r)} style={{
                 padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: "pointer",
                 border: `1px solid ${r === role ? "#f5c700" : "#e5e5e5"}`,

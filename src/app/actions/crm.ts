@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 // ── Auth guard ─────────────────────────────────────────────────────────────
 async function assertCRM() {
   const session = await getSession();
-  if (!session || !["admin", "account_manager"].includes(session.role)) {
+  if (!session || !["admin", "account_manager", "manager"].includes(session.role)) {
     throw new Error("Unauthorized");
   }
   return session;
@@ -222,7 +222,7 @@ export async function assignAccountManager(customerId: number, accountManagerId:
 // ── Update user role ───────────────────────────────────────────────────────
 export async function updateUserRole(customerId: number, role: string) {
   const session = await assertCRM();
-  const allowed = ["customer", "account_manager", "admin"];
+  const allowed = ["customer", "company_admin", "account_manager", "manager", "admin"];
   if (!allowed.includes(role)) return { error: "Invalid role" };
   // Only admins can grant admin role
   if (role === "admin" && session.role !== "admin") return { error: "Only admins can grant admin role" };
@@ -262,7 +262,7 @@ export async function getCRMStaff(): Promise<CRMStaff[]> {
      FROM users u
      LEFT JOIN users c ON c.account_manager_id = u.id
      LEFT JOIN companies co ON co.account_manager_id = u.id
-     WHERE u.role IN ('admin','account_manager')
+     WHERE u.role IN ('admin','account_manager','manager')
      GROUP BY u.id
      ORDER BY u.role ASC, u.first_name ASC`
   );
@@ -636,4 +636,181 @@ export async function getTaskCounts() {
      ${isAdmin ? "" : `WHERE assigned_to = ${session.id}`}`
   );
   return rows[0] ?? { overdue: 0, due_today: 0, upcoming: 0 };
+}
+
+// ── Analytics ──────────────────────────────────────────────────────────────
+export async function getRevenueAnalytics() {
+  const session = await assertCRM();
+
+  // Monthly revenue (last 12 months)
+  const monthlyRevenue = await query<{ month: string; revenue: number; orders: number }>(
+    `SELECT TO_CHAR(DATE_TRUNC('month', o.created_at), 'Mon YY') AS month,
+            DATE_TRUNC('month', o.created_at) AS month_date,
+            COALESCE(SUM(o.total),0)::numeric AS revenue,
+            COUNT(o.id)::int AS orders
+     FROM generate_series(
+       DATE_TRUNC('month', NOW() - INTERVAL '11 months'),
+       DATE_TRUNC('month', NOW()),
+       '1 month'
+     ) AS gs(month_date)
+     LEFT JOIN orders o ON DATE_TRUNC('month', o.created_at) = gs.month_date
+       AND o.status != 'cancelled'
+     GROUP BY gs.month_date
+     ORDER BY gs.month_date ASC`
+  );
+
+  // Revenue by AM (for admins/managers see based on role)
+  const isAdmin = ["admin", "manager"].includes(session.role);
+  const revenueByAM = await query<{ am_name: string; revenue: number; orders: number; customers: number }>(
+    isAdmin
+      ? `SELECT COALESCE(am.first_name || ' ' || am.last_name, 'Unassigned') AS am_name,
+                COALESCE(SUM(o.total),0)::numeric AS revenue,
+                COUNT(DISTINCT o.id)::int AS orders,
+                COUNT(DISTINCT u.id)::int AS customers
+         FROM users am
+         JOIN users u ON u.account_manager_id = am.id
+         LEFT JOIN orders o ON o.user_id = u.id AND o.status != 'cancelled'
+         WHERE am.role IN ('account_manager','manager','admin')
+         GROUP BY am.id, am.first_name, am.last_name
+         ORDER BY revenue DESC`
+      : `SELECT COALESCE(am.first_name || ' ' || am.last_name, 'Unassigned') AS am_name,
+                COALESCE(SUM(o.total),0)::numeric AS revenue,
+                COUNT(DISTINCT o.id)::int AS orders,
+                COUNT(DISTINCT u.id)::int AS customers
+         FROM users am
+         JOIN users u ON u.account_manager_id = am.id
+         LEFT JOIN orders o ON o.user_id = u.id AND o.status != 'cancelled'
+         WHERE am.id = $1
+         GROUP BY am.id, am.first_name, am.last_name`,
+    isAdmin ? [] : [session.id]
+  );
+
+  // Quote pipeline
+  const quotePipeline = await query<{ status: string; count: number; value: number }>(
+    `SELECT q.status,
+            COUNT(q.id)::int AS count,
+            COALESCE(SUM(qi.quantity * qi.quoted_price),0)::numeric AS value
+     FROM quotes q
+     LEFT JOIN quote_items qi ON qi.quote_id = q.id
+     WHERE q.status != 'draft'
+     GROUP BY q.status`
+  );
+
+  // Top customers by spend
+  const topCustomers = await query<{ name: string; email: string; revenue: number; orders: number }>(
+    `SELECT u.first_name || ' ' || u.last_name AS name,
+            u.email,
+            COALESCE(SUM(o.total),0)::numeric AS revenue,
+            COUNT(o.id)::int AS orders
+     FROM users u
+     LEFT JOIN orders o ON o.user_id = u.id AND o.status != 'cancelled'
+     WHERE u.role NOT IN ('admin','account_manager','manager')
+     GROUP BY u.id
+     ORDER BY revenue DESC
+     LIMIT 8`
+  );
+
+  // Win rate stats
+  const winRate = await query<{ total: number; accepted: number; declined: number; pending: number }>(
+    `SELECT COUNT(*)::int AS total,
+            COUNT(*) FILTER (WHERE status='accepted')::int AS accepted,
+            COUNT(*) FILTER (WHERE status='declined')::int AS declined,
+            COUNT(*) FILTER (WHERE status='sent')::int AS pending
+     FROM quotes WHERE status != 'draft'`
+  );
+
+  return { monthlyRevenue, revenueByAM, quotePipeline, topCustomers, winRate: winRate[0] };
+}
+
+// ── AM Performance ─────────────────────────────────────────────────────────
+export type AMPerformance = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  manager_name: string | null;
+  customer_count: number;
+  company_count: number;
+  revenue: number;
+  order_count: number;
+  open_quotes: number;
+  quote_value: number;
+  win_rate: number;
+  tasks_total: number;
+  tasks_overdue: number;
+  onboarding_avg: number;
+};
+
+export async function getAMPerformance(): Promise<AMPerformance[]> {
+  const session = await assertCRM();
+  if (!["admin", "manager"].includes(session.role)) return [];
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const rows = await query<AMPerformance>(
+    session.role === "admin"
+      ? `SELECT am.id, am.first_name || ' ' || am.last_name AS name, am.email, am.role,
+                mgr.first_name || ' ' || mgr.last_name AS manager_name,
+                COUNT(DISTINCT u.id)::int AS customer_count,
+                COUNT(DISTINCT c.id)::int AS company_count,
+                COALESCE(SUM(o.total) FILTER (WHERE o.status != 'cancelled'),0)::numeric AS revenue,
+                COUNT(DISTINCT o.id) FILTER (WHERE o.status != 'cancelled')::int AS order_count,
+                COUNT(DISTINCT q.id) FILTER (WHERE q.status='sent')::int AS open_quotes,
+                COALESCE(SUM(qi.quantity * qi.quoted_price),0)::numeric AS quote_value,
+                CASE WHEN COUNT(q.id) FILTER (WHERE q.status IN ('accepted','declined')) = 0 THEN 0
+                     ELSE ROUND(COUNT(q.id) FILTER (WHERE q.status='accepted') * 100.0
+                          / NULLIF(COUNT(q.id) FILTER (WHERE q.status IN ('accepted','declined')),0))
+                END::int AS win_rate,
+                COUNT(DISTINCT t.id)::int AS tasks_total,
+                COUNT(DISTINCT t.id) FILTER (WHERE t.due_date < $1 AND t.status != 'complete')::int AS tasks_overdue,
+                COALESCE(AVG(
+                  (SELECT COUNT(*) FILTER (WHERE op2.status='complete') * 100.0 / NULLIF(COUNT(*),0)
+                   FROM onboarding_progress op2
+                   WHERE op2.entity_type='customer' AND op2.entity_id=u.id)
+                ),0)::int AS onboarding_avg
+         FROM users am
+         LEFT JOIN users mgr ON mgr.id = am.manager_id
+         LEFT JOIN users u ON u.account_manager_id = am.id
+         LEFT JOIN companies c ON c.account_manager_id = am.id
+         LEFT JOIN orders o ON o.user_id = u.id
+         LEFT JOIN quotes q ON q.customer_id = u.id AND q.status != 'draft'
+         LEFT JOIN quote_items qi ON qi.quote_id = q.id AND q.status != 'draft'
+         LEFT JOIN crm_tasks t ON t.assigned_to = am.id
+         WHERE am.role = 'account_manager'
+         GROUP BY am.id, am.first_name, am.last_name, am.email, am.role, mgr.first_name, mgr.last_name
+         ORDER BY revenue DESC`
+      : `SELECT am.id, am.first_name || ' ' || am.last_name AS name, am.email, am.role,
+                mgr.first_name || ' ' || mgr.last_name AS manager_name,
+                COUNT(DISTINCT u.id)::int AS customer_count,
+                COUNT(DISTINCT c.id)::int AS company_count,
+                COALESCE(SUM(o.total) FILTER (WHERE o.status != 'cancelled'),0)::numeric AS revenue,
+                COUNT(DISTINCT o.id) FILTER (WHERE o.status != 'cancelled')::int AS order_count,
+                COUNT(DISTINCT q.id) FILTER (WHERE q.status='sent')::int AS open_quotes,
+                COALESCE(SUM(qi.quantity * qi.quoted_price),0)::numeric AS quote_value,
+                CASE WHEN COUNT(q.id) FILTER (WHERE q.status IN ('accepted','declined')) = 0 THEN 0
+                     ELSE ROUND(COUNT(q.id) FILTER (WHERE q.status='accepted') * 100.0
+                          / NULLIF(COUNT(q.id) FILTER (WHERE q.status IN ('accepted','declined')),0))
+                END::int AS win_rate,
+                COUNT(DISTINCT t.id)::int AS tasks_total,
+                COUNT(DISTINCT t.id) FILTER (WHERE t.due_date < $1 AND t.status != 'complete')::int AS tasks_overdue,
+                COALESCE(AVG(
+                  (SELECT COUNT(*) FILTER (WHERE op2.status='complete') * 100.0 / NULLIF(COUNT(*),0)
+                   FROM onboarding_progress op2
+                   WHERE op2.entity_type='customer' AND op2.entity_id=u.id)
+                ),0)::int AS onboarding_avg
+         FROM users am
+         LEFT JOIN users mgr ON mgr.id = am.manager_id
+         LEFT JOIN users u ON u.account_manager_id = am.id
+         LEFT JOIN companies c ON c.account_manager_id = am.id
+         LEFT JOIN orders o ON o.user_id = u.id
+         LEFT JOIN quotes q ON q.customer_id = u.id AND q.status != 'draft'
+         LEFT JOIN quote_items qi ON qi.quote_id = q.id AND q.status != 'draft'
+         LEFT JOIN crm_tasks t ON t.assigned_to = am.id
+         WHERE am.role = 'account_manager' AND am.manager_id = $2
+         GROUP BY am.id, am.first_name, am.last_name, am.email, am.role, mgr.first_name, mgr.last_name
+         ORDER BY revenue DESC`,
+    session.role === "admin" ? [today] : [today, session.id]
+  );
+
+  return rows;
 }

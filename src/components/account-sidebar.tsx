@@ -14,7 +14,7 @@ const NAV = [
   { label: "My Company",    href: "/account/company",  icon: "🏢", roles: ["company_admin", "admin"] },
   { label: "Profile",       href: "/account/profile",  icon: "👤", roles: null },
   { label: "---" },
-  { label: "CRM",           href: "/crm",              icon: "📊", roles: ["account_manager", "admin"] },
+  { label: "CRM",           href: "/crm",              icon: "📊", roles: ["account_manager", "manager", "admin"] },
   { label: "Admin Panel",   href: "/admin",            icon: "⚙️", roles: ["admin"] },
 ];
 

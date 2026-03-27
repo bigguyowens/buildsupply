@@ -6,13 +6,15 @@ import { logoutAction } from "@/app/actions/auth";
 import type { SessionUser } from "@/lib/auth";
 
 const NAV = [
-  { label: "Dashboard",    href: "/crm",               icon: "▦",  exact: true },
-  { label: "Companies",    href: "/crm/companies",      icon: "🏢"  },
-  { label: "Customers",    href: "/crm/customers",      icon: "👥"  },
-  { label: "Tasks",        href: "/crm/tasks",          icon: "✅"  },
-  { label: "Contact Queue",href: "/crm/contacts",       icon: "✉️"  },
-  { label: "Quotes",       href: "/crm/quotes",         icon: "📋"  },
-  { label: "Inventory",    href: "/crm/inventory",      icon: "📦"  },
+  { label: "Dashboard",      href: "/crm",                icon: "▦",  exact: true, roles: null },
+  { label: "Companies",      href: "/crm/companies",      icon: "🏢", roles: null },
+  { label: "Customers",      href: "/crm/customers",      icon: "👥", roles: null },
+  { label: "Tasks",          href: "/crm/tasks",          icon: "✅", roles: null },
+  { label: "Contact Queue",  href: "/crm/contacts",       icon: "✉️",  roles: null },
+  { label: "Quotes",         href: "/crm/quotes",         icon: "📋", roles: null },
+  { label: "Inventory",      href: "/crm/inventory",      icon: "📦", roles: null },
+  { label: "Analytics",      href: "/crm/analytics",      icon: "📈", roles: null },
+  { label: "AM Performance", href: "/crm/am-performance", icon: "🏆", roles: ["admin", "manager"] },
 ];
 
 // Whitecap palette
@@ -53,7 +55,7 @@ export function CRMSidebar({ user }: { user: SessionUser }) {
         <p style={{ color: C.muted, fontSize: 10, fontWeight: 800, textTransform: "uppercase",
           letterSpacing: "0.14em", padding: "8px 10px 6px", margin: 0 }}>Navigation</p>
 
-        {NAV.map(item => {
+        {NAV.filter(item => !item.roles || item.roles.includes(user.role)).map(item => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           return (
             <Link key={item.href} href={item.href} style={{

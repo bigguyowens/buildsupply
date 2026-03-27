@@ -11,20 +11,22 @@ type User = {
   company_name: string | null; assigned_customers: number;
 };
 
-type Tab = "all" | "customer" | "account_manager" | "company_admin" | "admin";
+type Tab = "all" | "customer" | "account_manager" | "manager" | "company_admin" | "admin";
 
 const ROLE_META: Record<string, { label: string; bg: string; color: string; avatarBg: string }> = {
   admin:           { label: "Admin",           bg: "#fff7ed",  color: "#f97316",  avatarBg: "#f97316" },
+  manager:         { label: "Manager",         bg: "#f0fdf4",  color: "#15803d",  avatarBg: "#22c55e" },
   account_manager: { label: "Account Manager", bg: "#fef3c7",  color: "#92400e",  avatarBg: "#f5c700" },
   company_admin:   { label: "Company Admin",   bg: "#ede9fe",  color: "#5b21b6",  avatarBg: "#8b5cf6" },
   customer:        { label: "Customer",        bg: "#f1f5f9",  color: "#475569",  avatarBg: "#3b82f6" },
 };
 
 const ROLES_FOR_CHANGE: Record<string, string[]> = {
-  admin:    ["admin", "account_manager", "customer"],
-  account_manager: ["admin", "account_manager", "company_admin", "customer"],
+  admin:           ["admin", "manager", "account_manager", "customer"],
+  manager:         ["admin", "manager", "account_manager", "customer"],
+  account_manager: ["admin", "manager", "account_manager", "company_admin", "customer"],
   company_admin:   ["company_admin", "customer"],
-  customer: ["account_manager", "company_admin", "customer"],
+  customer:        ["account_manager", "manager", "company_admin", "customer"],
 };
 
 export function AdminCustomersClient({ users }: { users: User[] }) {
@@ -36,6 +38,7 @@ export function AdminCustomersClient({ users }: { users: User[] }) {
     { key: "customer",        label: "Customers",        count: users.filter(u => u.role === "customer").length },
     { key: "company_admin",   label: "Company Admins",   count: users.filter(u => u.role === "company_admin").length },
     { key: "account_manager", label: "Account Managers", count: users.filter(u => u.role === "account_manager").length },
+    { key: "manager",         label: "Managers",         count: users.filter(u => u.role === "manager").length },
     { key: "admin",           label: "Admins",           count: users.filter(u => u.role === "admin").length },
   ];
 

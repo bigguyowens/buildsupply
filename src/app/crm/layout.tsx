@@ -5,7 +5,7 @@ import { CRMSidebar } from "@/components/crm-sidebar";
 export default async function CRMLayout({ children }: { children: React.ReactNode }) {
   const user = await getSession();
   if (!user) redirect("/login");
-  if (!["admin", "account_manager"].includes(user.role)) redirect("/account");
+  if (!["admin", "account_manager", "manager"].includes(user.role)) redirect("/account");
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", background: "#f2f2f2" }}>
