@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { ConsentBanner } from "@/components/consent-banner";
 import { Header } from "@/components/header";
+import { SiteChrome, SiteFooter } from "@/components/site-chrome";
 import { CartProvider } from "@/context/cart-context";
 import { CartDrawer } from "@/components/cart-drawer";
 import { ErrorBoundary } from "@/components/error-boundary";
@@ -80,9 +81,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className={`${geistSans.variable} antialiased`}>
         <CartProvider isLoggedIn={!!session}>
           <ErrorBoundary>
-            <Header session={session} />
+            <SiteChrome session={session} />
             {children}
-            <Footer />
+            <SiteFooter />
             <CartDrawer />
             <ConsentBanner isLoggedIn={!!session} />
           </ErrorBoundary>
