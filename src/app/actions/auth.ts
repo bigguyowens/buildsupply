@@ -52,16 +52,19 @@ export async function loginAction(
     return { error: "Email and password are required." };
   }
 
+  let role = "";
   try {
     const user = await verifyCredentials(email, password);
     await setSessionCookie(user);
-    if (user.role === "admin")           redirect("/admin");
-    if (user.role === "account_manager") redirect("/crm");
+    role = user.role;
   } catch (err) {
     await logger.warn("Login failed", { source: "auth/login", context: { email } });
     return { error: err instanceof Error ? err.message : "Login failed." };
   }
 
+  // Redirect outside try/catch — Next.js redirect() throws internally
+  if (role === "admin")           redirect("/admin");
+  if (role === "account_manager") redirect("/crm");
   redirect("/account");
 }
 
