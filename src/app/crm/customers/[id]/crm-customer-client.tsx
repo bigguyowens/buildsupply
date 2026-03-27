@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { addCRMNote, deleteCRMNote, togglePinNote, logCRMActivity } from "@/app/actions/crm";
+import { addCRMNote, deleteCRMNote, togglePinNote, logCRMActivity, updateUserRole } from "@/app/actions/crm";
 import { sendContactReply } from "@/app/actions/send-reply";
 import type { CRMNote, CRMActivity } from "@/app/actions/crm";
 
@@ -24,6 +24,80 @@ function timeAgo(dateStr: string) {
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
   return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+// ── Role Manager ─────────────────────────────────────────────────────────────
+export function RoleManager({ customerId, currentRole, sessionRole }:
+  { customerId: number; currentRole: string; sessionRole: string }) {
+  const [role, setRole] = useState(currentRole);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [, startT] = useTransition();
+
+  const ROLES = [
+    { value: "customer",        label: "Customer",        desc: "Standard account" },
+    { value: "account_manager", label: "Account Manager", desc: "CRM access" },
+    ...(sessionRole === "admin" ? [{ value: "admin", label: "Admin", desc: "Full platform access" }] : []),
+  ];
+
+  const ROLE_COLORS: Record<string, { bg: string; color: string }> = {
+    customer:        { bg: "#f1f5f9", color: "#475569" },
+    account_manager: { bg: "#fef3c7", color: "#92400e" },
+    admin:           { bg: "#fce7f3", color: "#9d174d" },
+  };
+
+  function save(newRole: string) {
+    setError(null);
+    setSaved(false);
+    startT(async () => {
+      const res = await updateUserRole(customerId, newRole);
+      if ("error" in res && res.error) {
+        setError(res.error);
+      } else {
+        setRole(newRole);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
+    });
+  }
+
+  const colors = ROLE_COLORS[role] ?? ROLE_COLORS.customer;
+
+  return (
+    <div style={{ background: "#f9f9f9", borderRadius: 8, border: "1px solid #e5e5e5", padding: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+        <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+          letterSpacing: "0.08em", color: "#6b7280", margin: 0 }}>User Role</p>
+        <span style={{ fontSize: 11, fontWeight: 700, padding: "2px 8px", borderRadius: 4,
+          background: colors.bg, color: colors.color, textTransform: "capitalize" }}>
+          {role.replace("_", " ")}
+        </span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {ROLES.map(r => (
+          <button key={r.value} onClick={() => save(r.value)}
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "9px 12px", borderRadius: 6, cursor: "pointer", textAlign: "left",
+              border: `2px solid ${role === r.value ? "#f5c700" : "#e5e5e5"}`,
+              background: role === r.value ? "#fffbeb" : "#fff",
+              transition: "all 0.15s",
+            }}>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 700, margin: 0,
+                color: role === r.value ? "#0d0d0d" : "#374151" }}>{r.label}</p>
+              <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{r.desc}</p>
+            </div>
+            {role === r.value && (
+              <span style={{ color: "#f5c700", fontSize: 16, fontWeight: 900 }}>✓</span>
+            )}
+          </button>
+        ))}
+      </div>
+      {saved && <p style={{ fontSize: 12, color: "#22c55e", fontWeight: 600, margin: "8px 0 0" }}>✓ Role updated</p>}
+      {error && <p style={{ fontSize: 12, color: "#ef4444", fontWeight: 600, margin: "8px 0 0" }}>⚠ {error}</p>}
+    </div>
+  );
 }
 
 // ── Notes Panel ──────────────────────────────────────────────────────────────

@@ -196,6 +196,19 @@ export async function logCRMActivity(
   return { ok: true };
 }
 
+// ── Update user role ───────────────────────────────────────────────────────
+export async function updateUserRole(customerId: number, role: string) {
+  const session = await assertCRM();
+  const allowed = ["customer", "account_manager", "admin"];
+  if (!allowed.includes(role)) return { error: "Invalid role" };
+  // Only admins can grant admin role
+  if (role === "admin" && session.role !== "admin") return { error: "Only admins can grant admin role" };
+  await query(`UPDATE users SET role = $1 WHERE id = $2`, [role, customerId]);
+  revalidatePath(`/crm/customers/${customerId}`);
+  revalidatePath("/crm/customers");
+  return { ok: true };
+}
+
 // ── Contact form queue ─────────────────────────────────────────────────────
 export async function getCRMContactQueue() {
   await assertCRM();

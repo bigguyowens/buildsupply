@@ -1,7 +1,8 @@
 import { getCRMCustomer } from "@/app/actions/crm";
+import { getSession } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { NotesPanel, ActivityFeed, EmailSender } from "./crm-customer-client";
+import { NotesPanel, ActivityFeed, EmailSender, RoleManager } from "./crm-customer-client";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -17,7 +18,10 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 
 export default async function CRMCustomerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const data = await getCRMCustomer(Number(id));
+  const [data, session] = await Promise.all([
+    getCRMCustomer(Number(id)),
+    getSession(),
+  ]);
   if (!data) notFound();
 
   const { customer, orders, quotes, notes, activities, contacts } = data;
@@ -191,8 +195,14 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
           </div>
         </div>
 
-        {/* Col 3: Notes + Email */}
+        {/* Col 3: Role + Email + Notes */}
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Role manager */}
+          <RoleManager
+            customerId={customer.id}
+            currentRole={customer.role}
+            sessionRole={session?.role ?? "account_manager"}
+          />
           {/* Email sender */}
           <EmailSender customerId={customer.id} customerEmail={customer.email} customerName={fullName} />
 
