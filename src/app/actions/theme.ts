@@ -19,14 +19,14 @@ export async function getSiteTheme(): Promise<SiteTheme> {
       `SELECT color_primary, color_accent, color_background, color_foreground, heading_font, body_font FROM site_theme WHERE id=1 LIMIT 1`
     );
     return rows[0] ?? {
-      color_primary: "#002244", color_accent: "#e8561c",
-      color_background: "#f4f5f6", color_foreground: "#111827",
+      color_primary: "#0d0d0d", color_accent: "#f5c700",
+      color_background: "#f2f2f2", color_foreground: "#0d0d0d",
       heading_font: "Geist", body_font: "Geist",
     };
   } catch {
     return {
-      color_primary: "#002244", color_accent: "#e8561c",
-      color_background: "#f4f5f6", color_foreground: "#111827",
+      color_primary: "#0d0d0d", color_accent: "#f5c700",
+      color_background: "#f2f2f2", color_foreground: "#0d0d0d",
       heading_font: "Geist", body_font: "Geist",
     };
   }

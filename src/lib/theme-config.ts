@@ -32,7 +32,8 @@ export const BODY_FONTS = [
 ] as const;
 
 export const COLOR_PRESETS = [
-  { label: "BuildSupply (Default)", primary: "#002244", accent: "#e8561c", background: "#f4f5f6", foreground: "#111827" },
+  { label: "White Cap (Default)",   primary: "#0d0d0d", accent: "#f5c700", background: "#f2f2f2", foreground: "#0d0d0d" },
+  { label: "BuildSupply Classic",   primary: "#002244", accent: "#e8561c", background: "#f4f5f6", foreground: "#111827" },
   { label: "Midnight Blue",         primary: "#0f172a", accent: "#3b82f6", background: "#f8fafc", foreground: "#0f172a" },
   { label: "Forest Green",          primary: "#14532d", accent: "#22c55e", background: "#f0fdf4", foreground: "#14532d" },
   { label: "Deep Purple",           primary: "#3b0764", accent: "#a855f7", background: "#faf5ff", foreground: "#1e0a3c" },
