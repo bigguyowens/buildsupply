@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { addCRMNote, deleteCRMNote, togglePinNote, logCRMActivity, updateUserRole } from "@/app/actions/crm";
+import { addCRMNote, deleteCRMNote, togglePinNote, logCRMActivity, updateUserRole, assignAccountManager } from "@/app/actions/crm";
 import { sendContactReply } from "@/app/actions/send-reply";
 import type { CRMNote, CRMActivity } from "@/app/actions/crm";
 
@@ -24,6 +24,75 @@ function timeAgo(dateStr: string) {
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   if (diff < 604800) return `${Math.floor(diff / 86400)}d ago`;
   return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+// ── AM Assigner ───────────────────────────────────────────────────────────
+export function AMAssigner({ customerId, currentAMId, accountManagers }: {
+  customerId: number;
+  currentAMId: number | null;
+  accountManagers: { id: number; first_name: string; last_name: string; email: string }[];
+}) {
+  const [amId, setAmId] = useState<number | null>(currentAMId);
+  const [saved, setSaved] = useState(false);
+  const [, startT] = useTransition();
+
+  function assign(newAmId: number | null) {
+    setAmId(newAmId);
+    setSaved(false);
+    startT(async () => {
+      await assignAccountManager(customerId, newAmId);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    });
+  }
+
+  const currentAM = accountManagers.find(am => am.id === amId);
+
+  return (
+    <div style={{ background: "#f9f9f9", borderRadius: 8, border: "1px solid #e5e5e5", padding: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+        <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+          letterSpacing: "0.08em", color: "#6b7280", margin: 0 }}>Account Manager</p>
+        {saved && <span style={{ fontSize: 11, color: "#22c55e", fontWeight: 700 }}>✓ Saved</span>}
+      </div>
+
+      {/* Current AM display */}
+      {currentAM ? (
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10,
+          background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 6, padding: "8px 12px" }}>
+          <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f5c700",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 10, fontWeight: 800, color: "#000", flexShrink: 0 }}>
+            {currentAM.first_name[0]}{currentAM.last_name[0]}
+          </div>
+          <div>
+            <p style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d", margin: 0 }}>
+              {currentAM.first_name} {currentAM.last_name}
+            </p>
+            <p style={{ fontSize: 11, color: "#92400e", margin: 0 }}>{currentAM.email}</p>
+          </div>
+        </div>
+      ) : (
+        <div style={{ background: "#f1f5f9", borderRadius: 6, padding: "8px 12px", marginBottom: 10 }}>
+          <p style={{ fontSize: 12, color: "#94a3b8", margin: 0, fontWeight: 600 }}>No account manager assigned</p>
+        </div>
+      )}
+
+      {/* Dropdown */}
+      <select
+        value={amId ?? ""}
+        onChange={e => assign(e.target.value ? Number(e.target.value) : null)}
+        style={{ width: "100%", padding: "8px 10px", borderRadius: 6, fontSize: 13,
+          border: "1px solid #e5e5e5", background: "#fff", cursor: "pointer", outline: "none" }}>
+        <option value="">— Unassigned —</option>
+        {accountManagers.map(am => (
+          <option key={am.id} value={am.id}>
+            {am.first_name} {am.last_name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
 }
 
 // ── Role Manager ─────────────────────────────────────────────────────────────

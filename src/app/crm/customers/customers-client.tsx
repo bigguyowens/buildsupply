@@ -56,7 +56,7 @@ export function CustomersClient({ customers }: { customers: CRMCustomer[] }) {
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ background: "#0d0d0d" }}>
-              {["Customer", "Email", "Orders", "Total Spent", "Open Quotes", "Last Activity", ""].map(h => (
+              {["Customer", "Email", "Account Manager", "Orders", "Total Spent", "Open Quotes", "Last Activity", ""].map(h => (
                 <th key={h} style={{ padding: "11px 16px", textAlign: "left", fontSize: 10,
                   fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#f5c700" }}>
                   {h}
@@ -89,6 +89,14 @@ export function CustomersClient({ customers }: { customers: CRMCustomer[] }) {
                   </div>
                 </td>
                 <td style={{ padding: "12px 16px", color: "#6b7280" }}>{c.email}</td>
+                <td style={{ padding: "12px 16px" }}>
+                  {c.account_manager_name ? (
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#0d0d0d",
+                      background: "#fef9c3", padding: "2px 8px", borderRadius: 4 }}>
+                      {c.account_manager_name}
+                    </span>
+                  ) : <span style={{ color: "#d1d5db", fontSize: 12 }}>Unassigned</span>}
+                </td>
                 <td style={{ padding: "12px 16px", fontWeight: 700, color: "#0d0d0d" }}>{c.order_count}</td>
                 <td style={{ padding: "12px 16px", fontWeight: 700, color: "#22c55e" }}>{fmt(Number(c.total_spent))}</td>
                 <td style={{ padding: "12px 16px" }}>

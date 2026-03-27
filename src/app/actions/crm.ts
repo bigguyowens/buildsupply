@@ -26,6 +26,8 @@ export type CRMCustomer = {
   last_activity_at: string | null;
   open_quotes: number;
   note_count: number;
+  account_manager_name: string | null;
+  account_manager_id: number | null;
 };
 
 export type CRMNote = {
@@ -98,15 +100,18 @@ export async function getCRMCustomers(search = ""): Promise<CRMCustomer[]> {
             MAX(o.created_at) AS last_order_at,
             MAX(a.created_at) AS last_activity_at,
             COUNT(DISTINCT q.id) FILTER (WHERE q.status = 'sent')::int AS open_quotes,
-            COUNT(DISTINCT n.id)::int AS note_count
+            COUNT(DISTINCT n.id)::int AS note_count,
+            am.first_name || ' ' || am.last_name AS account_manager_name,
+            u.account_manager_id
      FROM users u
      LEFT JOIN orders o ON o.user_id = u.id
      LEFT JOIN quotes q ON q.customer_id = u.id
      LEFT JOIN crm_activities a ON a.customer_id = u.id
      LEFT JOIN crm_notes n ON n.customer_id = u.id
+     LEFT JOIN users am ON am.id = u.account_manager_id
      WHERE u.role NOT IN ('admin','account_manager')
        AND ($1 = '' OR u.first_name ILIKE $1 OR u.last_name ILIKE $1 OR u.email ILIKE $1)
-     GROUP BY u.id
+     GROUP BY u.id, am.first_name, am.last_name
      ORDER BY MAX(o.created_at) DESC NULLS LAST`,
     [like]
   );
@@ -116,8 +121,8 @@ export async function getCRMCustomers(search = ""): Promise<CRMCustomer[]> {
 export async function getCRMCustomer(customerId: number) {
   await assertCRM();
   const [users, orders, quotes, notes, activities, contacts] = await Promise.all([
-    query<{ id: number; first_name: string; last_name: string; email: string; role: string; created_at: string }>(
-      "SELECT id, first_name, last_name, email, role, created_at FROM users WHERE id = $1",
+    query<{ id: number; first_name: string; last_name: string; email: string; role: string; created_at: string; account_manager_id: number | null }>(
+      "SELECT id, first_name, last_name, email, role, created_at, account_manager_id FROM users WHERE id = $1",
       [customerId]
     ),
     query<{ id: number; status: string; total: number; created_at: string; items: unknown }>(
@@ -193,6 +198,24 @@ export async function logCRMActivity(
     [customerId, session.id, type, description, metadata ? JSON.stringify(metadata) : null]
   );
   revalidatePath(`/crm/customers/${customerId}`);
+  return { ok: true };
+}
+
+// ── Get all account managers (for assignment dropdown) ─────────────────────
+export async function getAccountManagers() {
+  await assertCRM();
+  return query<{ id: number; first_name: string; last_name: string; email: string }>(
+    `SELECT id, first_name, last_name, email FROM users
+     WHERE role IN ('admin','account_manager') ORDER BY first_name ASC`
+  );
+}
+
+// ── Assign customer to account manager ─────────────────────────────────────
+export async function assignAccountManager(customerId: number, accountManagerId: number | null) {
+  await assertCRM();
+  await query(`UPDATE users SET account_manager_id = $1 WHERE id = $2`, [accountManagerId, customerId]);
+  revalidatePath(`/crm/customers/${customerId}`);
+  revalidatePath("/crm/customers");
   return { ok: true };
 }
 
