@@ -12,8 +12,10 @@ const NAV = [
   { label: "Returns",       href: "/account/returns",  icon: "↩️",  roles: null },
   { label: "Wishlists",     href: "/account/wishlist", icon: "♡",  roles: null },
   { label: "My Company",    href: "/account/company",  icon: "🏢", roles: ["company_admin", "admin"] },
-  { label: "CRM",           href: "/crm",               icon: "📊", roles: ["account_manager", "admin"] },
   { label: "Profile",       href: "/account/profile",  icon: "👤", roles: null },
+  { label: "---" },
+  { label: "CRM",           href: "/crm",              icon: "📊", roles: ["account_manager", "admin"] },
+  { label: "Admin Panel",   href: "/admin",            icon: "⚙️", roles: ["admin"] },
 ];
 
 export function AccountSidebar({ user }: { user: SessionUser }) {
@@ -22,6 +24,7 @@ export function AccountSidebar({ user }: { user: SessionUser }) {
   return (
     <aside style={{ width: 240, flexShrink: 0 }}>
       <div style={{ background: "white", borderRadius: 8, border: "1px solid var(--color-border)", overflow: "hidden", position: "sticky", top: 24 }}>
+
         {/* Avatar + name */}
         <div style={{ padding: "20px 16px", borderBottom: "1px solid var(--color-border)" }}>
           <div style={{
@@ -36,20 +39,26 @@ export function AccountSidebar({ user }: { user: SessionUser }) {
           <p style={{ color: "var(--color-muted)", fontSize: 12, margin: "2px 0 0" }}>{user.email}</p>
         </div>
 
-        {/* Nav links */}
+        {/* Nav */}
         <nav>
-          {NAV.filter(item => !item.roles || item.roles.includes(user.role)).map(item => {
+          {NAV.filter(item =>
+            item.label === "---" || !item.roles || item.roles.includes(user.role)
+          ).map((item, i) => {
+            if (item.label === "---") {
+              return <div key="sep" style={{ height: 1, background: "var(--color-border)", margin: "4px 0" }} />;
+            }
             const active = item.href === "/account"
               ? pathname === "/account"
-              : pathname.startsWith(item.href);
+              : pathname.startsWith(item.href!);
+            const isToolLink = ["CRM", "Admin Panel"].includes(item.label);
             return (
-              <Link key={item.href} href={item.href} style={{
+              <Link key={item.href} href={item.href!} style={{
                 display: "flex", alignItems: "center", gap: 10,
                 padding: "11px 16px", fontSize: 14, textDecoration: "none",
                 borderBottom: "1px solid var(--color-border)",
-                background: active ? "#fff7ed" : "transparent",
-                color: active ? "var(--color-accent)" : "var(--color-foreground)",
-                fontWeight: active ? 700 : 400,
+                background: active ? "#fffbeb" : "transparent",
+                color: active ? "var(--color-accent)" : isToolLink ? "var(--color-muted)" : "var(--color-foreground)",
+                fontWeight: active ? 700 : isToolLink ? 500 : 400,
                 borderLeft: active ? "3px solid var(--color-accent)" : "3px solid transparent",
                 transition: "all 0.15s",
               }}>
@@ -58,20 +67,6 @@ export function AccountSidebar({ user }: { user: SessionUser }) {
               </Link>
             );
           })}
-
-          {/* Admin link if applicable */}
-          {user.role === "admin" && (
-            <Link href="/admin" style={{
-              display: "flex", alignItems: "center", gap: 10,
-              padding: "11px 16px", fontSize: 14, fontWeight: 700,
-              color: "#f97316", textDecoration: "none",
-              background: "#fff7ed",
-              borderTop: "1px solid #fed7aa",
-              borderLeft: "3px solid transparent",
-            }}>
-              <span style={{ fontSize: 15 }}>▦</span> Admin Panel
-            </Link>
-          )}
         </nav>
 
         {/* Sign out */}
@@ -86,6 +81,7 @@ export function AccountSidebar({ user }: { user: SessionUser }) {
             </button>
           </form>
         </div>
+
       </div>
     </aside>
   );
