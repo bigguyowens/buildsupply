@@ -62,6 +62,8 @@ export function CustomerTasksPanel({ tasks: initialTasks, entityType, entityId, 
       {showForm && (
         <NewTaskModal
           accountManagers={accountManagers}
+          customers={[]}
+          companies={[]}
           sessionId={sessionId}
           isAdmin={isAdmin}
           onClose={() => setShowForm(false)}

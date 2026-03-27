@@ -6,6 +6,8 @@ import { createCRMTask, updateCRMTask, deleteCRMTask } from "@/app/actions/crm";
 import type { CRMTask } from "@/app/actions/crm";
 
 type AM = { id: number; first_name: string; last_name: string; email: string };
+type Customer = { id: number; first_name: string; last_name: string; email: string };
+type Company  = { id: number; name: string };
 
 const TYPE_META: Record<string, { label: string; icon: string; color: string }> = {
   call:       { label: "Call",       icon: "📞", color: "#3b82f6" },
@@ -33,12 +35,14 @@ function isOverdue(d: string | null) {
   return d < new Date().toISOString().split("T")[0];
 }
 
-export function TasksClient({ overdue, dueToday, upcoming, completed, accountManagers, sessionId, isAdmin }: {
+export function TasksClient({ overdue, dueToday, upcoming, completed, accountManagers, customers, companies, sessionId, isAdmin }: {
   overdue: CRMTask[];
   dueToday: CRMTask[];
   upcoming: CRMTask[];
   completed: CRMTask[];
   accountManagers: AM[];
+  customers: Customer[];
+  companies: Company[];
   sessionId: number;
   isAdmin: boolean;
 }) {
@@ -127,6 +131,8 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
       {showForm && (
         <NewTaskModal
           accountManagers={accountManagers}
+          customers={customers}
+          companies={companies}
           sessionId={sessionId}
           isAdmin={isAdmin}
           onClose={() => setShowForm(false)}
@@ -261,18 +267,31 @@ function TaskGroup({ title, tasks, headerBg, headerColor, accountManagers, isAdm
 }
 
 // ── New Task Modal ────────────────────────────────────────────────────────
-function NewTaskModal({ accountManagers, sessionId, isAdmin, onClose, entityType, entityId, entityName }: {
-  accountManagers: AM[]; sessionId: number; isAdmin: boolean; onClose: () => void;
-  entityType?: "customer" | "company"; entityId?: number; entityName?: string;
+function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmin, onClose, entityType: initEntityType, entityId: initEntityId, entityName: initEntityName }: {
+  accountManagers: AM[];
+  customers: Customer[];
+  companies: Company[];
+  sessionId: number;
+  isAdmin: boolean;
+  onClose: () => void;
+  entityType?: "customer" | "company";
+  entityId?: number;
+  entityName?: string;
 }) {
-  const [title, setTitle]       = useState("");
-  const [desc, setDesc]         = useState("");
-  const [type, setType]         = useState<CRMTask["type"]>("follow_up");
-  const [priority, setPriority] = useState<CRMTask["priority"]>("medium");
-  const [dueDate, setDueDate]   = useState("");
+  const [title, setTitle]           = useState("");
+  const [desc, setDesc]             = useState("");
+  const [type, setType]             = useState<CRMTask["type"]>("follow_up");
+  const [priority, setPriority]     = useState<CRMTask["priority"]>("medium");
+  const [dueDate, setDueDate]       = useState("");
   const [assignedTo, setAssignedTo] = useState(String(sessionId));
-  const [saving, setSaving]     = useState(false);
-  const [, startT]              = useTransition();
+  const [entityType, setEntityType] = useState<"" | "customer" | "company">(initEntityType ?? "");
+  const [entityId, setEntityId]     = useState<string>(initEntityId ? String(initEntityId) : "");
+  const [entityName, setEntityName] = useState<string>(initEntityName ?? "");
+  const [saving, setSaving]         = useState(false);
+  const [, startT]                  = useTransition();
+
+  // Locked if opened from a customer/company record
+  const locked = !!initEntityType;
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "9px 12px", borderRadius: 6, fontSize: 13,
@@ -280,15 +299,36 @@ function NewTaskModal({ accountManagers, sessionId, isAdmin, onClose, entityType
     background: "#fff",
   };
 
+  function handleEntityTypeChange(newType: "" | "customer" | "company") {
+    setEntityType(newType);
+    setEntityId("");
+    setEntityName("");
+  }
+
+  function handleEntityIdChange(id: string) {
+    setEntityId(id);
+    if (entityType === "customer") {
+      const c = customers.find(c => String(c.id) === id);
+      setEntityName(c ? `${c.first_name} ${c.last_name}` : "");
+    } else if (entityType === "company") {
+      const co = companies.find(co => String(co.id) === id);
+      setEntityName(co?.name ?? "");
+    }
+  }
+
   function save() {
     if (!title.trim()) return;
     setSaving(true);
     startT(async () => {
       await createCRMTask({
-        title: title.trim(), description: desc || undefined,
-        type, priority, due_date: dueDate || undefined,
-        entity_type: entityType, entity_id: entityId,
-        entity_name: entityName, assigned_to: Number(assignedTo),
+        title: title.trim(),
+        description: desc || undefined,
+        type, priority,
+        due_date: dueDate || undefined,
+        entity_type: entityType || undefined,
+        entity_id: entityId ? Number(entityId) : undefined,
+        entity_name: entityName || undefined,
+        assigned_to: Number(assignedTo),
       });
       onClose();
     });
@@ -298,28 +338,32 @@ function NewTaskModal({ accountManagers, sessionId, isAdmin, onClose, entityType
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 9999,
       display: "flex", alignItems: "center", justifyContent: "center" }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ background: "#fff", borderRadius: 12, width: 480, maxWidth: "95vw",
-        boxShadow: "0 20px 60px rgba(0,0,0,0.3)", overflow: "hidden" }}>
-        {/* Modal header */}
-        <div style={{ background: "#0d0d0d", padding: "16px 20px",
+      <div style={{ background: "#fff", borderRadius: 12, width: 500, maxWidth: "95vw",
+        boxShadow: "0 20px 60px rgba(0,0,0,0.3)", overflow: "hidden",
+        maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
+
+        {/* Header */}
+        <div style={{ background: "#0d0d0d", padding: "16px 20px", flexShrink: 0,
           display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ color: "#f5c700", fontSize: 15, fontWeight: 800, margin: 0 }}>New Task</h2>
           <button onClick={onClose} style={{ background: "none", border: "none",
             color: "#6b6b6b", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>✕</button>
         </div>
 
-        <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ padding: 20, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
+
+          {/* Title */}
           <input value={title} onChange={e => setTitle(e.target.value)}
             placeholder="Task title *" style={inputStyle} autoFocus />
 
+          {/* Type + Priority */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
                 textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                 Type
               </label>
-              <select value={type} onChange={e => setType(e.target.value as CRMTask["type"])}
-                style={inputStyle}>
+              <select value={type} onChange={e => setType(e.target.value as CRMTask["type"])} style={inputStyle}>
                 {Object.entries(TYPE_META).map(([v, m]) => (
                   <option key={v} value={v}>{m.icon} {m.label}</option>
                 ))}
@@ -330,8 +374,7 @@ function NewTaskModal({ accountManagers, sessionId, isAdmin, onClose, entityType
                 textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                 Priority
               </label>
-              <select value={priority} onChange={e => setPriority(e.target.value as CRMTask["priority"])}
-                style={inputStyle}>
+              <select value={priority} onChange={e => setPriority(e.target.value as CRMTask["priority"])} style={inputStyle}>
                 <option value="high">🔴 High</option>
                 <option value="medium">🟡 Medium</option>
                 <option value="low">🔵 Low</option>
@@ -339,14 +382,14 @@ function NewTaskModal({ accountManagers, sessionId, isAdmin, onClose, entityType
             </div>
           </div>
 
+          {/* Due Date + Assign To */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
                 textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                 Due Date
               </label>
-              <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)}
-                style={inputStyle} />
+              <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} style={inputStyle} />
             </div>
             {isAdmin && (
               <div>
@@ -354,33 +397,87 @@ function NewTaskModal({ accountManagers, sessionId, isAdmin, onClose, entityType
                   textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                   Assign To
                 </label>
-                <select value={assignedTo} onChange={e => setAssignedTo(e.target.value)}
-                  style={inputStyle}>
+                <select value={assignedTo} onChange={e => setAssignedTo(e.target.value)} style={inputStyle}>
                   {accountManagers.map(am => (
-                    <option key={am.id} value={am.id}>
-                      {am.first_name} {am.last_name}
-                    </option>
+                    <option key={am.id} value={am.id}>{am.first_name} {am.last_name}</option>
                   ))}
                 </select>
               </div>
             )}
           </div>
 
-          <textarea value={desc} onChange={e => setDesc(e.target.value)}
-            placeholder="Notes or description (optional)" rows={3}
-            style={{ ...inputStyle, resize: "none", fontFamily: "inherit" }} />
+          {/* Link to Customer / Company */}
+          {!locked && (customers.length > 0 || companies.length > 0) && (
+            <div>
+              <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+                textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 6 }}>
+                Link To <span style={{ color: "#d1d5db", fontWeight: 400, textTransform: "none" }}>(optional)</span>
+              </label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 8 }}>
+                {/* Entity type selector */}
+                <select value={entityType} onChange={e => handleEntityTypeChange(e.target.value as "" | "customer" | "company")}
+                  style={inputStyle}>
+                  <option value="">— None —</option>
+                  {customers.length > 0 && <option value="customer">👤 Customer</option>}
+                  {companies.length > 0 && <option value="company">🏢 Company</option>}
+                </select>
 
-          {entityName && (
-            <div style={{ background: "#f9f9f9", borderRadius: 6, padding: "8px 12px",
-              fontSize: 12, color: "#6b7280" }}>
-              Linked to: <strong style={{ color: "#0d0d0d" }}>{entityName}</strong>
+                {/* Entity picker */}
+                {entityType === "customer" && (
+                  <select value={entityId} onChange={e => handleEntityIdChange(e.target.value)} style={inputStyle}>
+                    <option value="">Select customer…</option>
+                    {customers.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.first_name} {c.last_name} — {c.email}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {entityType === "company" && (
+                  <select value={entityId} onChange={e => handleEntityIdChange(e.target.value)} style={inputStyle}>
+                    <option value="">Select company…</option>
+                    {companies.map(co => (
+                      <option key={co.id} value={co.id}>{co.name}</option>
+                    ))}
+                  </select>
+                )}
+                {!entityType && (
+                  <div style={{ ...inputStyle, display: "flex", alignItems: "center",
+                    color: "#d1d5db", fontSize: 13, background: "#fafafa" }}>
+                    Select a type first
+                  </div>
+                )}
+              </div>
+              {entityName && (
+                <p style={{ fontSize: 12, color: "#22c55e", fontWeight: 600, margin: "4px 0 0" }}>
+                  ✓ Linked to {entityName}
+                </p>
+              )}
             </div>
           )}
 
+          {/* Locked entity display (opened from record) */}
+          {locked && entityName && (
+            <div style={{ background: "#fffbeb", border: "1px solid #f5c700",
+              borderRadius: 6, padding: "8px 12px", fontSize: 12 }}>
+              <span style={{ color: "#9ca3af", fontWeight: 600 }}>Linked to: </span>
+              <strong style={{ color: "#0d0d0d" }}>
+                {initEntityType === "customer" ? "👤" : "🏢"} {entityName}
+              </strong>
+            </div>
+          )}
+
+          {/* Notes */}
+          <textarea value={desc} onChange={e => setDesc(e.target.value)}
+            placeholder="Notes or description (optional)" rows={2}
+            style={{ ...inputStyle, resize: "none", fontFamily: "inherit" }} />
+
+          {/* Submit */}
           <button onClick={save} disabled={!title.trim() || saving}
-            style={{ background: saving ? "#d1d5db" : "#0d0d0d", color: "#f5c700",
+            style={{ background: saving || !title.trim() ? "#d1d5db" : "#0d0d0d", color: "#f5c700",
               border: "none", borderRadius: 8, padding: "12px 0", fontWeight: 800,
-              fontSize: 14, cursor: saving ? "not-allowed" : "pointer" }}>
+              fontSize: 14, cursor: saving || !title.trim() ? "not-allowed" : "pointer",
+              transition: "background 0.15s" }}>
             {saving ? "Saving…" : "Create Task"}
           </button>
         </div>
