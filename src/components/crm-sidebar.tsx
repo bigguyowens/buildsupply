@@ -7,14 +7,18 @@ import type { SessionUser } from "@/lib/auth";
 
 const NAV = [
   { label: "Dashboard",      href: "/crm",                icon: "▦",  exact: true, roles: null },
-  { label: "Companies",      href: "/crm/companies",      icon: "🏢", roles: null },
-  { label: "Customers",      href: "/crm/customers",      icon: "👥", roles: null },
-  { label: "Tasks",          href: "/crm/tasks",          icon: "✅", roles: null },
-  { label: "Contact Queue",  href: "/crm/contacts",       icon: "✉️",  roles: null },
-  { label: "Quotes",         href: "/crm/quotes",         icon: "📋", roles: null },
-  { label: "Inventory",      href: "/crm/inventory",      icon: "📦", roles: null },
   { label: "Analytics",      href: "/crm/analytics",      icon: "📈", roles: null },
   { label: "AM Performance", href: "/crm/am-performance", icon: "🏆", roles: ["admin", "manager"] },
+  { label: "---" },
+  { label: "Companies",      href: "/crm/companies",      icon: "🏢", roles: null },
+  { label: "Customers",      href: "/crm/customers",      icon: "👥", roles: null },
+  { label: "---" },
+  { label: "Tasks",          href: "/crm/tasks",          icon: "✅", roles: null },
+  { label: "Quotes",         href: "/crm/quotes",         icon: "📋", roles: null },
+  { label: "---" },
+  { label: "Inventory",      href: "/crm/inventory",      icon: "📦", roles: null },
+  { label: "---" },
+  { label: "Contact Queue",  href: "/crm/contacts",       icon: "✉️",  roles: null },
 ];
 
 // Whitecap palette
@@ -55,10 +59,13 @@ export function CRMSidebar({ user }: { user: SessionUser }) {
         <p style={{ color: C.muted, fontSize: 10, fontWeight: 800, textTransform: "uppercase",
           letterSpacing: "0.14em", padding: "8px 10px 6px", margin: 0 }}>Navigation</p>
 
-        {NAV.filter(item => !item.roles || item.roles.includes(user.role)).map(item => {
-          const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+        {NAV.filter(item => item.label === "---" || !item.roles || item.roles.includes(user.role)).map((item, i) => {
+          if (item.label === "---") {
+            return <div key={`sep-${i}`} style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "6px 10px" }} />;
+          }
+          const active = item.exact ? pathname === item.href : pathname.startsWith(item.href!);
           return (
-            <Link key={item.href} href={item.href} style={{
+            <Link key={item.href} href={item.href!} style={{
               display: "flex", alignItems: "center", gap: 10,
               padding: "10px 12px", borderRadius: 6, marginBottom: 2,
               textDecoration: "none", fontSize: 13, fontWeight: active ? 700 : 500,
