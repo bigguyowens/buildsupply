@@ -7,6 +7,7 @@ import type { SessionUser } from "@/lib/auth";
 
 const NAV = [
   { label: "Dashboard",    href: "/crm",               icon: "▦",  exact: true },
+  { label: "Companies",    href: "/crm/companies",      icon: "🏢"  },
   { label: "Customers",    href: "/crm/customers",      icon: "👥"  },
   { label: "Contact Queue",href: "/crm/contacts",       icon: "✉️"  },
   { label: "Quotes",       href: "/crm/quotes",         icon: "📋"  },

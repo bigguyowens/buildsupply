@@ -240,3 +240,104 @@ export async function getCRMContactQueue() {
      FROM contact_submissions ORDER BY created_at DESC`
   );
 }
+
+// ── Companies ──────────────────────────────────────────────────────────────
+export type CRMCompany = {
+  id: number;
+  name: string;
+  domain: string | null;
+  industry: string | null;
+  phone: string | null;
+  city: string | null;
+  state: string | null;
+  account_manager_id: number | null;
+  account_manager_name: string | null;
+  employee_count: number;
+  total_spent: number;
+  order_count: number;
+  open_quotes: number;
+  created_at: string;
+};
+
+export async function getCRMCompanies(): Promise<CRMCompany[]> {
+  await assertCRM();
+  return query<CRMCompany>(
+    `SELECT c.id, c.name, c.domain, c.industry, c.phone, c.city, c.state,
+            c.account_manager_id, c.created_at,
+            am.first_name || ' ' || am.last_name AS account_manager_name,
+            COUNT(DISTINCT u.id)::int AS employee_count,
+            COALESCE(SUM(o.total),0)::numeric AS total_spent,
+            COUNT(DISTINCT o.id)::int AS order_count,
+            COUNT(DISTINCT q.id) FILTER (WHERE q.status='sent')::int AS open_quotes
+     FROM companies c
+     LEFT JOIN users u ON u.company_id = c.id
+     LEFT JOIN orders o ON o.user_id = u.id
+     LEFT JOIN quotes q ON q.customer_id = u.id
+     LEFT JOIN users am ON am.id = c.account_manager_id
+     GROUP BY c.id, am.first_name, am.last_name
+     ORDER BY c.name ASC`
+  );
+}
+
+export async function getCRMCompany(companyId: number) {
+  await assertCRM();
+  const [companies, employees] = await Promise.all([
+    query<CRMCompany & { address: string | null; zip: string | null }>(
+      `SELECT c.*, am.first_name || ' ' || am.last_name AS account_manager_name,
+              COUNT(DISTINCT u.id)::int AS employee_count,
+              COALESCE(SUM(o.total),0)::numeric AS total_spent,
+              COUNT(DISTINCT o.id)::int AS order_count,
+              COUNT(DISTINCT q.id) FILTER (WHERE q.status='sent')::int AS open_quotes
+       FROM companies c
+       LEFT JOIN users u ON u.company_id = c.id
+       LEFT JOIN orders o ON o.user_id = u.id
+       LEFT JOIN quotes q ON q.customer_id = u.id
+       LEFT JOIN users am ON am.id = c.account_manager_id
+       WHERE c.id = $1
+       GROUP BY c.id, am.first_name, am.last_name`,
+      [companyId]
+    ),
+    query<{ id: number; first_name: string; last_name: string; email: string; role: string; order_count: number; total_spent: number }>(
+      `SELECT u.id, u.first_name, u.last_name, u.email, u.role,
+              COUNT(DISTINCT o.id)::int AS order_count,
+              COALESCE(SUM(o.total),0)::numeric AS total_spent
+       FROM users u
+       LEFT JOIN orders o ON o.user_id = u.id
+       WHERE u.company_id = $1
+       GROUP BY u.id ORDER BY u.role DESC, u.first_name ASC`,
+      [companyId]
+    ),
+  ]);
+  if (!companies.length) return null;
+  return { company: companies[0], employees };
+}
+
+export async function updateCompany(companyId: number, data: {
+  name?: string; industry?: string; phone?: string;
+  city?: string; state?: string; account_manager_id?: number | null;
+}) {
+  await assertCRM();
+  const fields: string[] = [];
+  const vals: unknown[] = [];
+  let n = 1;
+  if (data.name              !== undefined) { fields.push(`name=$${n++}`);              vals.push(data.name); }
+  if (data.industry          !== undefined) { fields.push(`industry=$${n++}`);          vals.push(data.industry); }
+  if (data.phone             !== undefined) { fields.push(`phone=$${n++}`);             vals.push(data.phone); }
+  if (data.city              !== undefined) { fields.push(`city=$${n++}`);              vals.push(data.city); }
+  if (data.state             !== undefined) { fields.push(`state=$${n++}`);             vals.push(data.state); }
+  if (data.account_manager_id !== undefined) { fields.push(`account_manager_id=$${n++}`); vals.push(data.account_manager_id); }
+  if (!fields.length) return { ok: true };
+  fields.push(`updated_at=NOW()`);
+  vals.push(companyId);
+  await query(`UPDATE companies SET ${fields.join(",")} WHERE id=$${n}`, vals);
+  revalidatePath(`/crm/companies/${companyId}`);
+  revalidatePath("/crm/companies");
+  return { ok: true };
+}
+
+export async function assignUserToCompany(userId: number, companyId: number | null) {
+  await assertCRM();
+  await query(`UPDATE users SET company_id=$1 WHERE id=$2`, [companyId, userId]);
+  revalidatePath("/crm/companies");
+  return { ok: true };
+}

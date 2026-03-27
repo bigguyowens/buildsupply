@@ -6,12 +6,13 @@ import { logoutAction } from "@/app/actions/auth";
 import type { SessionUser } from "@/lib/auth";
 
 const NAV = [
-  { label: "Dashboard",     href: "/account",          icon: "▦"  },
-  { label: "Order History", href: "/account/orders",   icon: "📦" },
-  { label: "My Quotes",     href: "/account/quotes",   icon: "📋" },
-  { label: "Returns",       href: "/account/returns",  icon: "↩️"  },
-  { label: "Wishlists",     href: "/account/wishlist", icon: "♡"  },
-  { label: "Profile",       href: "/account/profile",  icon: "👤" },
+  { label: "Dashboard",     href: "/account",          icon: "▦",  roles: null },
+  { label: "Order History", href: "/account/orders",   icon: "📦", roles: null },
+  { label: "My Quotes",     href: "/account/quotes",   icon: "📋", roles: null },
+  { label: "Returns",       href: "/account/returns",  icon: "↩️",  roles: null },
+  { label: "Wishlists",     href: "/account/wishlist", icon: "♡",  roles: null },
+  { label: "My Company",    href: "/account/company",  icon: "🏢", roles: ["company_admin", "admin"] },
+  { label: "Profile",       href: "/account/profile",  icon: "👤", roles: null },
 ];
 
 export function AccountSidebar({ user }: { user: SessionUser }) {
@@ -36,7 +37,7 @@ export function AccountSidebar({ user }: { user: SessionUser }) {
 
         {/* Nav links */}
         <nav>
-          {NAV.map(item => {
+          {NAV.filter(item => !item.roles || item.roles.includes(user.role)).map(item => {
             const active = item.href === "/account"
               ? pathname === "/account"
               : pathname.startsWith(item.href);
