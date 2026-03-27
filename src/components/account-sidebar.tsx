@@ -12,6 +12,7 @@ const NAV = [
   { label: "Returns",       href: "/account/returns",  icon: "↩️",  roles: null },
   { label: "Wishlists",     href: "/account/wishlist", icon: "♡",  roles: null },
   { label: "My Company",    href: "/account/company",  icon: "🏢", roles: ["company_admin", "admin"] },
+  { label: "CRM",           href: "/crm",               icon: "📊", roles: ["account_manager", "admin"] },
   { label: "Profile",       href: "/account/profile",  icon: "👤", roles: null },
 ];
 
