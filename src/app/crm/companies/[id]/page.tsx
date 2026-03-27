@@ -1,4 +1,5 @@
-import { getCRMCompany, getAccountManagers, getOnboarding } from "@/app/actions/crm";
+import { getCRMCompany, getAccountManagers, getOnboarding, getCRMTasks } from "@/app/actions/crm";
+import { getSession } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CompanyTabView } from "./company-tab-view";
@@ -7,10 +8,12 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", c
 
 export default async function CRMCompanyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [data, accountManagers, onboarding] = await Promise.all([
+  const [data, accountManagers, onboarding, tasks, session] = await Promise.all([
     getCRMCompany(Number(id)),
     getAccountManagers(),
     getOnboarding("company", Number(id)),
+    getCRMTasks({ entityType: "company", entityId: Number(id) }),
+    getSession(),
   ]);
   if (!data) notFound();
   const { company, employees } = data;
@@ -66,6 +69,9 @@ export default async function CRMCompanyPage({ params }: { params: Promise<{ id:
         employees={employees}
         onboarding={onboarding}
         accountManagers={accountManagers}
+        tasks={tasks}
+        sessionId={session?.id ?? 0}
+        isAdmin={session?.role === "admin"}
       />
     </div>
   );

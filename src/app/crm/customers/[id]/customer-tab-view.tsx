@@ -4,13 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { NotesPanel, ActivityFeed, EmailSender } from "./crm-customer-client";
 import { OnboardingTracker } from "@/components/onboarding-tracker";
-import type { CRMNote, CRMActivity, OnboardingStatus } from "@/app/actions/crm";
+import { CustomerTasksPanel } from "./customer-tasks-panel";
+import type { CRMNote, CRMActivity, OnboardingStatus, CRMTask } from "@/app/actions/crm";
 
 type Order   = { id: number; status: string; total: number; created_at: string; items: unknown };
 type Quote   = { id: number; status: string; created_at: string; expires_at: string | null; total_quoted: number };
 type Contact = { id: number; name: string; email: string; reason: string | null; message: string; status: string; created_at: string };
 
-type Tab = "onboarding" | "orders" | "quotes" | "activity" | "notes" | "contacts";
+type Tab = "onboarding" | "tasks" | "orders" | "quotes" | "activity" | "notes" | "contacts";
 
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
   pending:    { bg: "#fef9c3", color: "#854d0e" },
@@ -27,7 +28,7 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", c
 
 export function CustomerTabView({
   customerId, customerEmail, customerName,
-  orders, quotes, notes, activities, contacts, onboarding,
+  orders, quotes, notes, activities, contacts, onboarding, tasks, taskAMs, sessionId, isAdmin,
 }: {
   customerId: number;
   customerEmail: string;
@@ -38,11 +39,17 @@ export function CustomerTabView({
   activities: CRMActivity[];
   contacts: Contact[];
   onboarding: OnboardingStatus;
+  tasks: CRMTask[];
+  taskAMs: { id: number; first_name: string; last_name: string; email: string }[];
+  sessionId: number;
+  isAdmin: boolean;
 }) {
   const [tab, setTab] = useState<Tab>("onboarding");
+  const pendingTasks = tasks.filter(t => t.status !== "complete").length;
 
   const tabs: { key: Tab; label: string; badge?: number | string }[] = [
     { key: "onboarding", label: "Onboarding",  badge: `${onboarding.complete}/${onboarding.total}` },
+    { key: "tasks",      label: "Tasks",        badge: pendingTasks || undefined },
     { key: "orders",     label: "Orders",       badge: orders.length || undefined },
     { key: "quotes",     label: "Quotes",       badge: quotes.length || undefined },
     { key: "activity",   label: "Activity",     badge: activities.length || undefined },
@@ -79,10 +86,14 @@ export function CustomerTabView({
       {/* Tab content */}
       <div style={{ padding: 20 }}>
         {tab === "onboarding" && (
-          <OnboardingTracker
-            entityType="customer"
-            entityId={customerId}
-            initialData={onboarding}
+          <OnboardingTracker entityType="customer" entityId={customerId} initialData={onboarding} />
+        )}
+
+        {tab === "tasks" && (
+          <CustomerTasksPanel
+            tasks={tasks} entityType="customer" entityId={customerId}
+            entityName={customerName} accountManagers={taskAMs}
+            sessionId={sessionId} isAdmin={isAdmin}
           />
         )}
 

@@ -1,4 +1,4 @@
-import { getCRMDashboard, getOnboardingPipeline } from "@/app/actions/crm";
+import { getCRMDashboard, getOnboardingPipeline, getTaskCounts } from "@/app/actions/crm";
 import Link from "next/link";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -30,9 +30,10 @@ const ACTIVITY_COLORS: Record<string, string> = {
 };
 
 export default async function CRMDashboard() {
-  const [data, pipeline] = await Promise.all([
+  const [data, pipeline, taskCounts] = await Promise.all([
     getCRMDashboard(),
     getOnboardingPipeline(),
+    getTaskCounts(),
   ]);
 
   const kpis = [
@@ -185,7 +186,46 @@ export default async function CRMDashboard() {
         </div>
       </div>
 
-      {/* Onboarding Pipeline */}
+      {/* Task summary strip */}
+      {(taskCounts.overdue > 0 || taskCounts.due_today > 0 || taskCounts.upcoming > 0) && (
+        <Link href="/crm/tasks" style={{ textDecoration: "none" }}>
+          <div style={{ background: taskCounts.overdue > 0 ? "#0d0d0d" : "#fff",
+            borderRadius: 10, padding: "14px 20px", marginBottom: 20,
+            border: `1px solid ${taskCounts.overdue > 0 ? "#0d0d0d" : "#e5e5e5"}`,
+            display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 16 }}>✅</span>
+              <span style={{ fontSize: 13, fontWeight: 800,
+                color: taskCounts.overdue > 0 ? "#f5c700" : "#0d0d0d" }}>
+                Tasks & Follow-ups
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 16 }}>
+              {taskCounts.overdue > 0 && (
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#ef4444" }}>
+                  ⚠ {taskCounts.overdue} overdue
+                </span>
+              )}
+              {taskCounts.due_today > 0 && (
+                <span style={{ fontSize: 13, fontWeight: 700,
+                  color: taskCounts.overdue > 0 ? "#fde68a" : "#f97316" }}>
+                  📅 {taskCounts.due_today} due today
+                </span>
+              )}
+              {taskCounts.upcoming > 0 && (
+                <span style={{ fontSize: 13, fontWeight: 600,
+                  color: taskCounts.overdue > 0 ? "#9ca3af" : "#6b7280" }}>
+                  {taskCounts.upcoming} upcoming
+                </span>
+              )}
+              <span style={{ fontSize: 12, fontWeight: 700,
+                color: taskCounts.overdue > 0 ? "#f5c700" : "#f5c700" }}>
+                View all →
+              </span>
+            </div>
+          </div>
+        </Link>
+      )}
       {(pipeline.customers.length > 0 || pipeline.companies.length > 0) && (
         <div style={{ marginTop: 24 }}>
           <h2 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase",

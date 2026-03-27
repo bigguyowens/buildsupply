@@ -1,4 +1,4 @@
-import { getCRMCustomer, getAccountManagers, getOnboarding } from "@/app/actions/crm";
+import { getCRMCustomer, getAccountManagers, getOnboarding, getCRMTasks } from "@/app/actions/crm";
 import { getSession } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -9,11 +9,12 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", c
 
 export default async function CRMCustomerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [data, session, accountManagers, onboarding] = await Promise.all([
+  const [data, session, accountManagers, onboarding, tasks] = await Promise.all([
     getCRMCustomer(Number(id)),
     getSession(),
     getAccountManagers(),
     getOnboarding("customer", Number(id)),
+    getCRMTasks({ entityType: "customer", entityId: Number(id) }),
   ]);
   if (!data) notFound();
 
@@ -76,6 +77,10 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
           activities={activities}
           contacts={contacts}
           onboarding={onboarding}
+          tasks={tasks}
+          taskAMs={accountManagers}
+          sessionId={session?.id ?? 0}
+          isAdmin={session?.role === "admin"}
         />
 
         {/* Right: persistent management panel */}

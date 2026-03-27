@@ -4,13 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { CompanyDetailClient } from "./company-detail-client";
 import { OnboardingTracker } from "@/components/onboarding-tracker";
-import type { OnboardingStatus } from "@/app/actions/crm";
+import { CustomerTasksPanel } from "@/app/crm/customers/[id]/customer-tasks-panel";
+import type { OnboardingStatus, CRMTask } from "@/app/actions/crm";
 
 type Employee = { id: number; first_name: string; last_name: string; email: string; role: string; order_count: number; total_spent: number };
 type AM = { id: number; first_name: string; last_name: string; email: string };
 type Company = { id: number; name: string; industry: string | null; phone: string | null; city: string | null; state: string | null; domain: string | null; account_manager_id: number | null; account_manager_name: string | null; employee_count: number; total_spent: number; order_count: number; open_quotes: number; };
 
-type Tab = "onboarding" | "team" | "overview";
+type Tab = "onboarding" | "tasks" | "team" | "overview";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
@@ -20,16 +21,21 @@ const ROLE_META: Record<string, { label: string; bg: string; color: string }> = 
   admin:         { label: "Admin",  bg: "#fce7f3", color: "#9d174d" },
 };
 
-export function CompanyTabView({ company, employees, onboarding, accountManagers }: {
+export function CompanyTabView({ company, employees, onboarding, accountManagers, tasks, sessionId, isAdmin }: {
   company: Company;
   employees: Employee[];
   onboarding: OnboardingStatus;
   accountManagers: AM[];
+  tasks: CRMTask[];
+  sessionId: number;
+  isAdmin: boolean;
 }) {
   const [tab, setTab] = useState<Tab>("onboarding");
+  const pendingTasks = tasks.filter(t => t.status !== "complete").length;
 
   const tabs: { key: Tab; label: string; badge?: number | string }[] = [
     { key: "onboarding", label: "Onboarding", badge: `${onboarding.complete}/${onboarding.total}` },
+    { key: "tasks",      label: "Tasks",       badge: pendingTasks || undefined },
     { key: "team",       label: "Team",        badge: employees.length },
     { key: "overview",   label: "Details" },
   ];
@@ -64,10 +70,18 @@ export function CompanyTabView({ company, employees, onboarding, accountManagers
       <div style={{ padding: 20 }}>
 
         {tab === "onboarding" && (
-          <OnboardingTracker
+          <OnboardingTracker entityType="company" entityId={company.id} initialData={onboarding} />
+        )}
+
+        {tab === "tasks" && (
+          <CustomerTasksPanel
+            tasks={tasks}
             entityType="company"
             entityId={company.id}
-            initialData={onboarding}
+            entityName={company.name}
+            accountManagers={accountManagers}
+            sessionId={sessionId}
+            isAdmin={isAdmin}
           />
         )}
 

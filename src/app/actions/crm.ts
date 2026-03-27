@@ -491,3 +491,149 @@ export async function getOnboardingPipeline() {
 
   return { customers, companies };
 }
+
+// ── Tasks ──────────────────────────────────────────────────────────────────
+export type CRMTask = {
+  id: number;
+  title: string;
+  description: string | null;
+  type: "call" | "email" | "follow_up" | "demo" | "check_in" | "proposal" | "other";
+  priority: "low" | "medium" | "high";
+  status: "pending" | "in_progress" | "complete";
+  due_date: string | null;
+  entity_type: "customer" | "company" | null;
+  entity_id: number | null;
+  entity_name: string | null;
+  assigned_to: number | null;
+  assigned_name: string | null;
+  created_by: number | null;
+  completed_at: string | null;
+  created_at: string;
+};
+
+export async function getCRMTasks(filters?: {
+  entityType?: "customer" | "company";
+  entityId?: number;
+  assignedTo?: number;
+  status?: string;
+}): Promise<CRMTask[]> {
+  const session = await assertCRM();
+  const isAdmin = session.role === "admin";
+
+  const conditions: string[] = [];
+  const vals: unknown[] = [];
+  let n = 1;
+
+  // AMs only see their own tasks
+  if (!isAdmin) {
+    conditions.push(`t.assigned_to = $${n++}`);
+    vals.push(session.id);
+  }
+  if (filters?.entityType) { conditions.push(`t.entity_type = $${n++}`); vals.push(filters.entityType); }
+  if (filters?.entityId)   { conditions.push(`t.entity_id   = $${n++}`); vals.push(filters.entityId); }
+  if (filters?.assignedTo) { conditions.push(`t.assigned_to = $${n++}`); vals.push(filters.assignedTo); }
+  if (filters?.status)     { conditions.push(`t.status      = $${n++}`); vals.push(filters.status); }
+
+  const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  return query<CRMTask>(
+    `SELECT t.*,
+            u.first_name || ' ' || u.last_name AS assigned_name
+     FROM crm_tasks t
+     LEFT JOIN users u ON u.id = t.assigned_to
+     ${where}
+     ORDER BY
+       CASE t.status WHEN 'complete' THEN 1 ELSE 0 END,
+       t.due_date ASC NULLS LAST,
+       t.priority DESC`,
+    vals
+  );
+}
+
+export async function createCRMTask(data: {
+  title: string;
+  description?: string;
+  type: CRMTask["type"];
+  priority: CRMTask["priority"];
+  due_date?: string;
+  entity_type?: "customer" | "company";
+  entity_id?: number;
+  entity_name?: string;
+  assigned_to?: number;
+}) {
+  const session = await assertCRM();
+  const assignedTo = data.assigned_to ?? session.id;
+  const res = await query<{ id: number }>(
+    `INSERT INTO crm_tasks
+       (title, description, type, priority, due_date, entity_type, entity_id, entity_name, assigned_to, created_by)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+     RETURNING id`,
+    [data.title, data.description ?? null, data.type, data.priority,
+     data.due_date ?? null, data.entity_type ?? null, data.entity_id ?? null,
+     data.entity_name ?? null, assignedTo, session.id]
+  );
+  revalidatePath("/crm/tasks");
+  revalidatePath("/crm");
+  return { ok: true, id: res[0].id };
+}
+
+export async function updateCRMTask(taskId: number, data: {
+  title?: string;
+  description?: string;
+  type?: CRMTask["type"];
+  priority?: CRMTask["priority"];
+  status?: CRMTask["status"];
+  due_date?: string | null;
+  assigned_to?: number | null;
+}) {
+  const session = await assertCRM();
+  const fields: string[] = [];
+  const vals: unknown[] = [];
+  let n = 1;
+
+  if (data.title       !== undefined) { fields.push(`title=$${n++}`);       vals.push(data.title); }
+  if (data.description !== undefined) { fields.push(`description=$${n++}`); vals.push(data.description); }
+  if (data.type        !== undefined) { fields.push(`type=$${n++}`);        vals.push(data.type); }
+  if (data.priority    !== undefined) { fields.push(`priority=$${n++}`);    vals.push(data.priority); }
+  if (data.due_date    !== undefined) { fields.push(`due_date=$${n++}`);    vals.push(data.due_date); }
+  if (data.assigned_to !== undefined) { fields.push(`assigned_to=$${n++}`); vals.push(data.assigned_to); }
+
+  if (data.status !== undefined) {
+    fields.push(`status=$${n++}`);
+    vals.push(data.status);
+    if (data.status === "complete") {
+      fields.push(`completed_at=NOW()`);
+    } else {
+      fields.push(`completed_at=NULL`);
+    }
+  }
+
+  fields.push(`updated_at=NOW()`);
+  vals.push(taskId);
+
+  await query(`UPDATE crm_tasks SET ${fields.join(",")} WHERE id=$${n}`, vals);
+  revalidatePath("/crm/tasks");
+  revalidatePath("/crm");
+  return { ok: true };
+}
+
+export async function deleteCRMTask(taskId: number) {
+  await assertCRM();
+  await query(`DELETE FROM crm_tasks WHERE id=$1`, [taskId]);
+  revalidatePath("/crm/tasks");
+  return { ok: true };
+}
+
+export async function getTaskCounts() {
+  const session = await assertCRM();
+  const isAdmin = session.role === "admin";
+  const rows = await query<{ overdue: number; due_today: number; upcoming: number }>(
+    `SELECT
+       COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status != 'complete')::int AS overdue,
+       COUNT(*) FILTER (WHERE due_date = CURRENT_DATE AND status != 'complete')::int AS due_today,
+       COUNT(*) FILTER (WHERE due_date > CURRENT_DATE AND status != 'complete')::int AS upcoming
+     FROM crm_tasks
+     ${isAdmin ? "" : `WHERE assigned_to = ${session.id}`}`
+  );
+  return rows[0] ?? { overdue: 0, due_today: 0, upcoming: 0 };
+}
