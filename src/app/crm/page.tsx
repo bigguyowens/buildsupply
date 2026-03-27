@@ -1,4 +1,4 @@
-import { getCRMDashboard } from "@/app/actions/crm";
+import { getCRMDashboard, getOnboardingPipeline } from "@/app/actions/crm";
 import Link from "next/link";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -30,7 +30,10 @@ const ACTIVITY_COLORS: Record<string, string> = {
 };
 
 export default async function CRMDashboard() {
-  const data = await getCRMDashboard();
+  const [data, pipeline] = await Promise.all([
+    getCRMDashboard(),
+    getOnboardingPipeline(),
+  ]);
 
   const kpis = [
     { label: "Total Customers",  value: data.customerCount.toLocaleString(), icon: "👥", delta: null,        color: "#f5c700" },
@@ -181,6 +184,106 @@ export default async function CRMDashboard() {
           )}
         </div>
       </div>
+
+      {/* Onboarding Pipeline */}
+      {(pipeline.customers.length > 0 || pipeline.companies.length > 0) && (
+        <div style={{ marginTop: 24 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase",
+            letterSpacing: "0.08em", color: "#0d0d0d", margin: "0 0 14px" }}>
+            Onboarding In Progress
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+
+            {/* Customer onboarding */}
+            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+              <div style={{ padding: "13px 18px", borderBottom: "1px solid #f1f1f1", background: "#0d0d0d" }}>
+                <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+                  letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>
+                  Customers ({pipeline.customers.length})
+                </h3>
+              </div>
+              <div>
+                {pipeline.customers.map((c, i) => (
+                  <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12,
+                    padding: "11px 16px", borderBottom: i < pipeline.customers.length - 1 ? "1px solid #f9f9f9" : "none" }}>
+                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#f5c700",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 10, fontWeight: 800, color: "#000", flexShrink: 0 }}>
+                      {c.first_name[0]}{c.last_name[0]}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <Link href={`/crm/customers/${c.id}`}
+                        style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d", textDecoration: "none",
+                          display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {c.first_name} {c.last_name}
+                      </Link>
+                      {c.account_manager_name && (
+                        <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{c.account_manager_name}</p>
+                      )}
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <p style={{ fontSize: 14, fontWeight: 900, margin: 0,
+                        color: c.percent >= 80 ? "#22c55e" : c.percent >= 40 ? "#f97316" : "#ef4444" }}>
+                        {c.percent}%
+                      </p>
+                      <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>{c.complete}/{c.total}</p>
+                    </div>
+                    <div style={{ width: 50, height: 4, background: "#f1f1f1", borderRadius: 2, flexShrink: 0 }}>
+                      <div style={{ height: "100%", borderRadius: 2,
+                        width: `${c.percent}%`,
+                        background: c.percent >= 80 ? "#22c55e" : c.percent >= 40 ? "#f97316" : "#ef4444" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Company onboarding */}
+            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+              <div style={{ padding: "13px 18px", borderBottom: "1px solid #f1f1f1", background: "#0d0d0d" }}>
+                <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+                  letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>
+                  Companies ({pipeline.companies.length})
+                </h3>
+              </div>
+              <div>
+                {pipeline.companies.map((c, i) => (
+                  <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12,
+                    padding: "11px 16px", borderBottom: i < pipeline.companies.length - 1 ? "1px solid #f9f9f9" : "none" }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 6, background: "#0d0d0d",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 12, fontWeight: 900, color: "#f5c700", flexShrink: 0 }}>
+                      {c.name[0]}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <Link href={`/crm/companies/${c.id}`}
+                        style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d", textDecoration: "none",
+                          display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {c.name}
+                      </Link>
+                      {c.account_manager_name && (
+                        <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{c.account_manager_name}</p>
+                      )}
+                    </div>
+                    <div style={{ textAlign: "right", flexShrink: 0 }}>
+                      <p style={{ fontSize: 14, fontWeight: 900, margin: 0,
+                        color: c.percent >= 80 ? "#22c55e" : c.percent >= 40 ? "#f97316" : "#ef4444" }}>
+                        {c.percent}%
+                      </p>
+                      <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>{c.complete}/{c.total}</p>
+                    </div>
+                    <div style={{ width: 50, height: 4, background: "#f1f1f1", borderRadius: 2, flexShrink: 0 }}>
+                      <div style={{ height: "100%", borderRadius: 2,
+                        width: `${c.percent}%`,
+                        background: c.percent >= 80 ? "#22c55e" : c.percent >= 40 ? "#f97316" : "#ef4444" }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

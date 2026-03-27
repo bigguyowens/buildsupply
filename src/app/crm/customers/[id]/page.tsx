@@ -1,8 +1,9 @@
-import { getCRMCustomer, getAccountManagers } from "@/app/actions/crm";
+import { getCRMCustomer, getAccountManagers, getOnboarding } from "@/app/actions/crm";
 import { getSession } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { NotesPanel, ActivityFeed, EmailSender, RoleManager, AMAssigner } from "./crm-customer-client";
+import { OnboardingTracker } from "@/components/onboarding-tracker";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
@@ -18,10 +19,11 @@ const STATUS_COLORS: Record<string, { bg: string; color: string }> = {
 
 export default async function CRMCustomerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [data, session, accountManagers] = await Promise.all([
+  const [data, session, accountManagers, onboarding] = await Promise.all([
     getCRMCustomer(Number(id)),
     getSession(),
     getAccountManagers(),
+    getOnboarding("customer", Number(id)),
   ]);
   if (!data) notFound();
 
@@ -210,6 +212,25 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
             currentAMId={(customer as any).account_manager_id ?? null}
             accountManagers={accountManagers}
           />
+
+          {/* Onboarding tracker */}
+          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+            <div style={{ padding: "12px 16px", background: "#0d0d0d",
+              display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+                letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Onboarding</h2>
+              <span style={{ fontSize: 11, color: "#6b6b6b", fontWeight: 600 }}>
+                {onboarding.complete}/{onboarding.total} steps
+              </span>
+            </div>
+            <div style={{ padding: 14 }}>
+              <OnboardingTracker
+                entityType="customer"
+                entityId={customer.id}
+                initialData={onboarding}
+              />
+            </div>
+          </div>
           {/* Email sender */}
           <EmailSender customerId={customer.id} customerEmail={customer.email} customerName={fullName} />
 

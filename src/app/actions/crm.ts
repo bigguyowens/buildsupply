@@ -368,3 +368,126 @@ export async function assignUserToCompany(userId: number, companyId: number | nu
   revalidatePath("/crm/companies");
   return { ok: true };
 }
+
+// ── Onboarding ─────────────────────────────────────────────────────────────
+export type OnboardingStep = {
+  id: number;
+  template_id: number;
+  step_order: number;
+  title: string;
+  description: string | null;
+  required: boolean;
+  status: "pending" | "in_progress" | "complete" | "skipped";
+  note: string | null;
+  completed_at: string | null;
+  completed_by_name: string | null;
+};
+
+export type OnboardingStatus = {
+  total: number;
+  complete: number;
+  required_total: number;
+  required_complete: number;
+  percent: number;
+  steps: OnboardingStep[];
+};
+
+export async function getOnboarding(
+  entityType: "customer" | "company",
+  entityId: number
+): Promise<OnboardingStatus> {
+  await assertCRM();
+  const steps = await query<OnboardingStep>(
+    `SELECT op.id, op.template_id, ot.step_order, ot.title, ot.description, ot.required,
+            op.status, op.note, op.completed_at,
+            u.first_name || ' ' || u.last_name AS completed_by_name
+     FROM onboarding_progress op
+     JOIN onboarding_templates ot ON ot.id = op.template_id
+     LEFT JOIN users u ON u.id = op.completed_by
+     WHERE op.entity_type = $1 AND op.entity_id = $2
+     ORDER BY ot.step_order ASC`,
+    [entityType, entityId]
+  );
+
+  // Auto-provision if missing (new entity)
+  if (!steps.length) {
+    await query(
+      `INSERT INTO onboarding_progress (entity_type, entity_id, template_id)
+       SELECT $1, $2, id FROM onboarding_templates WHERE type = $1
+       ON CONFLICT DO NOTHING`,
+      [entityType, entityId]
+    );
+    return getOnboarding(entityType, entityId);
+  }
+
+  const total            = steps.length;
+  const complete         = steps.filter(s => s.status === "complete").length;
+  const required_total   = steps.filter(s => s.required).length;
+  const required_complete = steps.filter(s => s.required && s.status === "complete").length;
+  const percent          = total > 0 ? Math.round((complete / total) * 100) : 0;
+
+  return { total, complete, required_total, required_complete, percent, steps };
+}
+
+export async function updateOnboardingStep(
+  progressId: number,
+  status: "pending" | "in_progress" | "complete" | "skipped",
+  note?: string
+) {
+  const session = await assertCRM();
+  await query(
+    `UPDATE onboarding_progress
+     SET status=$1, note=COALESCE($2, note),
+         completed_by=CASE WHEN $1='complete' THEN $3 ELSE completed_by END,
+         completed_at=CASE WHEN $1='complete' THEN NOW() ELSE NULL END,
+         updated_at=NOW()
+     WHERE id=$4`,
+    [status, note ?? null, session.id, progressId]
+  );
+  revalidatePath("/crm");
+  return { ok: true };
+}
+
+// ── Onboarding pipeline for dashboard ─────────────────────────────────────
+export async function getOnboardingPipeline() {
+  await assertCRM();
+
+  const customers = await query<{
+    id: number; first_name: string; last_name: string; email: string;
+    total: number; complete: number; percent: number; account_manager_name: string | null;
+  }>(
+    `SELECT u.id, u.first_name, u.last_name, u.email,
+            COUNT(op.id)::int AS total,
+            COUNT(op.id) FILTER (WHERE op.status='complete')::int AS complete,
+            ROUND(COUNT(op.id) FILTER (WHERE op.status='complete') * 100.0 / NULLIF(COUNT(op.id),0))::int AS percent,
+            am.first_name || ' ' || am.last_name AS account_manager_name
+     FROM users u
+     JOIN onboarding_progress op ON op.entity_id = u.id AND op.entity_type = 'customer'
+     LEFT JOIN users am ON am.id = u.account_manager_id
+     WHERE u.role NOT IN ('admin','account_manager')
+     GROUP BY u.id, am.first_name, am.last_name
+     HAVING COUNT(op.id) FILTER (WHERE op.status='complete') < COUNT(op.id)
+     ORDER BY percent DESC
+     LIMIT 8`
+  );
+
+  const companies = await query<{
+    id: number; name: string;
+    total: number; complete: number; percent: number; account_manager_name: string | null;
+  }>(
+    `SELECT c.id, c.name,
+            COUNT(op.id)::int AS total,
+            COUNT(op.id) FILTER (WHERE op.status='complete')::int AS complete,
+            ROUND(COUNT(op.id) FILTER (WHERE op.status='complete') * 100.0 / NULLIF(COUNT(op.id),0))::int AS percent,
+            am.first_name || ' ' || am.last_name AS account_manager_name
+     FROM companies c
+     JOIN onboarding_progress op ON op.entity_id = c.id AND op.entity_type = 'company'
+     LEFT JOIN users am ON am.id = c.account_manager_id
+     GROUP BY c.id, am.first_name, am.last_name
+     HAVING COUNT(op.id) FILTER (WHERE op.status='complete') < COUNT(op.id)
+     ORDER BY percent DESC
+     LIMIT 6`
+  );
+
+  return { customers, companies };
+}

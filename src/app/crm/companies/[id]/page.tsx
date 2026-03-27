@@ -1,7 +1,8 @@
-import { getCRMCompany, getAccountManagers } from "@/app/actions/crm";
+import { getCRMCompany, getAccountManagers, getOnboarding } from "@/app/actions/crm";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { CompanyDetailClient } from "./company-detail-client";
+import { OnboardingTracker } from "@/components/onboarding-tracker";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
@@ -13,9 +14,10 @@ const ROLE_META: Record<string, { label: string; bg: string; color: string }> = 
 
 export default async function CRMCompanyPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [data, accountManagers] = await Promise.all([
+  const [data, accountManagers, onboarding] = await Promise.all([
     getCRMCompany(Number(id)),
     getAccountManagers(),
+    getOnboarding("company", Number(id)),
   ]);
   if (!data) notFound();
   const { company, employees } = data;
@@ -125,12 +127,31 @@ export default async function CRMCompanyPage({ params }: { params: Promise<{ id:
           </table>
         </div>
 
-        {/* Right: Company details + AM assignment */}
+        {/* Right: Company details + AM assignment + Onboarding */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <CompanyDetailClient
             company={company as any}
             accountManagers={accountManagers}
           />
+
+          {/* Onboarding tracker */}
+          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+            <div style={{ padding: "12px 16px", background: "#0d0d0d",
+              display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+                letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Company Onboarding</h2>
+              <span style={{ fontSize: 11, color: "#6b6b6b", fontWeight: 600 }}>
+                {onboarding.complete}/{onboarding.total} steps
+              </span>
+            </div>
+            <div style={{ padding: 14 }}>
+              <OnboardingTracker
+                entityType="company"
+                entityId={company.id}
+                initialData={onboarding}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
