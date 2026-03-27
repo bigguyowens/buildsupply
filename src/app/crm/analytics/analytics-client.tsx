@@ -27,12 +27,13 @@ type AnalyticsData = {
 export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; sessionRole: string }) {
   const { monthlyRevenue, revenueByAM, quotePipeline, topCustomers, winRate } = data;
 
-  const totalRevenue  = monthlyRevenue.reduce((s, m) => s + Number(m.revenue), 0);
-  const totalOrders   = monthlyRevenue.reduce((s, m) => s + m.orders, 0);
-  const acceptedValue = quotePipeline.find(p => p.status === "accepted");
-  const sentValue     = quotePipeline.find(p => p.status === "sent");
-  const winRatePct    = winRate.total > 0
-    ? Math.round((winRate.accepted / (winRate.accepted + winRate.declined)) * 100) : 0;
+  const totalRevenue  = (monthlyRevenue ?? []).reduce((s, m) => s + Number(m.revenue), 0);
+  const totalOrders   = (monthlyRevenue ?? []).reduce((s, m) => s + m.orders, 0);
+  const acceptedValue = (quotePipeline ?? []).find(p => p.status === "accepted");
+  const sentValue     = (quotePipeline ?? []).find(p => p.status === "sent");
+  const safeWinRate   = winRate ?? { total: 0, accepted: 0, declined: 0, pending: 0 };
+  const winRatePct    = (safeWinRate.accepted + safeWinRate.declined) > 0
+    ? Math.round((safeWinRate.accepted / (safeWinRate.accepted + safeWinRate.declined)) * 100) : 0;
 
   const showAMs = ["admin", "manager"].includes(sessionRole);
 
@@ -152,7 +153,7 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
             border: "1px solid #fde68a", borderRadius: 8,
             display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ fontSize: 13, fontWeight: 700, color: "#92400e" }}>
-              Win Rate ({winRate.accepted}W / {winRate.declined}L)
+              Win Rate ({safeWinRate.accepted}W / {safeWinRate.declined}L)
             </span>
             <span style={{ fontSize: 20, fontWeight: 900, color: "#f5c700" }}>{winRatePct}%</span>
           </div>
