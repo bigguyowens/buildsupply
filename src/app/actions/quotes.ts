@@ -4,6 +4,7 @@ import { query } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { sendQuoteReady } from "@/lib/email";
+import { createQuoteFollowUpTasks } from "@/app/actions/quote-tasks";
 
 export type QuoteItemInput = {
   product_id: string;
@@ -85,6 +86,24 @@ export async function sendQuoteAction(quoteId: number): Promise<{ success: boole
         expiresAt: expires_at ?? undefined,
         total,
       }).catch(err => console.error("Quote ready email failed:", err));
+
+      // Auto-create follow-up tasks if the quote has an expiration date
+      if (expires_at) {
+        const customerRows = await query<{ id: number; first_name: string; last_name: string }>(
+          `SELECT u.id, u.first_name, u.last_name FROM quotes q JOIN users u ON u.id = q.customer_id WHERE q.id = $1`,
+          [quoteId]
+        );
+        if (customerRows.length) {
+          const c = customerRows[0];
+          createQuoteFollowUpTasks(
+            quoteId,
+            expires_at,
+            c.id,
+            `${c.first_name} ${c.last_name}`,
+            session.id
+          ).catch((err: unknown) => console.error("Quote follow-up tasks failed:", err));
+        }
+      }
     }
 
     revalidatePath("/admin/quotes");

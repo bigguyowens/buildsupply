@@ -3,6 +3,7 @@ import { query } from "@/lib/db";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ProductImage } from "@/components/product-image";
+import { getCRMTasks } from "@/app/actions/crm";
 
 const fmt     = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
@@ -58,6 +59,10 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
     `SELECT * FROM quote_items WHERE quote_id=$1 ORDER BY id`,
     [quote.id]
   );
+
+  // Fetch auto-generated follow-up tasks for this quote
+  const allTasks = await getCRMTasks({ entityType: "customer", entityId: quote.customer_id }).catch(() => []);
+  const followUpTasks = allTasks.filter(t => t.title.includes(`#${quote.id}`));
 
   const listTotal   = items.reduce((s, i) => s + Number(i.original_price) * i.quantity, 0);
   const quotedTotal = items.reduce((s, i) => s + Number(i.quoted_price)   * i.quantity, 0);
@@ -304,6 +309,71 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
               </div>
             ))}
           </div>
+
+          {/* Follow-up tasks */}
+          {followUpTasks.length > 0 && (
+            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+              <div style={{ padding: "12px 16px", background: "#0d0d0d",
+                display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+                  letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Auto Follow-up Tasks</h2>
+                <span style={{ fontSize: 11, color: "#6b6b6b", fontWeight: 600 }}>
+                  {followUpTasks.filter(t => t.status === "complete").length}/{followUpTasks.length} done
+                </span>
+              </div>
+              <div>
+                {followUpTasks
+                  .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""))
+                  .map((t, i) => {
+                    const isComplete = t.status === "complete";
+                    const isOverdue  = t.due_date && t.due_date < new Date().toISOString().split("T")[0] && !isComplete;
+                    return (
+                      <div key={t.id} style={{
+                        display: "flex", alignItems: "center", gap: 10,
+                        padding: "10px 14px",
+                        borderBottom: i < followUpTasks.length - 1 ? "1px solid #f5f5f5" : "none",
+                        opacity: isComplete ? 0.5 : 1,
+                      }}>
+                        <div style={{
+                          width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                          background: isComplete ? "#22c55e" : isOverdue ? "#ef4444" : "#f5c700",
+                        }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 12, fontWeight: 600, color: "#0d0d0d", margin: 0,
+                            textDecoration: isComplete ? "line-through" : "none",
+                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {t.title.replace(`Quote #${quote.id} — `, "")}
+                          </p>
+                          {t.due_date && (
+                            <p style={{ fontSize: 11, margin: 0,
+                              color: isOverdue ? "#ef4444" : "#9ca3af", fontWeight: isOverdue ? 700 : 400 }}>
+                              {isOverdue ? "⚠ " : ""}
+                              {new Date(t.due_date + "T00:00:00").toLocaleDateString("en-US",
+                                { month: "short", day: "numeric", year: "numeric" })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+              <div style={{ padding: "10px 14px", background: "#f9f9f9", borderTop: "1px solid #f1f1f1" }}>
+                <Link href="/crm/tasks" style={{ fontSize: 12, color: "#f5c700",
+                  fontWeight: 700, textDecoration: "none" }}>
+                  Manage all tasks →
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {!followUpTasks.length && quote.expires_at && quote.status === "sent" && (
+            <div style={{ background: "#f9f9f9", borderRadius: 10, padding: "14px 16px",
+              border: "1px dashed #e5e5e5", textAlign: "center" }}>
+              <p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>
+                No auto-tasks generated — quote may have been sent before expiry was set.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
