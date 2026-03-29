@@ -518,17 +518,31 @@ export async function getCRMTasks(filters?: {
   status?: string;
 }): Promise<CRMTask[]> {
   const session = await assertCRM();
-  const isAdmin = session.role === "admin";
+  const isAdmin   = session.role === "admin";
+  const isManager = session.role === "manager";
 
   const conditions: string[] = [];
   const vals: unknown[] = [];
   let n = 1;
 
-  // AMs only see their own tasks
-  if (!isAdmin) {
+  if (isAdmin) {
+    // Admins see all tasks — no scoping unless explicitly filtered
+  } else if (isManager) {
+    // Managers see tasks assigned to themselves or their AMs
+    // Unless a specific assignedTo filter is passed
+    if (!filters?.assignedTo) {
+      conditions.push(`t.assigned_to IN (
+        SELECT id FROM users WHERE id = $${n} OR manager_id = $${n}
+      )`);
+      vals.push(session.id);
+      n++;
+    }
+  } else {
+    // AMs only see their own tasks
     conditions.push(`t.assigned_to = $${n++}`);
     vals.push(session.id);
   }
+
   if (filters?.entityType) { conditions.push(`t.entity_type = $${n++}`); vals.push(filters.entityType); }
   if (filters?.entityId)   { conditions.push(`t.entity_id   = $${n++}`); vals.push(filters.entityId); }
   if (filters?.assignedTo) { conditions.push(`t.assigned_to = $${n++}`); vals.push(filters.assignedTo); }
@@ -548,6 +562,27 @@ export async function getCRMTasks(filters?: {
        t.priority DESC`,
     vals
   );
+}
+
+// Staff list for filtering tasks (admin sees all AMs, manager sees their team)
+export async function getTaskStaff(): Promise<{ id: number; first_name: string; last_name: string; role: string }[]> {
+  const session = await assertCRM();
+  if (session.role === "admin") {
+    return query(
+      `SELECT id, first_name, last_name, role FROM users
+       WHERE role IN ('admin','manager','account_manager')
+       ORDER BY role ASC, first_name ASC`
+    );
+  }
+  if (session.role === "manager") {
+    return query(
+      `SELECT id, first_name, last_name, role FROM users
+       WHERE id = $1 OR manager_id = $1
+       ORDER BY role ASC, first_name ASC`,
+      [session.id]
+    );
+  }
+  return [];
 }
 
 export async function createCRMTask(data: {
@@ -626,14 +661,21 @@ export async function deleteCRMTask(taskId: number) {
 
 export async function getTaskCounts() {
   const session = await assertCRM();
-  const isAdmin = session.role === "admin";
+  const isAdmin   = session.role === "admin";
+  const isManager = session.role === "manager";
+
+  const scopeWhere = isAdmin
+    ? ""
+    : isManager
+      ? `WHERE assigned_to IN (SELECT id FROM users WHERE id = ${session.id} OR manager_id = ${session.id})`
+      : `WHERE assigned_to = ${session.id}`;
+
   const rows = await query<{ overdue: number; due_today: number; upcoming: number }>(
     `SELECT
        COUNT(*) FILTER (WHERE due_date < CURRENT_DATE AND status != 'complete')::int AS overdue,
        COUNT(*) FILTER (WHERE due_date = CURRENT_DATE AND status != 'complete')::int AS due_today,
        COUNT(*) FILTER (WHERE due_date > CURRENT_DATE AND status != 'complete')::int AS upcoming
-     FROM crm_tasks
-     ${isAdmin ? "" : `WHERE assigned_to = ${session.id}`}`
+     FROM crm_tasks ${scopeWhere}`
   );
   return rows[0] ?? { overdue: 0, due_today: 0, upcoming: 0 };
 }

@@ -8,6 +8,7 @@ import type { CRMTask } from "@/app/actions/crm";
 type AM = { id: number; first_name: string; last_name: string; email: string };
 type Customer = { id: number; first_name: string; last_name: string; email: string };
 type Company  = { id: number; name: string };
+type StaffMember = { id: number; first_name: string; last_name: string; role: string };
 
 const TYPE_META: Record<string, { label: string; icon: string; color: string }> = {
   call:       { label: "Call",       icon: "📞", color: "#3b82f6" },
@@ -35,7 +36,7 @@ function isOverdue(d: string | null) {
   return d < new Date().toISOString().split("T")[0];
 }
 
-export function TasksClient({ overdue, dueToday, upcoming, completed, accountManagers, customers, companies, sessionId, isAdmin }: {
+export function TasksClient({ overdue, dueToday, upcoming, completed, accountManagers, customers, companies, staff, sessionId, sessionRole, isAdmin }: {
   overdue: CRMTask[];
   dueToday: CRMTask[];
   upcoming: CRMTask[];
@@ -43,25 +44,41 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
   accountManagers: AM[];
   customers: Customer[];
   companies: Company[];
+  staff: StaffMember[];
   sessionId: number;
+  sessionRole: string;
   isAdmin: boolean;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [filterStaffId, setFilterStaffId] = useState<number | "all" | "mine">("all");
 
-  const total = overdue.length + dueToday.length + upcoming.length;
+  const canFilter = isAdmin || sessionRole === "manager";
+
+  // Apply staff filter client-side
+  function applyFilter(tasks: CRMTask[]) {
+    if (!canFilter || filterStaffId === "all") return tasks;
+    const targetId = filterStaffId === "mine" ? sessionId : filterStaffId;
+    return tasks.filter(t => t.assigned_to === targetId);
+  }
+
+  const filteredOverdue   = applyFilter(overdue);
+  const filteredDueToday  = applyFilter(dueToday);
+  const filteredUpcoming  = applyFilter(upcoming);
+  const filteredCompleted = applyFilter(completed);
+  const total = filteredOverdue.length + filteredDueToday.length + filteredUpcoming.length;
 
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
             Tasks & Follow-ups
           </h1>
           <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
-            {overdue.length > 0 && <span style={{ color: "#ef4444", fontWeight: 700 }}>{overdue.length} overdue · </span>}
-            {dueToday.length} due today · {upcoming.length} upcoming
+            {filteredOverdue.length > 0 && <span style={{ color: "#ef4444", fontWeight: 700 }}>{filteredOverdue.length} overdue · </span>}
+            {filteredDueToday.length} due today · {filteredUpcoming.length} upcoming
           </p>
         </div>
         <button onClick={() => setShowForm(true)} style={{
@@ -71,13 +88,62 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
         }}>+ New Task</button>
       </div>
 
+      {/* Staff filter bar — admin and manager only */}
+      {canFilter && staff.length > 0 && (
+        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+          padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+            letterSpacing: "0.08em", color: "#9ca3af", marginRight: 4 }}>View:</span>
+
+          {/* All Tasks */}
+          <button onClick={() => setFilterStaffId("all")} style={{
+            padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer",
+            border: `2px solid ${filterStaffId === "all" ? "#0d0d0d" : "#e5e5e5"}`,
+            background: filterStaffId === "all" ? "#0d0d0d" : "#fff",
+            color: filterStaffId === "all" ? "#f5c700" : "#6b7280",
+          }}>All Tasks</button>
+
+          {/* My Tasks */}
+          <button onClick={() => setFilterStaffId("mine")} style={{
+            padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer",
+            border: `2px solid ${filterStaffId === "mine" ? "#f5c700" : "#e5e5e5"}`,
+            background: filterStaffId === "mine" ? "#fffbeb" : "#fff",
+            color: filterStaffId === "mine" ? "#92400e" : "#6b7280",
+          }}>⭐ My Tasks</button>
+
+          {/* Separator */}
+          <div style={{ width: 1, height: 20, background: "#e5e5e5", margin: "0 4px" }} />
+
+          {/* Individual staff buttons */}
+          {staff.filter(s => s.id !== sessionId).map(s => {
+            const active = filterStaffId === s.id;
+            return (
+              <button key={s.id} onClick={() => setFilterStaffId(active ? "all" : s.id)} style={{
+                padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer",
+                border: `2px solid ${active ? "#3b82f6" : "#e5e5e5"}`,
+                background: active ? "#eff6ff" : "#fff",
+                color: active ? "#1e40af" : "#6b7280",
+                display: "flex", alignItems: "center", gap: 6,
+              }}>
+                <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#f5c700",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 8, fontWeight: 900, color: "#000", flexShrink: 0 }}>
+                  {s.first_name[0]}{s.last_name[0]}
+                </span>
+                {s.first_name} {s.last_name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* KPI strip */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
         {[
-          { label: "Overdue",   value: overdue.length,   color: "#ef4444", border: "#ef4444" },
-          { label: "Due Today", value: dueToday.length,  color: "#f97316", border: "#f97316" },
-          { label: "Upcoming",  value: upcoming.length,  color: "#3b82f6", border: "#3b82f6" },
-          { label: "Completed", value: completed.length, color: "#22c55e", border: "#22c55e" },
+          { label: "Overdue",   value: filteredOverdue.length,   color: "#ef4444", border: "#ef4444" },
+          { label: "Due Today", value: filteredDueToday.length,  color: "#f97316", border: "#f97316" },
+          { label: "Upcoming",  value: filteredUpcoming.length,  color: "#3b82f6", border: "#3b82f6" },
+          { label: "Completed", value: filteredCompleted.length, color: "#22c55e", border: "#22c55e" },
         ].map(k => (
           <div key={k.label} style={{ background: "#fff", borderRadius: 10, padding: "14px 18px",
             border: "1px solid #e5e5e5", borderTop: `3px solid ${k.border}` }}>
@@ -89,16 +155,16 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
       </div>
 
       {/* Task groups */}
-      {overdue.length > 0 && (
-        <TaskGroup title="⚠️ Overdue" tasks={overdue} headerBg="#fef2f2"
+      {filteredOverdue.length > 0 && (
+        <TaskGroup title="⚠️ Overdue" tasks={filteredOverdue} headerBg="#fef2f2"
           headerColor="#991b1b" accountManagers={accountManagers} isAdmin={isAdmin} />
       )}
-      {dueToday.length > 0 && (
-        <TaskGroup title="📅 Due Today" tasks={dueToday} headerBg="#fff7ed"
+      {filteredDueToday.length > 0 && (
+        <TaskGroup title="📅 Due Today" tasks={filteredDueToday} headerBg="#fff7ed"
           headerColor="#c2410c" accountManagers={accountManagers} isAdmin={isAdmin} />
       )}
-      {upcoming.length > 0 && (
-        <TaskGroup title="🔜 Upcoming" tasks={upcoming} headerBg="#f0f9ff"
+      {filteredUpcoming.length > 0 && (
+        <TaskGroup title="🔜 Upcoming" tasks={filteredUpcoming} headerBg="#f0f9ff"
           headerColor="#0369a1" accountManagers={accountManagers} isAdmin={isAdmin} />
       )}
       {total === 0 && (
@@ -111,17 +177,17 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
       )}
 
       {/* Completed toggle */}
-      {completed.length > 0 && (
+      {filteredCompleted.length > 0 && (
         <div style={{ marginTop: 16 }}>
           <button onClick={() => setShowCompleted(v => !v)} style={{
             background: "none", border: "none", cursor: "pointer",
             fontSize: 13, fontWeight: 700, color: "#9ca3af", padding: "8px 0",
             display: "flex", alignItems: "center", gap: 6,
           }}>
-            {showCompleted ? "▼" : "▶"} Recently Completed ({completed.length})
+            {showCompleted ? "▼" : "▶"} Recently Completed ({filteredCompleted.length})
           </button>
           {showCompleted && (
-            <TaskGroup title="" tasks={completed} headerBg="#f9f9f9"
+            <TaskGroup title="" tasks={filteredCompleted} headerBg="#f9f9f9"
               headerColor="#9ca3af" accountManagers={accountManagers} isAdmin={isAdmin} hideHeader />
           )}
         </div>
@@ -134,7 +200,7 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
           customers={customers}
           companies={companies}
           sessionId={sessionId}
-          isAdmin={isAdmin}
+          isAdmin={isAdmin || sessionRole === "manager"}
           onClose={() => setShowForm(false)}
         />
       )}
