@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import type { CRMCustomer, CRMStaff } from "@/app/actions/crm";
+import type { CustomerWithHealth, CRMStaff } from "@/app/actions/crm";
 import { updateUserRole } from "@/app/actions/crm";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -26,7 +26,7 @@ const ROLE_META: Record<string, { label: string; bg: string; color: string }> = 
 type Tab = "customers" | "staff";
 
 export function CustomersClient({ customers, staff }: {
-  customers: CRMCustomer[];
+  customers: CustomerWithHealth[];
   staff: CRMStaff[];
 }) {
   const [tab, setTab] = useState<Tab>("customers");
@@ -103,13 +103,13 @@ export function CustomersClient({ customers, staff }: {
   );
 }
 
-function CustomersTable({ customers }: { customers: CRMCustomer[] }) {
+function CustomersTable({ customers }: { customers: CustomerWithHealth[] }) {
   return (
     <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
         <thead>
           <tr style={{ background: "#0d0d0d" }}>
-            {["Customer", "Email", "Account Manager", "Orders", "Total Spent", "Open Quotes", "Last Activity", ""].map(h => (
+            {["Customer", "Health", "Account Manager", "Orders", "Total Spent", "Open Quotes", "Last Activity", ""].map(h => (
               <th key={h} style={{ padding: "11px 16px", textAlign: "left", fontSize: 10,
                 fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em", color: "#f5c700" }}>{h}</th>
             ))}
@@ -137,7 +137,17 @@ function CustomersTable({ customers }: { customers: CRMCustomer[] }) {
                   </Link>
                 </div>
               </td>
-              <td style={{ padding: "12px 16px", color: "#6b7280" }}>{c.email}</td>
+              <td style={{ padding: "12px 16px" }}>
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 800,
+                  background: c.bg, color: c.color,
+                }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%",
+                    background: c.color, flexShrink: 0 }} />
+                  {c.label} · {c.score}
+                </span>
+              </td>
               <td style={{ padding: "12px 16px" }}>
                 {c.account_manager_name ? (
                   <span style={{ fontSize: 12, fontWeight: 600, color: "#0d0d0d",

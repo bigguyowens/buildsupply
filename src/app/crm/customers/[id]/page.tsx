@@ -1,4 +1,4 @@
-import { getCRMCustomer, getAccountManagers, getOnboarding, getCRMTasks } from "@/app/actions/crm";
+import { getCRMCustomer, getAccountManagers, getOnboarding, getCRMTasks, getCustomerHealth } from "@/app/actions/crm";
 import { getSession } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -9,12 +9,13 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", c
 
 export default async function CRMCustomerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [data, session, accountManagers, onboarding, tasks] = await Promise.all([
+  const [data, session, accountManagers, onboarding, tasks, health] = await Promise.all([
     getCRMCustomer(Number(id)),
     getSession(),
     getAccountManagers(),
     getOnboarding("customer", Number(id)),
     getCRMTasks({ entityType: "customer", entityId: Number(id) }),
+    getCustomerHealth(Number(id)),
   ]);
   if (!data) notFound();
 
@@ -44,7 +45,18 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
           <div>
             <h1 style={{ color: "#fff", fontSize: 20, fontWeight: 900, margin: "0 0 2px",
               letterSpacing: "-0.02em" }}>{fullName}</h1>
-            <p style={{ color: "#6b6b6b", fontSize: 13, margin: 0 }}>{customer.email}</p>
+            <p style={{ color: "#6b6b6b", fontSize: 13, margin: "0 0 6px" }}>{customer.email}</p>
+            {health && (
+              <span style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                padding: "3px 10px", borderRadius: 20, fontSize: 11, fontWeight: 800,
+                background: health.bg, color: health.color,
+              }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%",
+                  background: health.color, flexShrink: 0 }} />
+                {health.label} · {health.score}/100
+              </span>
+            )}
           </div>
         </div>
         <div style={{ display: "flex", gap: 24 }}>

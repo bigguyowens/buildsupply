@@ -857,3 +857,267 @@ export async function getAMPerformance(): Promise<AMPerformance[]> {
 
   return rows;
 }
+
+// ── Customer Health Score ─────────────────────────────────────────────────
+export type HealthScore = {
+  score: number;
+  label: "Healthy" | "At Risk" | "Needs Attention" | "New";
+  color: string;
+  bg: string;
+  breakdown: {
+    recency: number;
+    frequency: number;
+    spend: number;
+    onboarding: number;
+    engagement: number;
+    quotes: number;
+  };
+};
+
+export type CustomerWithHealth = CRMCustomer & HealthScore;
+
+function calcHealth(row: {
+  order_count: number;
+  total_spent: number;
+  last_order_days: number | null;
+  last_activity_days: number | null;
+  onboarding_pct: number;
+  note_count: number;
+  accepted_quotes: number;
+  avg_spend: number;
+}): HealthScore {
+  // Recency (25 pts)
+  const recency =
+    row.last_order_days === null ? 0 :
+    row.last_order_days <= 30   ? 25 :
+    row.last_order_days <= 60   ? 18 :
+    row.last_order_days <= 90   ? 10 : 3;
+
+  // Frequency (20 pts)
+  const frequency =
+    row.order_count >= 5 ? 20 :
+    row.order_count >= 3 ? 14 :
+    row.order_count >= 1 ? 8  : 0;
+
+  // Spend vs avg (20 pts)
+  const spendRatio = row.avg_spend > 0 ? Number(row.total_spent) / row.avg_spend : 0;
+  const spend = Math.min(20, Math.round(spendRatio * 10));
+
+  // Onboarding (15 pts)
+  const onboarding = Math.round(row.onboarding_pct * 0.15);
+
+  // Engagement (10 pts)
+  const engageDays = row.last_activity_days ?? 999;
+  const engagement =
+    engageDays <= 14  ? 10 :
+    engageDays <= 30  ? 7  :
+    engageDays <= 60  ? 4  :
+    row.note_count > 0 ? 2 : 0;
+
+  // Quotes (10 pts)
+  const quotes = row.accepted_quotes > 0 ? 10 : 0;
+
+  const score = Math.min(100, recency + frequency + spend + onboarding + engagement + quotes);
+
+  // Label + colors
+  const isNew = row.order_count === 0 && (row.last_activity_days ?? 999) > 30;
+  const label: HealthScore["label"] =
+    isNew ? "New" :
+    score >= 75 ? "Healthy" :
+    score >= 40 ? "At Risk" : "Needs Attention";
+
+  const colors: Record<HealthScore["label"], { color: string; bg: string }> = {
+    "Healthy":          { color: "#15803d", bg: "#dcfce7" },
+    "At Risk":          { color: "#92400e", bg: "#fef3c7" },
+    "Needs Attention":  { color: "#991b1b", bg: "#fee2e2" },
+    "New":              { color: "#1e40af", bg: "#dbeafe" },
+  };
+
+  return {
+    score,
+    label,
+    color: colors[label].color,
+    bg: colors[label].bg,
+    breakdown: { recency, frequency, spend, onboarding, engagement, quotes },
+  };
+}
+
+export async function getCustomersWithHealth(): Promise<CustomerWithHealth[]> {
+  await assertCRM();
+
+  const avgSpendRow = await query<{ avg: number }>(
+    `SELECT COALESCE(AVG(total),0)::numeric AS avg FROM orders WHERE status != 'cancelled'`
+  );
+  const avgSpend = Number(avgSpendRow[0]?.avg ?? 0);
+
+  const rows = await query<{
+    id: number; first_name: string; last_name: string; email: string;
+    role: string; created_at: string;
+    order_count: number; total_spent: number;
+    last_order_at: string | null; last_activity_at: string | null;
+    open_quotes: number; note_count: number;
+    account_manager_name: string | null; account_manager_id: number | null;
+    last_order_days: number | null; last_activity_days: number | null;
+    onboarding_pct: number; accepted_quotes: number;
+  }>(
+    `SELECT u.id, u.first_name, u.last_name, u.email, u.role, u.created_at,
+            COUNT(DISTINCT o.id)::int AS order_count,
+            COALESCE(SUM(o.total) FILTER (WHERE o.status != 'cancelled'),0)::numeric AS total_spent,
+            MAX(o.created_at) AS last_order_at,
+            MAX(a.created_at) AS last_activity_at,
+            COUNT(DISTINCT q.id) FILTER (WHERE q.status = 'sent')::int AS open_quotes,
+            COUNT(DISTINCT n.id)::int AS note_count,
+            am.first_name || ' ' || am.last_name AS account_manager_name,
+            u.account_manager_id,
+            EXTRACT(DAY FROM NOW() - MAX(o.created_at))::int AS last_order_days,
+            EXTRACT(DAY FROM NOW() - MAX(a.created_at))::int AS last_activity_days,
+            COALESCE(
+              (SELECT COUNT(*) FILTER (WHERE op.status='complete') * 100.0 / NULLIF(COUNT(*),0)
+               FROM onboarding_progress op WHERE op.entity_type='customer' AND op.entity_id=u.id)
+            ,0)::int AS onboarding_pct,
+            COUNT(DISTINCT q2.id) FILTER (WHERE q2.status='accepted')::int AS accepted_quotes
+     FROM users u
+     LEFT JOIN orders o ON o.user_id = u.id
+     LEFT JOIN quotes q ON q.customer_id = u.id
+     LEFT JOIN quotes q2 ON q2.customer_id = u.id
+     LEFT JOIN crm_activities a ON a.customer_id = u.id
+     LEFT JOIN crm_notes n ON n.customer_id = u.id
+     LEFT JOIN users am ON am.id = u.account_manager_id
+     WHERE u.role NOT IN ('admin','account_manager','manager')
+     GROUP BY u.id, am.first_name, am.last_name
+     ORDER BY u.first_name ASC`
+  );
+
+  return rows.map(row => ({
+    ...row,
+    ...calcHealth({ ...row, avg_spend: avgSpend }),
+  }));
+}
+
+export async function getHealthSummary() {
+  await assertCRM();
+  const customers = await getCustomersWithHealth();
+  return {
+    healthy:          customers.filter(c => c.label === "Healthy").length,
+    atRisk:           customers.filter(c => c.label === "At Risk").length,
+    needsAttention:   customers.filter(c => c.label === "Needs Attention").length,
+    new:              customers.filter(c => c.label === "New").length,
+    total:            customers.length,
+    avgScore:         customers.length > 0
+                        ? Math.round(customers.reduce((s, c) => s + c.score, 0) / customers.length)
+                        : 0,
+  };
+}
+
+// ── Enhanced dashboard data ────────────────────────────────────────────────
+export async function getCRMDashboardEnhanced() {
+  await assertCRM();
+
+  const [
+    base,
+    healthSummary,
+    revenueSparkline,
+    topCustomers,
+    quoteStats,
+    recentTasks,
+  ] = await Promise.all([
+    getCRMDashboard(),
+    getHealthSummary(),
+
+    // 6-month revenue sparkline
+    query<{ month: string; revenue: number }>(`
+      SELECT TO_CHAR(gs.m, 'Mon') AS month,
+             COALESCE(SUM(o.total),0)::numeric AS revenue
+      FROM generate_series(
+        DATE_TRUNC('month', NOW() - INTERVAL '5 months'),
+        DATE_TRUNC('month', NOW()),
+        '1 month'
+      ) AS gs(m)
+      LEFT JOIN orders o ON DATE_TRUNC('month', o.created_at) = gs.m
+        AND o.status != 'cancelled'
+      GROUP BY gs.m ORDER BY gs.m ASC
+    `),
+
+    // Top 5 customers by revenue
+    query<{ id: number; first_name: string; last_name: string; revenue: number; order_count: number }>(`
+      SELECT u.id, u.first_name, u.last_name,
+             COALESCE(SUM(o.total),0)::numeric AS revenue,
+             COUNT(o.id)::int AS order_count
+      FROM users u
+      LEFT JOIN orders o ON o.user_id = u.id AND o.status != 'cancelled'
+      WHERE u.role NOT IN ('admin','account_manager','manager')
+      GROUP BY u.id ORDER BY revenue DESC LIMIT 5
+    `),
+
+    // Quote win rate
+    query<{ total: number; accepted: number; pending: number }>(`
+      SELECT COUNT(*)::int AS total,
+             COUNT(*) FILTER (WHERE status='accepted')::int AS accepted,
+             COUNT(*) FILTER (WHERE status='sent')::int AS pending
+      FROM quotes WHERE status != 'draft'
+    `),
+
+    // Upcoming/overdue tasks (next 3)
+    query<{ id: number; title: string; due_date: string; type: string; entity_name: string | null; assigned_name: string | null }>(`
+      SELECT t.id, t.title, t.due_date, t.type, t.entity_name,
+             u.first_name || ' ' || u.last_name AS assigned_name
+      FROM crm_tasks t
+      LEFT JOIN users u ON u.id = t.assigned_to
+      WHERE t.status != 'complete'
+      ORDER BY t.due_date ASC NULLS LAST
+      LIMIT 3
+    `),
+  ]);
+
+  const qs = quoteStats[0] ?? { total: 0, accepted: 0, pending: 0 };
+  const winRate = qs.total > 0 ? Math.round((qs.accepted / qs.total) * 100) : 0;
+
+  return {
+    ...base,
+    healthSummary,
+    revenueSparkline,
+    topCustomers,
+    winRate,
+    openQuotes: qs.pending,
+    recentTasks,
+  };
+}
+
+// ── Single customer health score ───────────────────────────────────────────
+export async function getCustomerHealth(customerId: number): Promise<HealthScore | null> {
+  await assertCRM();
+
+  const avgSpendRow = await query<{ avg: number }>(
+    `SELECT COALESCE(AVG(total),0)::numeric AS avg FROM orders WHERE status != 'cancelled'`
+  );
+  const avgSpend = Number(avgSpendRow[0]?.avg ?? 0);
+
+  const rows = await query<{
+    order_count: number; total_spent: number;
+    last_order_days: number | null; last_activity_days: number | null;
+    onboarding_pct: number; note_count: number; accepted_quotes: number;
+  }>(
+    `SELECT
+       COUNT(DISTINCT o.id)::int AS order_count,
+       COALESCE(SUM(o.total) FILTER (WHERE o.status != 'cancelled'),0)::numeric AS total_spent,
+       EXTRACT(DAY FROM NOW() - MAX(o.created_at))::int AS last_order_days,
+       EXTRACT(DAY FROM NOW() - MAX(a.created_at))::int AS last_activity_days,
+       COALESCE(
+         (SELECT COUNT(*) FILTER (WHERE op.status='complete') * 100.0 / NULLIF(COUNT(*),0)
+          FROM onboarding_progress op WHERE op.entity_type='customer' AND op.entity_id=$1)
+       ,0)::int AS onboarding_pct,
+       COUNT(DISTINCT n.id)::int AS note_count,
+       COUNT(DISTINCT q.id) FILTER (WHERE q.status='accepted')::int AS accepted_quotes
+     FROM users u
+     LEFT JOIN orders o ON o.user_id = u.id
+     LEFT JOIN crm_activities a ON a.customer_id = u.id
+     LEFT JOIN crm_notes n ON n.customer_id = u.id
+     LEFT JOIN quotes q ON q.customer_id = u.id
+     WHERE u.id = $1
+     GROUP BY u.id`,
+    [customerId]
+  );
+
+  if (!rows.length) return null;
+  return calcHealth({ ...rows[0], avg_spend: avgSpend });
+}
