@@ -1,6 +1,7 @@
 "use server";
 
 import { query } from "@/lib/db";
+import { getHealthScoreConfig, type HealthScoreConfig } from "@/app/actions/health-config";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
@@ -885,52 +886,53 @@ function calcHealth(row: {
   note_count: number;
   accepted_quotes: number;
   avg_spend: number;
-}): HealthScore {
-  // Recency (25 pts)
+}, cfg: HealthScoreConfig): HealthScore {
+  // Recency
   const recency =
-    row.last_order_days === null ? 0 :
-    row.last_order_days <= 30   ? 25 :
-    row.last_order_days <= 60   ? 18 :
-    row.last_order_days <= 90   ? 10 : 3;
+    row.last_order_days === null          ? 0 :
+    row.last_order_days <= cfg.recency_great ? cfg.recency_pts_great :
+    row.last_order_days <= cfg.recency_good  ? cfg.recency_pts_good  :
+    row.last_order_days <= cfg.recency_ok    ? cfg.recency_pts_ok    :
+    cfg.recency_pts_stale;
 
-  // Frequency (20 pts)
+  // Frequency
   const frequency =
-    row.order_count >= 5 ? 20 :
-    row.order_count >= 3 ? 14 :
-    row.order_count >= 1 ? 8  : 0;
+    row.order_count >= cfg.freq_high ? cfg.freq_pts_high :
+    row.order_count >= cfg.freq_mid  ? cfg.freq_pts_mid  :
+    row.order_count >= cfg.freq_low  ? cfg.freq_pts_low  : 0;
 
-  // Spend vs avg (20 pts)
-  const spendRatio = row.avg_spend > 0 ? Number(row.total_spent) / row.avg_spend : 0;
-  const spend = Math.min(20, Math.round(spendRatio * 10));
+  // Spend vs avg
+  const spendRatio = cfg.pts_spend > 0 && row.avg_spend > 0
+    ? Number(row.total_spent) / row.avg_spend : 0;
+  const spend = Math.min(cfg.pts_spend, Math.round(spendRatio * (cfg.pts_spend / 2)));
 
-  // Onboarding (15 pts)
-  const onboarding = Math.round(row.onboarding_pct * 0.15);
+  // Onboarding
+  const onboarding = Math.round(row.onboarding_pct * (cfg.pts_onboarding / 100));
 
-  // Engagement (10 pts)
+  // Engagement
   const engageDays = row.last_activity_days ?? 999;
   const engagement =
-    engageDays <= 14  ? 10 :
-    engageDays <= 30  ? 7  :
-    engageDays <= 60  ? 4  :
-    row.note_count > 0 ? 2 : 0;
+    engageDays <= cfg.engage_great ? cfg.engage_pts_great :
+    engageDays <= cfg.engage_good  ? cfg.engage_pts_good  :
+    engageDays <= cfg.engage_ok    ? cfg.engage_pts_ok    :
+    row.note_count > 0 ? cfg.engage_pts_note : 0;
 
-  // Quotes (10 pts)
-  const quotes = row.accepted_quotes > 0 ? 10 : 0;
+  // Quotes
+  const quotes = row.accepted_quotes > 0 ? cfg.pts_quotes : 0;
 
   const score = Math.min(100, recency + frequency + spend + onboarding + engagement + quotes);
 
-  // Label + colors
   const isNew = row.order_count === 0 && (row.last_activity_days ?? 999) > 30;
   const label: HealthScore["label"] =
-    isNew ? "New" :
-    score >= 75 ? "Healthy" :
-    score >= 40 ? "At Risk" : "Needs Attention";
+    isNew                         ? "New" :
+    score >= cfg.threshold_healthy ? "Healthy" :
+    score >= cfg.threshold_at_risk ? "At Risk" : "Needs Attention";
 
   const colors: Record<HealthScore["label"], { color: string; bg: string }> = {
-    "Healthy":          { color: "#15803d", bg: "#dcfce7" },
-    "At Risk":          { color: "#92400e", bg: "#fef3c7" },
-    "Needs Attention":  { color: "#991b1b", bg: "#fee2e2" },
-    "New":              { color: "#1e40af", bg: "#dbeafe" },
+    "Healthy":         { color: "#15803d", bg: "#dcfce7" },
+    "At Risk":         { color: "#92400e", bg: "#fef3c7" },
+    "Needs Attention": { color: "#991b1b", bg: "#fee2e2" },
+    "New":             { color: "#1e40af", bg: "#dbeafe" },
   };
 
   return {
@@ -945,9 +947,12 @@ function calcHealth(row: {
 export async function getCustomersWithHealth(): Promise<CustomerWithHealth[]> {
   await assertCRM();
 
-  const avgSpendRow = await query<{ avg: number }>(
-    `SELECT COALESCE(AVG(total),0)::numeric AS avg FROM orders WHERE status != 'cancelled'`
-  );
+  const [avgSpendRow, cfg] = await Promise.all([
+    query<{ avg: number }>(
+      `SELECT COALESCE(AVG(total),0)::numeric AS avg FROM orders WHERE status != 'cancelled'`
+    ),
+    getHealthScoreConfig(),
+  ]);
   const avgSpend = Number(avgSpendRow[0]?.avg ?? 0);
 
   const rows = await query<{
@@ -990,7 +995,7 @@ export async function getCustomersWithHealth(): Promise<CustomerWithHealth[]> {
 
   return rows.map(row => ({
     ...row,
-    ...calcHealth({ ...row, avg_spend: avgSpend }),
+    ...calcHealth({ ...row, avg_spend: avgSpend }, cfg),
   }));
 }
 
@@ -1087,9 +1092,12 @@ export async function getCRMDashboardEnhanced() {
 export async function getCustomerHealth(customerId: number): Promise<HealthScore | null> {
   await assertCRM();
 
-  const avgSpendRow = await query<{ avg: number }>(
-    `SELECT COALESCE(AVG(total),0)::numeric AS avg FROM orders WHERE status != 'cancelled'`
-  );
+  const [avgSpendRow, cfg] = await Promise.all([
+    query<{ avg: number }>(
+      `SELECT COALESCE(AVG(total),0)::numeric AS avg FROM orders WHERE status != 'cancelled'`
+    ),
+    getHealthScoreConfig(),
+  ]);
   const avgSpend = Number(avgSpendRow[0]?.avg ?? 0);
 
   const rows = await query<{
@@ -1119,5 +1127,5 @@ export async function getCustomerHealth(customerId: number): Promise<HealthScore
   );
 
   if (!rows.length) return null;
-  return calcHealth({ ...rows[0], avg_spend: avgSpend });
+  return calcHealth({ ...rows[0], avg_spend: avgSpend }, cfg);
 }

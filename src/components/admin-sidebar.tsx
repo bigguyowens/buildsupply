@@ -39,6 +39,7 @@ const NAV: NavItem[] = [
   { type: "link",      label: "Locations",     href: "/admin/locations",    icon: "📍" },
   { type: "separator" },
   { type: "link",      label: "Error Logs",    href: "/admin/error-logs",   icon: "🔴" },
+  { type: "link",      label: "Health Score",  href: "/admin/health-score", icon: "❤️" },
 ];
 
 export function AdminSidebar({ session }: { session: SessionUser }) {
