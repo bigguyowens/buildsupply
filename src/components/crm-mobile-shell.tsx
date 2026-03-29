@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CRMGlobalSearch } from "./crm-global-search";
 
 export function CRMMobileShell({
   sidebar,
@@ -56,6 +57,11 @@ export function CRMMobileShell({
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
               <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>CRM Live</span>
             </div>
+          </div>
+
+          {/* Center: global search */}
+          <div style={{ flex: 1, maxWidth: 480, margin: "0 16px" }}>
+            <CRMGlobalSearch />
           </div>
 
           {/* Right: date */}
