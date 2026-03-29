@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
 import { AdminThemeToggle } from "./admin-theme-toggle";
+import { useAdminTheme } from "./admin-theme-wrapper";
 import type { SessionUser } from "@/lib/auth";
 
 type NavItem =
@@ -42,12 +43,16 @@ const NAV: NavItem[] = [
 
 export function AdminSidebar({ session }: { session: SessionUser }) {
   const pathname = usePathname();
+  const { sidebarOpen, closeSidebar } = useAdminTheme();
 
   return (
-    <aside style={{
-      width: 220, flexShrink: 0, background: "#0d0d0d", minHeight: "100vh",
-      display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "100vh",
-    }}>
+    <aside
+      className={`admin-sidebar-wrap sidebar-drawer${sidebarOpen ? " open" : ""}`}
+      style={{
+        width: 220, flexShrink: 0, background: "#0d0d0d", minHeight: "100vh",
+        display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "100vh",
+      }}
+    >
       {/* Logo */}
       <div style={{ padding: "20px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <Link href="/admin" style={{ textDecoration: "none" }}>
@@ -77,7 +82,7 @@ export function AdminSidebar({ session }: { session: SessionUser }) {
             ? pathname === "/admin"
             : pathname.startsWith(item.href);
           return (
-            <Link key={item.href} href={item.href} style={{
+            <Link key={item.href} href={item.href} onClick={closeSidebar} style={{
               display: "flex", alignItems: "center", gap: 10,
               padding: "9px 10px", borderRadius: 6, marginBottom: 1,
               textDecoration: "none", fontSize: 13, fontWeight: 600,

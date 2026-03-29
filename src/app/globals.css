@@ -32,6 +32,75 @@ html { scroll-behavior: smooth; }
   --ad-shadow:  rgba(0,0,0,0.06);
 }
 
+/* ── Mobile responsive — Admin & CRM ─────────────────────────────────────── */
+
+/* Sidebar drawer */
+.sidebar-drawer {
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+}
+.sidebar-overlay.open { display: block; }
+
+/* Mobile hamburger — hidden on desktop */
+.mobile-menu-btn { display: none !important; }
+
+/* Scrollable table wrapper */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 768px) {
+  /* Show hamburger on mobile */
+  .mobile-menu-btn { display: flex !important; }
+
+  /* Sidebar becomes fixed drawer */
+  .admin-sidebar-wrap,
+  .crm-sidebar-wrap {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+  }
+  .admin-sidebar-wrap.open,
+  .crm-sidebar-wrap.open {
+    transform: translateX(0);
+  }
+
+  /* Content area takes full width */
+  .admin-content,
+  .crm-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Admin content gets top padding on mobile for fixed hamburger */
+  .admin-content > div { padding: 60px 16px 16px !important; }
+  .crm-main { padding: 16px !important; }
+
+  /* Hide date text on mobile */
+  .hide-mobile { display: none !important; }
+
+  /* Tables scroll horizontally */
+  table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Collapse multi-column grids */
+  .mobile-stack {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Top bars get padding for mobile */
+  .admin-topbar,
+  .crm-topbar {
+    padding: 0 16px !important;
+  }
+}
+
 /* CRM quote card hover */
 a:hover .crm-quote-card {
   box-shadow: 0 4px 16px rgba(0,0,0,0.10);
