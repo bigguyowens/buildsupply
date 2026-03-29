@@ -323,10 +323,15 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
               </div>
               <div>
                 {followUpTasks
-                  .sort((a, b) => (a.due_date ?? "").localeCompare(b.due_date ?? ""))
+                  .sort((a, b) => {
+                    const da = a.due_date ? new Date(a.due_date).getTime() : 0;
+                    const db = b.due_date ? new Date(b.due_date).getTime() : 0;
+                    return da - db;
+                  })
                   .map((t, i) => {
                     const isComplete = t.status === "complete";
-                    const isOverdue  = t.due_date && t.due_date < new Date().toISOString().split("T")[0] && !isComplete;
+                    const dueDateStr = t.due_date ? new Date(t.due_date).toISOString().split("T")[0] : null;
+                    const isOverdue  = dueDateStr && dueDateStr < new Date().toISOString().split("T")[0] && !isComplete;
                     return (
                       <div key={t.id} style={{
                         display: "flex", alignItems: "center", gap: 10,
@@ -348,7 +353,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                             <p style={{ fontSize: 11, margin: 0,
                               color: isOverdue ? "#ef4444" : "#9ca3af", fontWeight: isOverdue ? 700 : 400 }}>
                               {isOverdue ? "⚠ " : ""}
-                              {new Date(t.due_date + "T00:00:00").toLocaleDateString("en-US",
+                              {new Date(t.due_date).toLocaleDateString("en-US",
                                 { month: "short", day: "numeric", year: "numeric" })}
                             </p>
                           )}
