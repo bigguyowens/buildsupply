@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import { createCRMTask, updateCRMTask, deleteCRMTask } from "@/app/actions/crm";
 import type { CRMTask } from "@/app/actions/crm";
@@ -114,26 +114,12 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
           {/* Separator */}
           <div style={{ width: 1, height: 20, background: "#e5e5e5", margin: "0 4px" }} />
 
-          {/* Individual staff buttons */}
-          {staff.filter(s => s.id !== sessionId).map(s => {
-            const active = filterStaffId === s.id;
-            return (
-              <button key={s.id} onClick={() => setFilterStaffId(active ? "all" : s.id)} style={{
-                padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: "pointer",
-                border: `2px solid ${active ? "#3b82f6" : "#e5e5e5"}`,
-                background: active ? "#eff6ff" : "#fff",
-                color: active ? "#1e40af" : "#6b7280",
-                display: "flex", alignItems: "center", gap: 6,
-              }}>
-                <span style={{ width: 18, height: 18, borderRadius: "50%", background: "#f5c700",
-                  display: "inline-flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 8, fontWeight: 900, color: "#000", flexShrink: 0 }}>
-                  {s.first_name[0]}{s.last_name[0]}
-                </span>
-                {s.first_name} {s.last_name}
-              </button>
-            );
-          })}
+          {/* Searchable staff dropdown */}
+          <StaffDropdown
+            staff={staff.filter(s => s.id !== sessionId)}
+            value={typeof filterStaffId === "number" ? filterStaffId : null}
+            onChange={id => setFilterStaffId(id ?? "all")}
+          />
         </div>
       )}
 
@@ -203,6 +189,144 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
           isAdmin={isAdmin || sessionRole === "manager"}
           onClose={() => setShowForm(false)}
         />
+      )}
+    </div>
+  );
+}
+
+// ── Searchable Staff Dropdown ─────────────────────────────────────────────
+function StaffDropdown({ staff, value, onChange }: {
+  staff: StaffMember[];
+  value: number | null;
+  onChange: (id: number | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  const selected = staff.find(s => s.id === value);
+  const filtered = staff.filter(s =>
+    `${s.first_name} ${s.last_name}`.toLowerCase().includes(search.toLowerCase())
+  );
+
+  // Close on outside click
+  React.useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const ROLE_LABEL: Record<string, string> = {
+    admin: "Admin", manager: "Manager", account_manager: "AM",
+  };
+
+  return (
+    <div ref={ref} style={{ position: "relative" }}>
+      {/* Trigger button */}
+      <button
+        onClick={() => { setOpen(o => !o); setSearch(""); }}
+        style={{
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "6px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600,
+          cursor: "pointer",
+          border: `2px solid ${value ? "#3b82f6" : "#e5e5e5"}`,
+          background: value ? "#eff6ff" : "#fff",
+          color: value ? "#1e40af" : "#6b7280",
+          minWidth: 160,
+        }}
+      >
+        {selected ? (
+          <>
+            <span style={{ width: 20, height: 20, borderRadius: "50%", background: "#f5c700",
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+              fontSize: 8, fontWeight: 900, color: "#000", flexShrink: 0 }}>
+              {selected.first_name[0]}{selected.last_name[0]}
+            </span>
+            {selected.first_name} {selected.last_name}
+            <span
+              onClick={e => { e.stopPropagation(); onChange(null); setOpen(false); }}
+              style={{ marginLeft: "auto", color: "#93c5fd", fontSize: 14, lineHeight: 1,
+                cursor: "pointer", paddingLeft: 4 }}>✕</span>
+          </>
+        ) : (
+          <>
+            <span style={{ fontSize: 14 }}>👤</span>
+            Filter by staff member
+            <span style={{ marginLeft: "auto", fontSize: 10, opacity: 0.5 }}>▼</span>
+          </>
+        )}
+      </button>
+
+      {/* Dropdown panel */}
+      {open && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 200,
+          background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.12)", minWidth: 240, overflow: "hidden",
+        }}>
+          {/* Search input */}
+          <div style={{ padding: "10px 12px", borderBottom: "1px solid #f1f1f1" }}>
+            <div style={{ position: "relative" }}>
+              <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)",
+                color: "#9ca3af", fontSize: 13 }}>🔍</span>
+              <input
+                autoFocus
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search staff..."
+                style={{ width: "100%", padding: "6px 8px 6px 28px", borderRadius: 5, fontSize: 12,
+                  border: "1px solid #e5e5e5", outline: "none", boxSizing: "border-box" as const }}
+              />
+            </div>
+          </div>
+
+          {/* Options */}
+          <div style={{ maxHeight: 240, overflowY: "auto" }}>
+            {filtered.length === 0 ? (
+              <p style={{ padding: "12px 14px", fontSize: 12, color: "#9ca3af", margin: 0,
+                textAlign: "center" }}>No staff found</p>
+            ) : filtered.map(s => {
+              const isSelected = s.id === value;
+              return (
+                <div
+                  key={s.id}
+                  onClick={() => { onChange(isSelected ? null : s.id); setOpen(false); setSearch(""); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    padding: "9px 12px", cursor: "pointer",
+                    background: isSelected ? "#eff6ff" : "transparent",
+                    borderBottom: "1px solid #f9f9f9",
+                    transition: "background 0.1s",
+                  }}
+                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = "#f9f9f9"; }}
+                  onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+                >
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f5c700",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 10, fontWeight: 800, color: "#000", flexShrink: 0 }}>
+                    {s.first_name[0]}{s.last_name[0]}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: "#0d0d0d", margin: 0 }}>
+                      {s.first_name} {s.last_name}
+                    </p>
+                    <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>
+                      {ROLE_LABEL[s.role] ?? s.role}
+                    </p>
+                  </div>
+                  {isSelected && (
+                    <span style={{ color: "#3b82f6", fontSize: 14, fontWeight: 800 }}>✓</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
     </div>
   );
