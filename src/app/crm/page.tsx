@@ -28,8 +28,15 @@ export default async function CRMDashboard() {
     getTaskCounts(),
   ]);
 
-  const { healthSummary: hs, revenueSparkline, topCustomers, winRate, recentTasks } = data;
+  const { healthSummary: hs, revenueSparkline, topCustomers, winRate, recentTasks,
+          sessionRole, sessionName } = data;
   const maxSparkline = Math.max(...revenueSparkline.map(r => Number(r.revenue)), 1);
+
+  const scopeLabel = sessionRole === "admin"
+    ? null
+    : sessionRole === "manager"
+      ? `Your team's data`
+      : `Your customers`;
 
   return (
     <div>
@@ -38,9 +45,20 @@ export default async function CRMDashboard() {
         <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
           CRM Dashboard
         </h1>
-        <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
-          Overview of customers, orders, quotes, and team activity
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
+          <p style={{ color: "#6b7280", fontSize: 14, margin: 0 }}>
+            Overview of customers, orders, quotes, and team activity
+          </p>
+          {scopeLabel && (
+            <span style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "2px 10px", borderRadius: 20, fontSize: 11, fontWeight: 700,
+              background: "#fef9c3", color: "#92400e", border: "1px solid #fde68a",
+            }}>
+              📌 {scopeLabel}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* KPI row */}

@@ -54,39 +54,85 @@ export type CRMActivity = {
 
 // ── Dashboard stats ────────────────────────────────────────────────────────
 export async function getCRMDashboard() {
-  await assertCRM();
+  const session = await assertCRM();
+  const isAdmin   = session.role === "admin";
+  const isManager = session.role === "manager";
+
+  // Build a subquery that scopes customers to this user's visibility
+  const customerScope = isAdmin
+    ? `u.role NOT IN ('admin','account_manager','manager')`
+    : isManager
+      ? `u.account_manager_id IN (SELECT id FROM users WHERE id = ${session.id} OR manager_id = ${session.id})`
+      : `u.account_manager_id = ${session.id}`;
+
+  const orderScope = isAdmin
+    ? `1=1`
+    : isManager
+      ? `o.user_id IN (SELECT id FROM users WHERE account_manager_id IN (SELECT id FROM users WHERE id = ${session.id} OR manager_id = ${session.id}))`
+      : `o.user_id IN (SELECT id FROM users WHERE account_manager_id = ${session.id})`;
+
+  const quoteScope = isAdmin
+    ? `1=1`
+    : isManager
+      ? `q.customer_id IN (SELECT id FROM users WHERE account_manager_id IN (SELECT id FROM users WHERE id = ${session.id} OR manager_id = ${session.id}))`
+      : `q.customer_id IN (SELECT id FROM users WHERE account_manager_id = ${session.id})`;
+
+  const activityScope = isAdmin
+    ? `1=1`
+    : isManager
+      ? `a.customer_id IN (SELECT id FROM users WHERE account_manager_id IN (SELECT id FROM users WHERE id = ${session.id} OR manager_id = ${session.id}))`
+      : `a.customer_id IN (SELECT id FROM users WHERE account_manager_id = ${session.id})`;
+
   const [customers, orders, quotes, contacts, recentActivity] = await Promise.all([
-    query<{ count: number }>("SELECT COUNT(*)::int AS count FROM users WHERE role = 'customer'"),
+    query<{ count: number }>(
+      `SELECT COUNT(*)::int AS count FROM users u WHERE ${customerScope}`
+    ),
     query<{ count: number; total: number; today: number }>(
       `SELECT COUNT(*)::int AS count,
               COALESCE(SUM(total),0)::numeric AS total,
               COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '24 hours')::int AS today
-       FROM orders`
+       FROM orders o WHERE ${orderScope}`
     ),
     query<{ open: number }>(
-      `SELECT COUNT(*) FILTER (WHERE status = 'sent')::int AS open FROM quotes`
+      `SELECT COUNT(*) FILTER (WHERE status = 'sent')::int AS open
+       FROM quotes q WHERE ${quoteScope}`
     ),
-    query<{ pending: number }>(
-      `SELECT COUNT(*) FILTER (WHERE status = 'new')::int AS pending FROM contact_submissions`
-    ),
+    // Contacts: admins see all, others see contacts from their scoped customers' emails
+    isAdmin
+      ? query<{ pending: number }>(
+          `SELECT COUNT(*) FILTER (WHERE status = 'new')::int AS pending FROM contact_submissions`
+        )
+      : query<{ pending: number }>(
+          `SELECT COUNT(*) FILTER (WHERE cs.status = 'new')::int AS pending
+           FROM contact_submissions cs
+           WHERE cs.email IN (
+             SELECT email FROM users u WHERE ${customerScope}
+           )`
+        ),
     query<CRMActivity & { customer_name: string }>(
-      `SELECT a.*, 
+      `SELECT a.*,
               u2.first_name || ' ' || u2.last_name AS customer_name,
               COALESCE(u3.first_name || ' ' || u3.last_name, 'System') AS author_name
        FROM crm_activities a
        JOIN users u2 ON u2.id = a.customer_id
        LEFT JOIN users u3 ON u3.id = a.author_id
+       WHERE ${activityScope}
        ORDER BY a.created_at DESC LIMIT 10`
     ),
   ]);
+
   return {
-    customerCount: customers[0]?.count ?? 0,
-    orderCount: orders[0]?.count ?? 0,
-    totalRevenue: Number(orders[0]?.total ?? 0),
-    ordersToday: orders[0]?.today ?? 0,
-    openQuotes: quotes[0]?.open ?? 0,
+    customerCount:   customers[0]?.count ?? 0,
+    orderCount:      orders[0]?.count ?? 0,
+    totalRevenue:    Number(orders[0]?.total ?? 0),
+    ordersToday:     orders[0]?.today ?? 0,
+    openQuotes:      quotes[0]?.open ?? 0,
     pendingContacts: contacts[0]?.pending ?? 0,
     recentActivity,
+    // Pass scopes through for enhanced dashboard to reuse
+    _scopes: { customerScope, orderScope, quoteScope },
+    _session: { id: session.id, role: session.role,
+                name: `${session.firstName} ${session.lastName}` },
   };
 }
 
@@ -944,7 +990,7 @@ function calcHealth(row: {
   };
 }
 
-export async function getCustomersWithHealth(): Promise<CustomerWithHealth[]> {
+export async function getCustomersWithHealth(scopeWhere?: string): Promise<CustomerWithHealth[]> {
   await assertCRM();
 
   const [avgSpendRow, cfg] = await Promise.all([
@@ -954,6 +1000,10 @@ export async function getCustomersWithHealth(): Promise<CustomerWithHealth[]> {
     getHealthScoreConfig(),
   ]);
   const avgSpend = Number(avgSpendRow[0]?.avg ?? 0);
+
+  const whereClause = scopeWhere
+    ? `WHERE ${scopeWhere}`
+    : `WHERE u.role NOT IN ('admin','account_manager','manager')`;
 
   const rows = await query<{
     id: number; first_name: string; last_name: string; email: string;
@@ -988,7 +1038,7 @@ export async function getCustomersWithHealth(): Promise<CustomerWithHealth[]> {
      LEFT JOIN crm_activities a ON a.customer_id = u.id
      LEFT JOIN crm_notes n ON n.customer_id = u.id
      LEFT JOIN users am ON am.id = u.account_manager_id
-     WHERE u.role NOT IN ('admin','account_manager','manager')
+     ${whereClause}
      GROUP BY u.id, am.first_name, am.last_name
      ORDER BY u.first_name ASC`
   );
@@ -999,18 +1049,18 @@ export async function getCustomersWithHealth(): Promise<CustomerWithHealth[]> {
   }));
 }
 
-export async function getHealthSummary() {
+export async function getHealthSummary(scopeWhere?: string) {
   await assertCRM();
-  const customers = await getCustomersWithHealth();
+  const customers = await getCustomersWithHealth(scopeWhere);
   return {
-    healthy:          customers.filter(c => c.label === "Healthy").length,
-    atRisk:           customers.filter(c => c.label === "At Risk").length,
-    needsAttention:   customers.filter(c => c.label === "Needs Attention").length,
-    new:              customers.filter(c => c.label === "New").length,
-    total:            customers.length,
-    avgScore:         customers.length > 0
-                        ? Math.round(customers.reduce((s, c) => s + c.score, 0) / customers.length)
-                        : 0,
+    healthy:        customers.filter(c => c.label === "Healthy").length,
+    atRisk:         customers.filter(c => c.label === "At Risk").length,
+    needsAttention: customers.filter(c => c.label === "Needs Attention").length,
+    new:            customers.filter(c => c.label === "New").length,
+    total:          customers.length,
+    avgScore:       customers.length > 0
+                      ? Math.round(customers.reduce((s, c) => s + c.score, 0) / customers.length)
+                      : 0,
   };
 }
 
@@ -1018,18 +1068,20 @@ export async function getHealthSummary() {
 export async function getCRMDashboardEnhanced() {
   await assertCRM();
 
+  const base = await getCRMDashboard();
+  const { customerScope, orderScope, quoteScope } = base._scopes;
+  const { id: sessionId, role: sessionRole } = base._session;
+
   const [
-    base,
     healthSummary,
     revenueSparkline,
     topCustomers,
     quoteStats,
     recentTasks,
   ] = await Promise.all([
-    getCRMDashboard(),
-    getHealthSummary(),
+    getHealthSummary(customerScope),
 
-    // 6-month revenue sparkline
+    // 6-month revenue sparkline — scoped
     query<{ month: string; revenue: number }>(`
       SELECT TO_CHAR(gs.m, 'Mon') AS month,
              COALESCE(SUM(o.total),0)::numeric AS revenue
@@ -1040,35 +1092,44 @@ export async function getCRMDashboardEnhanced() {
       ) AS gs(m)
       LEFT JOIN orders o ON DATE_TRUNC('month', o.created_at) = gs.m
         AND o.status != 'cancelled'
+        AND ${orderScope}
       GROUP BY gs.m ORDER BY gs.m ASC
     `),
 
-    // Top 5 customers by revenue
+    // Top 5 customers by revenue — scoped
     query<{ id: number; first_name: string; last_name: string; revenue: number; order_count: number }>(`
       SELECT u.id, u.first_name, u.last_name,
              COALESCE(SUM(o.total),0)::numeric AS revenue,
              COUNT(o.id)::int AS order_count
       FROM users u
       LEFT JOIN orders o ON o.user_id = u.id AND o.status != 'cancelled'
-      WHERE u.role NOT IN ('admin','account_manager','manager')
+      WHERE ${customerScope}
       GROUP BY u.id ORDER BY revenue DESC LIMIT 5
     `),
 
-    // Quote win rate
+    // Quote win rate — scoped
     query<{ total: number; accepted: number; pending: number }>(`
       SELECT COUNT(*)::int AS total,
              COUNT(*) FILTER (WHERE status='accepted')::int AS accepted,
              COUNT(*) FILTER (WHERE status='sent')::int AS pending
-      FROM quotes WHERE status != 'draft'
+      FROM quotes q WHERE ${quoteScope} AND status != 'draft'
     `),
 
-    // Upcoming/overdue tasks (next 3)
+    // Next 3 tasks — already role-scoped via getCRMTasks but inline for perf
     query<{ id: number; title: string; due_date: string; type: string; entity_name: string | null; assigned_name: string | null }>(`
       SELECT t.id, t.title, t.due_date, t.type, t.entity_name,
              u.first_name || ' ' || u.last_name AS assigned_name
       FROM crm_tasks t
       LEFT JOIN users u ON u.id = t.assigned_to
       WHERE t.status != 'complete'
+        AND (
+          ${sessionRole === "admin"
+            ? "1=1"
+            : sessionRole === "manager"
+              ? `t.assigned_to IN (SELECT id FROM users WHERE id = ${sessionId} OR manager_id = ${sessionId})`
+              : `t.assigned_to = ${sessionId}`
+          }
+        )
       ORDER BY t.due_date ASC NULLS LAST
       LIMIT 3
     `),
@@ -1085,6 +1146,8 @@ export async function getCRMDashboardEnhanced() {
     winRate,
     openQuotes: qs.pending,
     recentTasks,
+    sessionRole,
+    sessionName: base._session.name,
   };
 }
 
