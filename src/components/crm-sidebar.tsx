@@ -14,6 +14,7 @@ const NAV = [
   { label: "Customers",      href: "/crm/customers",      icon: "👥", roles: null },
   { label: "---" },
   { label: "Orders",         href: "/crm/orders",         icon: "🛒", roles: null },
+  { label: "Returns",        href: "/crm/returns",        icon: "↩️",  roles: null },
   { label: "Tasks",          href: "/crm/tasks",          icon: "✅", roles: null },
   { label: "Quotes",         href: "/crm/quotes",         icon: "📋", roles: null },
   { label: "---" },

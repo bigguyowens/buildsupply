@@ -4,7 +4,7 @@ import { query } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 export type SearchResult = {
-  type: "customer" | "company" | "quote" | "task" | "order";
+  type: "customer" | "company" | "quote" | "task" | "order" | "return";
   id: number;
   title: string;
   subtitle: string;
@@ -47,7 +47,7 @@ export async function globalCRMSearch(term: string): Promise<SearchResult[]> {
       ? `t.assigned_to IN (SELECT id FROM users WHERE id=${id} OR manager_id=${id})`
       : `t.assigned_to=${id}`;
 
-  const [customers, companies, quotes, tasks, orders] = await Promise.all([
+  const [customers, companies, quotes, tasks, orders, returnResults] = await Promise.all([
     // Customers
     query<{ id: number; first_name: string; last_name: string; email: string; am_name: string | null }>(`
       SELECT u.id, u.first_name, u.last_name, u.email,
@@ -106,6 +106,21 @@ export async function globalCRMSearch(term: string): Promise<SearchResult[]> {
       ORDER BY o.created_at DESC
       LIMIT 4
     `, [q]),
+
+    // Returns — by return ID, order ID, or customer name
+    query<{ id: number; order_id: number; status: string; customer_name: string }>(`
+      SELECT r.id, r.order_id, r.status,
+             COALESCE(u.first_name || ' ' || u.last_name, 'Guest') AS customer_name
+      FROM returns r
+      LEFT JOIN users u ON u.id = r.user_id
+      WHERE (${quoteScope.replace(/q\./g, "r.").replace(/q2\./g, "r.")
+               .replace("customer_id", "user_id")})
+        AND (r.id::text ILIKE $1
+             OR r.order_id::text ILIKE $1
+             OR (u.first_name || ' ' || u.last_name) ILIKE $1)
+      ORDER BY r.created_at DESC
+      LIMIT 4
+    `, [q]),
   ]);
 
   const results: SearchResult[] = [];
@@ -154,6 +169,15 @@ export async function globalCRMSearch(term: string): Promise<SearchResult[]> {
     subtitle: o.customer_name,
     href: `/crm/orders`,
     meta: o.status,
+  }));
+
+  returnResults.forEach(r => results.push({
+    type: "return",
+    id: r.id,
+    title: `Return #${r.id}`,
+    subtitle: `${r.customer_name} · Order #${r.order_id}`,
+    href: `/crm/returns`,
+    meta: r.status,
   }));
 
   return results;
