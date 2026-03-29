@@ -19,6 +19,8 @@ const NAV = [
   { label: "Inventory",      href: "/crm/inventory",      icon: "📦", roles: null },
   { label: "---" },
   { label: "Contact Queue",  href: "/crm/contacts",       icon: "✉️",  roles: null },
+  { label: "---" },
+  { label: "Health Score",   href: "/crm/health-score",  icon: "❤️",  roles: ["admin"] },
 ];
 
 // Whitecap palette
