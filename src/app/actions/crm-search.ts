@@ -4,7 +4,7 @@ import { query } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 
 export type SearchResult = {
-  type: "customer" | "company" | "quote" | "task";
+  type: "customer" | "company" | "quote" | "task" | "order";
   id: number;
   title: string;
   subtitle: string;
@@ -47,7 +47,7 @@ export async function globalCRMSearch(term: string): Promise<SearchResult[]> {
       ? `t.assigned_to IN (SELECT id FROM users WHERE id=${id} OR manager_id=${id})`
       : `t.assigned_to=${id}`;
 
-  const [customers, companies, quotes, tasks] = await Promise.all([
+  const [customers, companies, quotes, tasks, orders] = await Promise.all([
     // Customers
     query<{ id: number; first_name: string; last_name: string; email: string; am_name: string | null }>(`
       SELECT u.id, u.first_name, u.last_name, u.email,
@@ -92,6 +92,20 @@ export async function globalCRMSearch(term: string): Promise<SearchResult[]> {
         AND t.status != 'complete'
       LIMIT 4
     `, [q]),
+
+    // Orders — by order ID or customer name
+    query<{ id: number; customer_name: string; status: string; total: number; customer_id: number }>(`
+      SELECT o.id,
+             u.first_name || ' ' || u.last_name AS customer_name,
+             o.status, o.total::numeric AS total, u.id AS customer_id
+      FROM orders o
+      JOIN users u ON u.id = o.user_id
+      WHERE ${quoteScope.replace(/q\./g, "o.").replace(/q2\./g, "o.")}
+        AND (o.id::text ILIKE $1
+             OR (u.first_name || ' ' || u.last_name) ILIKE $1)
+      ORDER BY o.created_at DESC
+      LIMIT 4
+    `, [q]),
   ]);
 
   const results: SearchResult[] = [];
@@ -131,6 +145,15 @@ export async function globalCRMSearch(term: string): Promise<SearchResult[]> {
     meta: t.due_date
       ? new Date(t.due_date).toLocaleDateString("en-US", { month: "short", day: "numeric" })
       : undefined,
+  }));
+
+  orders.forEach(o => results.push({
+    type: "order",
+    id: o.id,
+    title: `Order #${o.id}`,
+    subtitle: o.customer_name,
+    href: `/crm/orders`,
+    meta: o.status,
   }));
 
   return results;

@@ -9,6 +9,7 @@ const TYPE_META: Record<SearchResult["type"], { icon: string; label: string; col
   company:  { icon: "🏢", label: "Company",  color: "#3b82f6" },
   quote:    { icon: "📋", label: "Quote",    color: "#f97316" },
   task:     { icon: "✅", label: "Task",     color: "#22c55e" },
+  order:    { icon: "🛒", label: "Order",    color: "#8b5cf6" },
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -89,7 +90,7 @@ export function CRMGlobalSearch() {
     if (!grouped[r.type]) grouped[r.type] = [];
     grouped[r.type].push(r);
   }
-  const typeOrder: SearchResult["type"][] = ["customer", "company", "quote", "task"];
+  const typeOrder: SearchResult["type"][] = ["customer", "company", "order", "quote", "task"];
 
   return (
     <div ref={containerRef} style={{ position: "relative", flex: 1, maxWidth: 440 }}>
