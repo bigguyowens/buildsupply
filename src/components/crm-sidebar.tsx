@@ -12,6 +12,7 @@ const NAV = [
   { label: "---" },
   { label: "Companies",      href: "/crm/companies",      icon: "🏢", roles: null },
   { label: "Customers",      href: "/crm/customers",      icon: "👥", roles: null },
+  { label: "Projects",       href: "/crm/projects",       icon: "📁", roles: null },
   { label: "---" },
   { label: "Orders",         href: "/crm/orders",         icon: "🛒", roles: null },
   { label: "Returns",        href: "/crm/returns",        icon: "↩️",  roles: null },
