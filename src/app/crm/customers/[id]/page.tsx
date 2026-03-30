@@ -1,4 +1,5 @@
 import { getCRMCustomer, getAccountManagers, getOnboarding, getCRMTasks, getCustomerHealth } from "@/app/actions/crm";
+import { getProjects } from "@/app/actions/projects";
 import { getSession } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -9,13 +10,14 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", c
 
 export default async function CRMCustomerPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [data, session, accountManagers, onboarding, tasks, health] = await Promise.all([
+  const [data, session, accountManagers, onboarding, tasks, health, projects] = await Promise.all([
     getCRMCustomer(Number(id)),
     getSession(),
     getAccountManagers(),
     getOnboarding("customer", Number(id)),
     getCRMTasks({ entityType: "customer", entityId: Number(id) }),
     getCustomerHealth(Number(id)),
+    getProjects({ entityType: "customer", entityId: Number(id), scope: "all" }),
   ]);
   if (!data) notFound();
 
@@ -154,6 +156,74 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
               </div>
             </div>
           )}
+          {/* Projects panel */}
+          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+            <div style={{ padding: "12px 16px", background: "#0d0d0d",
+              display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+                letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>
+                Projects ({projects.length})
+              </h2>
+              <Link href={`/crm/projects?entity=customer&id=${customer.id}`}
+                style={{ fontSize: 11, color: "#6b6b6b", textDecoration: "none", fontWeight: 600 }}>
+                View all →
+              </Link>
+            </div>
+            {projects.length === 0 ? (
+              <div style={{ padding: "16px", textAlign: "center" }}>
+                <p style={{ fontSize: 12, color: "#9ca3af", margin: "0 0 10px" }}>No projects yet</p>
+                <Link href="/crm/projects" style={{ fontSize: 12, color: "#f5c700",
+                  fontWeight: 700, textDecoration: "none" }}>
+                  + Create project
+                </Link>
+              </div>
+            ) : (
+              <div>
+                {projects.map((p, i) => {
+                  const statusColors: Record<string,{color:string;dot:string}> = {
+                    active:    { color: "#15803d", dot: "#22c55e" },
+                    on_hold:   { color: "#92400e", dot: "#f59e0b" },
+                    completed: { color: "#1e40af", dot: "#3b82f6" },
+                    cancelled: { color: "#6b7280", dot: "#9ca3af" },
+                  };
+                  const sc = statusColors[p.status] ?? statusColors.active;
+                  return (
+                    <Link key={p.id} href={`/crm/projects/${p.id}`} style={{
+                      display: "block", padding: "10px 14px", textDecoration: "none",
+                      borderBottom: i < projects.length - 1 ? "1px solid #f5f5f5" : "none",
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <div style={{ width: 7, height: 7, borderRadius: "50%",
+                          background: sc.dot, flexShrink: 0 }} />
+                        <p style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d",
+                          margin: 0, flex: 1, overflow: "hidden",
+                          textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {p.name}
+                        </p>
+                      </div>
+                      <div style={{ display: "flex", gap: 10, marginTop: 4, paddingLeft: 15 }}>
+                        <span style={{ fontSize: 10, color: sc.color, fontWeight: 700,
+                          textTransform: "capitalize" }}>
+                          {p.status.replace("_"," ")}
+                        </span>
+                        {p.open_task_count > 0 && (
+                          <span style={{ fontSize: 10, color: "#ef4444", fontWeight: 700 }}>
+                            {p.open_task_count} open task{p.open_task_count !== 1 ? "s" : ""}
+                          </span>
+                        )}
+                        {p.value && (
+                          <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                            ${Number(p.value).toLocaleString()}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <RoleManager
             customerId={customer.id}
             currentRole={customer.role}
