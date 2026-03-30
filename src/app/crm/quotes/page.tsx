@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth";
 import { query } from "@/lib/db";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { CRMScopeToggle } from "@/components/crm-scope-toggle";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
@@ -18,37 +19,34 @@ type QuoteRow = {
   item_count: number; total_quoted: number;
 };
 
-export default async function CRMQuotesPage() {
+export default async function CRMQuotesPage({ searchParams }: { searchParams: Promise<{ scope?: string }> }) {
   const session = await getSession();
   if (!session) redirect("/login");
 
-  const isAdmin = session.role === "admin";
+  const { scope: scopeParam } = await searchParams;
+  const isAdmin   = session.role === "admin";
+  const isManager = session.role === "manager";
+  const scope     = scopeParam === "all" ? "all" : "mine";
+  const showAll   = isAdmin || scope === "all";
+  const id        = session.id;
 
-  // Admins see all non-draft quotes; AMs only see quotes for their assigned customers
+  const scopeClause = showAll
+    ? `q.status != 'draft'`
+    : isManager
+      ? `q.status != 'draft' AND u.account_manager_id IN (SELECT id FROM users WHERE id = ${id} OR manager_id = ${id})`
+      : `q.status != 'draft' AND u.account_manager_id = ${id}`;
+
   const quotes = await query<QuoteRow>(
-    isAdmin
-      ? `SELECT q.id, q.status, q.created_at, q.expires_at, q.notes,
-                q.customer_id, u.first_name, u.last_name, u.email,
-                COUNT(qi.id)::int AS item_count,
-                COALESCE(SUM(qi.quantity * qi.quoted_price),0)::numeric AS total_quoted
-         FROM quotes q
-         JOIN users u ON u.id = q.customer_id
-         LEFT JOIN quote_items qi ON qi.quote_id = q.id
-         WHERE q.status != 'draft'
-         GROUP BY q.id, u.id
-         ORDER BY q.created_at DESC`
-      : `SELECT q.id, q.status, q.created_at, q.expires_at, q.notes,
-                q.customer_id, u.first_name, u.last_name, u.email,
-                COUNT(qi.id)::int AS item_count,
-                COALESCE(SUM(qi.quantity * qi.quoted_price),0)::numeric AS total_quoted
-         FROM quotes q
-         JOIN users u ON u.id = q.customer_id
-         LEFT JOIN quote_items qi ON qi.quote_id = q.id
-         WHERE q.status != 'draft'
-           AND u.account_manager_id = $1
-         GROUP BY q.id, u.id
-         ORDER BY q.created_at DESC`,
-    isAdmin ? [] : [session.id]
+    `SELECT q.id, q.status, q.created_at, q.expires_at, q.notes,
+            q.customer_id, u.first_name, u.last_name, u.email,
+            COUNT(qi.id)::int AS item_count,
+            COALESCE(SUM(qi.quantity * qi.quoted_price),0)::numeric AS total_quoted
+     FROM quotes q
+     JOIN users u ON u.id = q.customer_id
+     LEFT JOIN quote_items qi ON qi.quote_id = q.id
+     WHERE ${scopeClause}
+     GROUP BY q.id, u.id
+     ORDER BY q.created_at DESC`
   );
 
   const pipeline = ["sent", "accepted", "declined"] as const;
@@ -58,22 +56,23 @@ export default async function CRMQuotesPage() {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
             Quote Pipeline
           </h1>
           <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
-            {isAdmin ? "All quotes" : "Your customers' quotes"} ·{" "}
             {grouped.sent?.length ?? 0} awaiting response · {fmt(totalValue)} accepted
           </p>
         </div>
-        <Link
-          href={isAdmin ? "/admin/quotes/new" : `/admin/quotes/new?am=${session.id}`}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <CRMScopeToggle sessionRole={session.role} currentScope={scope} />
+          <Link href={isAdmin ? "/admin/quotes/new" : `/admin/quotes/new?am=${session.id}`}
           style={{ background: "#0d0d0d", color: "#f5c700", textDecoration: "none",
             borderRadius: 8, padding: "10px 20px", fontWeight: 800, fontSize: 13 }}>
           + New Quote
         </Link>
+        </div>
       </div>
 
       {/* KPI strip */}

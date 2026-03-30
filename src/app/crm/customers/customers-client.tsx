@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import React, { useState, useTransition } from "react";
 import Link from "next/link";
 import type { CustomerWithHealth, CRMStaff } from "@/app/actions/crm";
 import { updateUserRole } from "@/app/actions/crm";
@@ -25,9 +25,12 @@ const ROLE_META: Record<string, { label: string; bg: string; color: string }> = 
 
 type Tab = "customers" | "staff";
 
-export function CustomersClient({ customers, staff }: {
+export function CustomersClient({ customers, staff, sessionRole, scope, scopeToggle }: {
   customers: CustomerWithHealth[];
   staff: CRMStaff[];
+  sessionRole?: string;
+  scope?: "mine" | "all";
+  scopeToggle?: React.ReactNode;
 }) {
   const [tab, setTab] = useState<Tab>("customers");
   const [search, setSearch] = useState("");
@@ -42,7 +45,8 @@ export function CustomersClient({ customers, staff }: {
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between",
+        alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
             {tab === "customers" ? "Customers" : "Staff"}
@@ -53,6 +57,7 @@ export function CustomersClient({ customers, staff }: {
               : `${staff.length} staff members`}
           </p>
         </div>
+        {tab === "customers" && scopeToggle}
       </div>
 
       {/* Tabs */}

@@ -19,7 +19,7 @@ export type CRMOrder = {
   discount_amount: number;
 };
 
-export async function getCRMOrders(): Promise<CRMOrder[]> {
+export async function getCRMOrders(scope: "mine" | "all" = "mine"): Promise<CRMOrder[]> {
   const session = await getSession();
   if (!session || !["admin", "account_manager", "manager"].includes(session.role)) return [];
 
@@ -27,7 +27,10 @@ export async function getCRMOrders(): Promise<CRMOrder[]> {
   const isManager = session.role === "manager";
   const id        = session.id;
 
-  const scope = isAdmin
+  // "all" scope removes scoping for managers/AMs (admins always see all)
+  const showAll = isAdmin || scope === "all";
+
+  const scopeClause = showAll
     ? `1=1`
     : isManager
       ? `u.account_manager_id IN (SELECT id FROM users WHERE id = ${id} OR manager_id = ${id})`
@@ -45,7 +48,7 @@ export async function getCRMOrders(): Promise<CRMOrder[]> {
     FROM orders o
     JOIN users u ON u.id = o.user_id
     LEFT JOIN users am ON am.id = u.account_manager_id
-    WHERE ${scope}
+    WHERE ${scopeClause}
     ORDER BY o.created_at DESC
   `);
 }

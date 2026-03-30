@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import type { CRMReturn } from "@/app/actions/crm-returns";
 
@@ -17,11 +17,13 @@ const STATUS_META: Record<string, { label: string; color: string; bg: string }> 
 
 const STATUSES = ["all", "requested", "approved", "received", "refunded", "rejected"];
 
-export function CRMReturnsClient({ returns, statusCounts, totalRefunded, sessionRole }: {
+export function CRMReturnsClient({ returns, statusCounts, totalRefunded, sessionRole, scope, scopeToggle }: {
   returns: CRMReturn[];
   statusCounts: Record<string, number>;
   totalRefunded: number;
   sessionRole: string;
+  scope: "mine" | "all";
+  scopeToggle?: React.ReactNode;
 }) {
   const [search, setSearch]       = useState("");
   const [statusFilter, setStatus] = useState("all");
@@ -61,15 +63,19 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
-          Returns
-        </h1>
-        <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
-          {sessionRole === "admin" ? "All platform returns" :
-           sessionRole === "manager" ? "Returns from your team's customers" :
-           "Returns from your customers"}
-        </p>
+      <div style={{ display: "flex", justifyContent: "space-between",
+        alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+            Returns
+          </h1>
+          <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+            {sessionRole === "admin" ? "All platform returns" :
+             sessionRole === "manager" ? "Returns from your team's customers" :
+             "Returns from your customers"}
+          </p>
+        </div>
+        {scopeToggle}
       </div>
 
       {/* KPI strip */}

@@ -137,9 +137,19 @@ export async function getCRMDashboard() {
 }
 
 // ── Customer list ──────────────────────────────────────────────────────────
-export async function getCRMCustomers(search = ""): Promise<CRMCustomer[]> {
-  await assertCRM();
-  const like = `%${search}%`;
+export async function getCRMCustomers(search = "", scope: "mine" | "all" = "mine"): Promise<CRMCustomer[]> {
+  const session = await assertCRM();
+  const isAdmin   = session.role === "admin";
+  const isManager = session.role === "manager";
+  const showAll   = isAdmin || scope === "all";
+  const like      = `%${search}%`;
+
+  const scopeClause = showAll
+    ? `u.role NOT IN ('admin','account_manager','manager')`
+    : isManager
+      ? `u.account_manager_id IN (SELECT id FROM users WHERE id = ${session.id} OR manager_id = ${session.id})`
+      : `u.account_manager_id = ${session.id}`;
+
   return query<CRMCustomer>(
     `SELECT u.id, u.first_name, u.last_name, u.email, u.role, u.created_at,
             COUNT(DISTINCT o.id)::int AS order_count,
@@ -156,7 +166,7 @@ export async function getCRMCustomers(search = ""): Promise<CRMCustomer[]> {
      LEFT JOIN crm_activities a ON a.customer_id = u.id
      LEFT JOIN crm_notes n ON n.customer_id = u.id
      LEFT JOIN users am ON am.id = u.account_manager_id
-     WHERE u.role NOT IN ('admin','account_manager')
+     WHERE ${scopeClause}
        AND ($1 = '' OR u.first_name ILIKE $1 OR u.last_name ILIKE $1 OR u.email ILIKE $1)
      GROUP BY u.id, am.first_name, am.last_name
      ORDER BY MAX(o.created_at) DESC NULLS LAST`,
@@ -563,17 +573,19 @@ export async function getCRMTasks(filters?: {
   entityId?: number;
   assignedTo?: number;
   status?: string;
+  scope?: "mine" | "all";
 }): Promise<CRMTask[]> {
   const session = await assertCRM();
   const isAdmin   = session.role === "admin";
   const isManager = session.role === "manager";
+  const showAll   = isAdmin || filters?.scope === "all";
 
   const conditions: string[] = [];
   const vals: unknown[] = [];
   let n = 1;
 
-  if (isAdmin) {
-    // Admins see all tasks — no scoping unless explicitly filtered
+  if (isAdmin || showAll) {
+    // Admin or explicit "all" scope — no role-based restrictions
   } else if (isManager) {
     // Managers see tasks assigned to themselves or their AMs
     // Unless a specific assignedTo filter is passed
@@ -990,8 +1002,11 @@ function calcHealth(row: {
   };
 }
 
-export async function getCustomersWithHealth(scopeWhere?: string): Promise<CustomerWithHealth[]> {
-  await assertCRM();
+export async function getCustomersWithHealth(scopeWhere?: string, scope?: "mine" | "all"): Promise<CustomerWithHealth[]> {
+  const session = await assertCRM();
+  const isAdmin   = session.role === "admin";
+  const isManager = session.role === "manager";
+  const showAll   = isAdmin || scope === "all";
 
   const [avgSpendRow, cfg] = await Promise.all([
     query<{ avg: number }>(
@@ -1001,9 +1016,16 @@ export async function getCustomersWithHealth(scopeWhere?: string): Promise<Custo
   ]);
   const avgSpend = Number(avgSpendRow[0]?.avg ?? 0);
 
-  const whereClause = scopeWhere
-    ? `WHERE ${scopeWhere}`
-    : `WHERE u.role NOT IN ('admin','account_manager','manager')`;
+  // Build scope clause if not externally provided
+  const derivedScope = scopeWhere ?? (
+    showAll
+      ? `u.role NOT IN ('admin','account_manager','manager')`
+      : isManager
+        ? `u.account_manager_id IN (SELECT id FROM users WHERE id = ${session.id} OR manager_id = ${session.id})`
+        : `u.account_manager_id = ${session.id}`
+  );
+
+  const whereClause = `WHERE ${derivedScope}`;
 
   const rows = await query<{
     id: number; first_name: string; last_name: string; email: string;

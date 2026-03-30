@@ -21,7 +21,7 @@ export type CRMReturn = {
   account_manager_name: string | null;
 };
 
-export async function getCRMReturns(): Promise<CRMReturn[]> {
+export async function getCRMReturns(scope: "mine" | "all" = "mine"): Promise<CRMReturn[]> {
   const session = await getSession();
   if (!session || !["admin", "account_manager", "manager"].includes(session.role)) return [];
 
@@ -29,7 +29,9 @@ export async function getCRMReturns(): Promise<CRMReturn[]> {
   const isManager = session.role === "manager";
   const id        = session.id;
 
-  const scope = isAdmin
+  const showAll = isAdmin || scope === "all";
+
+  const scopeClause = showAll
     ? `1=1`
     : isManager
       ? `u.account_manager_id IN (SELECT id FROM users WHERE id = ${id} OR manager_id = ${id})`
@@ -49,7 +51,7 @@ export async function getCRMReturns(): Promise<CRMReturn[]> {
     FROM returns r
     LEFT JOIN users u ON u.id = r.user_id
     LEFT JOIN users am ON am.id = u.account_manager_id
-    WHERE ${scope}
+    WHERE ${scopeClause}
     ORDER BY r.created_at DESC
   `);
 }
