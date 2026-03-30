@@ -1,135 +1,235 @@
+// OrderStatusTimeline — shared component used on CRM & Admin order detail pages
+// Accepts: status (current), statusHistory (array of {status, timestamp})
+
 type StatusEvent = { status: string; timestamp: string };
 
-type Step = {
-  key: string;
-  label: string;
-  description: string;
-  icon: string;
+type Props = {
+  status: string;
+  statusHistory: StatusEvent[];
+  compact?: boolean;
 };
 
-const STEPS: Step[] = [
-  { key: "pending",    label: "Order Placed",   description: "We've received your order",         icon: "📋" },
-  { key: "processing", label: "Processing",      description: "Your order is being prepared",      icon: "⚙️" },
-  { key: "shipped",    label: "Shipped",         description: "Your order is on its way",          icon: "🚚" },
-  { key: "completed",  label: "Delivered",       description: "Order delivered successfully",      icon: "✅" },
+const PIPELINE = [
+  {
+    key: "pending",
+    label: "Order Placed",
+    icon: "📋",
+    desc: "Order received and confirmed",
+  },
+  {
+    key: "processing",
+    label: "Processing",
+    icon: "⚙️",
+    desc: "Items picked and prepared for shipment",
+  },
+  {
+    key: "shipped",
+    label: "Shipped",
+    icon: "🚚",
+    desc: "Package handed to carrier",
+  },
+  {
+    key: "completed",
+    label: "Delivered",
+    icon: "✅",
+    desc: "Order delivered successfully",
+  },
 ];
 
-function fmt(ts: string) {
+const STATUS_ORDER: Record<string, number> = {
+  pending: 0, processing: 1, shipped: 2, completed: 3,
+};
+
+function fmtDate(ts: string) {
   return new Date(ts).toLocaleDateString("en-US", {
     month: "short", day: "numeric", year: "numeric",
+  });
+}
+function fmtTime(ts: string) {
+  return new Date(ts).toLocaleTimeString("en-US", {
     hour: "numeric", minute: "2-digit",
   });
 }
 
-export function OrderStatusTimeline({
-  status,
-  statusHistory,
-  compact = false,
-}: {
-  status: string;
-  statusHistory: StatusEvent[];
-  compact?: boolean;
-}) {
+export function OrderStatusTimeline({ status, statusHistory, compact = false }: Props) {
   const isCancelled = status === "cancelled";
-  const currentIdx  = STEPS.findIndex(s => s.key === status);
+  const currentStep = STATUS_ORDER[status] ?? (isCancelled ? -1 : 0);
+  const dotSize     = compact ? 36 : 44;
+  const iconSize    = compact ? 16 : 18;
 
-  // Build a map of status → timestamp from history (last occurrence wins)
-  const tsMap: Record<string, string> = {};
-  for (const e of statusHistory) tsMap[e.status] = e.timestamp;
+  // Build a map of status → event for quick lookup
+  const eventMap: Record<string, StatusEvent> = {};
+  for (const ev of (statusHistory ?? [])) {
+    eventMap[ev.status] = ev;
+  }
 
   if (isCancelled) {
-    const cancelledAt = tsMap["cancelled"];
+    const cancelledAt = eventMap["cancelled"]?.timestamp;
+    const placedAt    = eventMap["pending"]?.timestamp;
     return (
-      <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", borderRadius: 10, padding: compact ? "14px 18px" : "20px 24px", display: "flex", alignItems: "center", gap: 14 }}>
-        <div style={{ width: 40, height: 40, borderRadius: "50%", background: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
-          ✕
+      <div style={{ padding: "8px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          {/* Placed dot */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%",
+              background: "#dcfce7", border: "2px solid #22c55e",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
+              📋
+            </div>
+          </div>
+          {/* Strikethrough line */}
+          <div style={{ flex: 1, height: 3, background: "#fee2e2",
+            backgroundImage: "repeating-linear-gradient(90deg, #fca5a5 0, #fca5a5 8px, transparent 8px, transparent 16px)",
+            borderRadius: 2 }} />
+          {/* Cancelled dot */}
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div style={{ width: 36, height: 36, borderRadius: "50%",
+              background: "#fee2e2", border: "2px solid #ef4444",
+              display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
+              ✕
+            </div>
+          </div>
         </div>
-        <div>
-          <p style={{ margin: 0, fontWeight: 700, fontSize: 15, color: "#991b1b" }}>Order Cancelled</p>
-          {cancelledAt && <p style={{ margin: "3px 0 0", fontSize: 13, color: "#ef4444" }}>{fmt(cancelledAt)}</p>}
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
+          <div>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#15803d", margin: 0 }}>Order Placed</p>
+            {placedAt && (
+              <p style={{ fontSize: 11, color: "#9ca3af", margin: "2px 0 0" }}>
+                {fmtDate(placedAt)} · {fmtTime(placedAt)}
+              </p>
+            )}
+          </div>
+          <div style={{ textAlign: "right" }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: "#991b1b", margin: 0 }}>Cancelled</p>
+            {cancelledAt && (
+              <p style={{ fontSize: 11, color: "#9ca3af", margin: "2px 0 0" }}>
+                {fmtDate(cancelledAt)} · {fmtTime(cancelledAt)}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ position: "relative" }}>
-      {/* Connector track */}
-      <div style={{
-        position: "absolute",
-        top: compact ? 16 : 20,
-        left: compact ? "calc(12.5% + 16px)" : "calc(12.5% + 20px)",
-        right: compact ? "calc(12.5% + 16px)" : "calc(12.5% + 20px)",
-        height: 3,
-        background: "#e2e8f0",
-        zIndex: 0,
-      }}>
-        {/* Filled portion */}
-        <div style={{
-          height: "100%",
-          background: "#f97316",
-          borderRadius: 2,
-          width: currentIdx <= 0 ? "0%" :
-                 currentIdx === 1 ? "33%" :
-                 currentIdx === 2 ? "66%" : "100%",
-          transition: "width 0.6s ease",
-        }} />
-      </div>
+    <div>
+      {/* Step nodes + connectors */}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {PIPELINE.map((step, i) => {
+          const isDone    = currentStep > i;
+          const isCurrent = currentStep === i;
+          const isPending = currentStep < i;
+          const event     = eventMap[step.key];
 
-      {/* Steps */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", position: "relative", zIndex: 1 }}>
-        {STEPS.map((step, i) => {
-          const done    = i < currentIdx;
-          const current = i === currentIdx;
-          const future  = i > currentIdx;
-          const ts      = tsMap[step.key];
+          const dotBg     = isDone ? "#22c55e" : isCurrent ? "#0d0d0d" : "#f1f5f9";
+          const dotBorder = isDone ? "#22c55e" : isCurrent ? "#0d0d0d" : "#e2e8f0";
+          const iconColor = isDone || isCurrent ? "#fff" : "#9ca3af";
 
           return (
-            <div key={step.key} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: compact ? 6 : 10 }}>
-              {/* Circle */}
-              <div style={{
-                width: compact ? 32 : 40,
-                height: compact ? 32 : 40,
-                borderRadius: "50%",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: compact ? 14 : 18,
-                background: done ? "#f97316" : current ? "#fff7ed" : "#f1f5f9",
-                border: `3px solid ${done ? "#f97316" : current ? "#f97316" : "#e2e8f0"}`,
-                boxShadow: current ? "0 0 0 5px rgba(249,115,22,0.15)" : "none",
-                transition: "all 0.3s",
-                flexShrink: 0,
-              }}>
-                {done
-                  ? <span style={{ color: "white", fontSize: compact ? 12 : 15, fontWeight: 900 }}>✓</span>
-                  : <span style={{ filter: future ? "grayscale(1) opacity(0.4)" : "none" }}>{step.icon}</span>
-                }
+            <div key={step.key} style={{ display: "flex", alignItems: "center", flex: i < PIPELINE.length - 1 ? 1 : 0 }}>
+              {/* Node */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center",
+                position: "relative", flexShrink: 0 }}>
+                <div style={{
+                  width: dotSize, height: dotSize, borderRadius: "50%",
+                  background: dotBg, border: `2px solid ${dotBorder}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: iconSize, transition: "all 0.3s",
+                  boxShadow: isCurrent ? "0 0 0 4px rgba(0,0,0,0.08)" : "none",
+                }}>
+                  {isDone
+                    ? <span style={{ fontSize: iconSize }}>✓</span>
+                    : <span style={{ fontSize: iconSize, filter: isPending ? "grayscale(1) opacity(0.4)" : "none" }}>
+                        {step.icon}
+                      </span>
+                  }
+                </div>
+                {/* Pulse for current active step */}
+                {isCurrent && (
+                  <div style={{
+                    position: "absolute", width: dotSize, height: dotSize, borderRadius: "50%",
+                    border: "2px solid #0d0d0d", animation: "pulse 2s infinite",
+                    opacity: 0.3, pointerEvents: "none",
+                  }} />
+                )}
               </div>
 
-              {/* Label + timestamp */}
-              <div style={{ textAlign: "center", padding: "0 4px" }}>
-                <p style={{
-                  margin: 0,
-                  fontSize: compact ? 12 : 13,
-                  fontWeight: current || done ? 700 : 500,
-                  color: current ? "#f97316" : done ? "#0f172a" : "#94a3b8",
-                }}>
-                  {step.label}
-                </p>
-                {!compact && (
-                  <p style={{ margin: "3px 0 0", fontSize: 11, color: "#94a3b8", lineHeight: 1.4 }}>
-                    {ts ? fmt(ts) : step.description}
-                  </p>
-                )}
-                {compact && ts && (
-                  <p style={{ margin: "2px 0 0", fontSize: 10, color: "#94a3b8" }}>
-                    {new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                  </p>
-                )}
-              </div>
+              {/* Connector line */}
+              {i < PIPELINE.length - 1 && (
+                <div style={{ flex: 1, height: 3, margin: "0 4px",
+                  background: isDone ? "#22c55e" : "#e2e8f0",
+                  borderRadius: 2, transition: "background 0.3s",
+                  position: "relative", overflow: "hidden" }}>
+                  {isCurrent && (
+                    <div style={{
+                      position: "absolute", top: 0, left: 0, bottom: 0, width: "60%",
+                      background: "linear-gradient(90deg, #22c55e, transparent)",
+                      borderRadius: 2,
+                    }} />
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
+
+      {/* Labels below each node */}
+      <div style={{ display: "flex", marginTop: compact ? 8 : 12 }}>
+        {PIPELINE.map((step, i) => {
+          const isDone    = currentStep > i;
+          const isCurrent = currentStep === i;
+          const isPending = currentStep < i;
+          const event     = eventMap[step.key];
+
+          return (
+            <div key={step.key} style={{
+              flex: i < PIPELINE.length - 1 ? 1 : 0,
+              minWidth: compact ? 64 : 80,
+              paddingRight: i < PIPELINE.length - 1 ? 8 : 0,
+            }}>
+              <p style={{
+                fontSize: compact ? 11 : 12, fontWeight: 800, margin: "0 0 2px",
+                color: isDone ? "#15803d" : isCurrent ? "#0d0d0d" : "#9ca3af",
+              }}>
+                {step.label}
+                {isCurrent && !compact && (
+                  <span style={{ marginLeft: 5, fontSize: 9, fontWeight: 800,
+                    background: "#0d0d0d", color: "#f5c700",
+                    padding: "1px 5px", borderRadius: 4,
+                    verticalAlign: "middle", textTransform: "uppercase",
+                    letterSpacing: "0.06em" }}>
+                    Current
+                  </span>
+                )}
+              </p>
+              {event ? (
+                <>
+                  <p style={{ fontSize: compact ? 10 : 11, color: "#6b7280", margin: 0, fontWeight: 600 }}>
+                    {fmtDate(event.timestamp)}
+                  </p>
+                  {!compact && (
+                    <p style={{ fontSize: 10, color: "#9ca3af", margin: "1px 0 0" }}>
+                      {fmtTime(event.timestamp)}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p style={{ fontSize: compact ? 10 : 11, color: "#d1d5db", margin: 0 }}>Pending</p>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Pulse animation */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); opacity: 0.3; }
+          50%       { transform: scale(1.4); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
