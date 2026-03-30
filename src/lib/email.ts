@@ -5,7 +5,8 @@ function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
-const FROM = "BuildSupply <noreply@buildsupply.dev>";
+// Use verified domain if set, otherwise fall back to Resend's sandbox
+const FROM = process.env.EMAIL_FROM ?? "BuildSupply <onboarding@resend.dev>";
 
 // ── Shared branded wrapper ─────────────────────────────────────────────────
 function emailShell(content: string): string {
