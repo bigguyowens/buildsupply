@@ -97,6 +97,63 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
 
         {/* Right: persistent management panel */}
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+          {/* Health score breakdown */}
+          {health && (
+            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+              <div style={{ padding: "12px 16px", background: "#0d0d0d",
+                display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+                  letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>
+                  Health Score
+                </h2>
+                <span style={{ fontSize: 18, fontWeight: 900, color: health.color,
+                  background: health.bg, padding: "2px 10px", borderRadius: 20 }}>
+                  {health.score}
+                </span>
+              </div>
+              <div style={{ padding: "14px 16px" }}>
+                {[
+                  { label: "Order Recency",  pts: health.breakdown.recency,     max: 25, icon: "📅" },
+                  { label: "Order Frequency",pts: health.breakdown.frequency,   max: 20, icon: "🔄" },
+                  { label: "Spend vs Avg",   pts: health.breakdown.spend,       max: 20, icon: "💰" },
+                  { label: "Onboarding",     pts: health.breakdown.onboarding,  max: 15, icon: "🚀" },
+                  { label: "Engagement",     pts: health.breakdown.engagement,  max: 10, icon: "💬" },
+                  { label: "Quotes",         pts: health.breakdown.quotes,      max: 10, icon: "📋" },
+                ].map(f => {
+                  const pct = f.max > 0 ? (f.pts / f.max) * 100 : 0;
+                  const barColor = pct >= 70 ? "#22c55e" : pct >= 40 ? "#f59e0b" : "#ef4444";
+                  return (
+                    <div key={f.label} style={{ marginBottom: 10 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between",
+                        alignItems: "center", marginBottom: 4 }}>
+                        <span style={{ fontSize: 12, color: "#374151", fontWeight: 600,
+                          display: "flex", alignItems: "center", gap: 5 }}>
+                          <span>{f.icon}</span>{f.label}
+                        </span>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: "#6b7280" }}>
+                          {f.pts}/{f.max}
+                        </span>
+                      </div>
+                      <div style={{ height: 6, background: "#f1f1f1", borderRadius: 3 }}>
+                        <div style={{ height: "100%", borderRadius: 3,
+                          width: `${pct}%`, background: barColor,
+                          transition: "width 0.3s" }} />
+                      </div>
+                    </div>
+                  );
+                })}
+                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #f1f1f1",
+                  display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 11, color: "#9ca3af" }}>Total score</span>
+                  <span style={{ fontSize: 14, fontWeight: 900, padding: "2px 10px",
+                    borderRadius: 20, background: health.bg, color: health.color }}>
+                    {health.label} · {health.score}/100
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
           <RoleManager
             customerId={customer.id}
             currentRole={customer.role}

@@ -242,9 +242,9 @@ export function CRMOrdersClient({ orders, totalRevenue, statusCounts, sessionRol
                       )}
                     </td>
 
-                    {/* View link — admin sees admin detail, others see account detail */}
+                    {/* View link — all roles use CRM order detail */}
                     <td style={{ padding: "12px 16px" }}>
-                      <Link href={isAdmin ? `/admin/orders/${o.id}` : `/account/orders/${o.id}`}
+                      <Link href={`/crm/orders/${o.id}`}
                         style={{ fontSize: 12, color: "#f5c700", fontWeight: 700,
                           textDecoration: "none", whiteSpace: "nowrap" as const }}>
                         View →

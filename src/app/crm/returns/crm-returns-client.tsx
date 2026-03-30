@@ -275,12 +275,12 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
                         : <span style={{ color: "#d1d5db" }}>—</span>}
                     </td>
 
-                    {/* Link */}
+                    {/* Link — all roles use CRM return detail */}
                     <td style={{ padding: "12px 16px" }}>
-                      <Link href={`/admin/returns`}
+                      <Link href={`/crm/returns/${r.id}`}
                         style={{ fontSize: 12, color: "#f5c700", fontWeight: 700,
                           textDecoration: "none", whiteSpace: "nowrap" as const }}>
-                        {isAdmin ? "Manage →" : "View →"}
+                        View →
                       </Link>
                     </td>
                   </tr>
