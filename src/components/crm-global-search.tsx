@@ -162,7 +162,7 @@ export function CRMGlobalSearch() {
                       style={{
                         display: "flex", alignItems: "center", gap: 12,
                         padding: "10px 14px", cursor: "pointer",
-                        background: isActive ? "#fffbeb" : "#fff",
+                        background: isActive ? "#fffbeb" : "var(--crm-surface)",
                         borderBottom: "1px solid var(--crm-border2)",
                         transition: "background 0.1s",
                       }}

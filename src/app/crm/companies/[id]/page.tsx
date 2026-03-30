@@ -40,7 +40,7 @@ export default async function CRMCompanyPage({ params }: { params: Promise<{ id:
             {company.name[0]}
           </div>
           <div>
-            <h1 style={{ color: "#fff", fontSize: 20, fontWeight: 900, margin: "0 0 2px",
+            <h1 style={{ color: "var(--crm-surface)", fontSize: 20, fontWeight: 900, margin: "0 0 2px",
               letterSpacing: "-0.02em" }}>{company.name}</h1>
             <p style={{ color: "var(--crm-muted)", fontSize: 13, margin: 0 }}>
               {company.industry ?? ""}

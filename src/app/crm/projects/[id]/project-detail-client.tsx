@@ -98,7 +98,7 @@ export function ProjectDetailClient({ project: initialProject, sessionId, sessio
           alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-              <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 900, margin: 0 }}>
+              <h1 style={{ color: "var(--crm-surface)", fontSize: 22, fontWeight: 900, margin: 0 }}>
                 {project.name}
               </h1>
               {/* Status dropdown */}
@@ -451,7 +451,7 @@ function NotesTab({ projectId, notes, onAdded }: {
             <p style={{ fontSize: 13, color: "var(--crm-muted2)", margin: 0 }}>No notes yet</p>
           </div>
         ) : notes.map(n => (
-          <div key={n.id} style={{ background: n.pinned ? "#fffbeb" : "#fff",
+          <div key={n.id} style={{ background: n.pinned ? "#fffbeb" : "var(--crm-surface)",
             borderRadius: 10, border: `1px solid ${n.pinned ? "#fde68a" : "#e5e5e5"}`,
             padding: "14px 18px" }}>
             {n.pinned && <span style={{ fontSize: 10, fontWeight: 800, color: "#92400e",

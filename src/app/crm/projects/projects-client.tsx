@@ -113,7 +113,7 @@ export function ProjectsClient({ projects, statusCounts, sessionRole, sessionId,
               padding: "5px 12px", borderRadius: 6, fontSize: 12, fontWeight: 700,
               cursor: "pointer", border: "2px solid",
               borderColor: typeFilter === v ? "#0d0d0d" : "#e5e5e5",
-              background: typeFilter === v ? "#0d0d0d" : "#fff",
+              background: typeFilter === v ? "#0d0d0d" : "var(--crm-surface)",
               color: typeFilter === v ? "#f5c700" : "#6b7280" }}>
               {l}
             </button>
@@ -130,7 +130,7 @@ export function ProjectsClient({ projects, statusCounts, sessionRole, sessionId,
                 padding: "5px 12px", borderRadius: 6, fontSize: 12, fontWeight: 700,
                 cursor: "pointer", border: "2px solid",
                 borderColor: statusFilter === s ? (meta?.color ?? "#0d0d0d") : "#e5e5e5",
-                background: statusFilter === s ? (meta?.bg ?? "#0d0d0d") : "#fff",
+                background: statusFilter === s ? (meta?.bg ?? "#0d0d0d") : "var(--crm-surface)",
                 color: statusFilter === s ? (meta?.color ?? "#f5c700") : "#6b7280" }}>
                 {s === "all" ? "All" : meta!.label} ({count})
               </button>
@@ -258,7 +258,7 @@ function ProjectCard({ project: p }: { project: CRMProject }) {
               </span>
               {s.badge && (
                 <span style={{ fontSize: 9, fontWeight: 800, background: "#ef4444",
-                  color: "#fff", borderRadius: 10, padding: "1px 5px" }}>
+                  color: "var(--crm-surface)", borderRadius: 10, padding: "1px 5px" }}>
                   {s.badge} open
                 </span>
               )}
@@ -356,7 +356,7 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
                   style={{ flex: 1, padding: "7px 0", borderRadius: 6, fontSize: 12, fontWeight: 700,
                     cursor: "pointer", border: "2px solid",
                     borderColor: form.entityType === t ? "#0d0d0d" : "#e5e5e5",
-                    background: form.entityType === t ? "#0d0d0d" : "#fff",
+                    background: form.entityType === t ? "#0d0d0d" : "var(--crm-surface)",
                     color: form.entityType === t ? "#f5c700" : "#6b7280" }}>
                   {t === "customer" ? "👤 Customer" : "🏢 Company"}
                 </button>
@@ -497,7 +497,7 @@ function EntityPicker({ type, selectedId, selectedName, onSelect }: {
             <div key={r.id} onClick={() => { onSelect(r.id, r.name); setOpen(false); setSearch(""); }}
               style={{ padding: "10px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600,
                 color: "var(--crm-text)", borderBottom: "1px solid var(--crm-border2)" }}
-              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#f9f9f9"}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "var(--crm-surface2)"}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = ""}>
               {type === "customer" ? "👤" : "🏢"} {r.name}
             </div>

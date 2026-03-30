@@ -51,7 +51,7 @@ export function InventoryClient({
           <button key={h.id} onClick={() => { setSelectedHub(h.id); setFilter("all"); setSearch(""); }}
             style={{
               padding: "10px 18px", borderRadius: 8, cursor: "pointer", border: "none",
-              background: selectedHub === h.id ? "#0d0d0d" : "#fff",
+              background: selectedHub === h.id ? "#0d0d0d" : "var(--crm-surface)",
               color: selectedHub === h.id ? "#f5c700" : "#6b7280",
               fontWeight: 700, fontSize: 13,
               borderColor: selectedHub === h.id ? "#0d0d0d" : "#e5e5e5",
@@ -102,7 +102,7 @@ export function InventoryClient({
                   <button key={f} onClick={() => setFilter(f)} style={{
                     padding: "7px 14px", borderRadius: 6, cursor: "pointer", fontSize: 12, fontWeight: 700,
                     border: `1px solid ${filter === f ? "#0d0d0d" : "#e5e5e5"}`,
-                    background: filter === f ? "#0d0d0d" : "#fff",
+                    background: filter === f ? "#0d0d0d" : "var(--crm-surface)",
                     color: filter === f ? "#f5c700" : "#6b7280",
                     transition: "all 0.15s",
                   }}>{labels[f]}</button>

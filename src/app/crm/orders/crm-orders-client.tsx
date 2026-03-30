@@ -119,7 +119,7 @@ export function CRMOrdersClient({ orders, totalRevenue, statusCounts, sessionRol
                 padding: "5px 12px", borderRadius: 6, fontSize: 12, fontWeight: 700,
                 cursor: "pointer", border: "2px solid",
                 borderColor: active ? (meta?.color ?? "#0d0d0d") : "#e5e5e5",
-                background: active ? (meta?.bg ?? "#0d0d0d") : "#fff",
+                background: active ? (meta?.bg ?? "#0d0d0d") : "var(--crm-surface)",
                 color: active ? (meta?.color ?? "#f5c700") : "#6b7280",
               }}>
                 {s === "all" ? "All" : STATUS_META[s].label} ({count})

@@ -99,7 +99,7 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
           <button onClick={() => setFilterStaffId("all")} style={{
             padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer",
             border: `2px solid ${filterStaffId === "all" ? "#0d0d0d" : "#e5e5e5"}`,
-            background: filterStaffId === "all" ? "#0d0d0d" : "#fff",
+            background: filterStaffId === "all" ? "#0d0d0d" : "var(--crm-surface)",
             color: filterStaffId === "all" ? "#f5c700" : "#6b7280",
           }}>All Tasks</button>
 
@@ -107,7 +107,7 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
           <button onClick={() => setFilterStaffId("mine")} style={{
             padding: "6px 14px", borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: "pointer",
             border: `2px solid ${filterStaffId === "mine" ? "#f5c700" : "#e5e5e5"}`,
-            background: filterStaffId === "mine" ? "#fffbeb" : "#fff",
+            background: filterStaffId === "mine" ? "#fffbeb" : "var(--crm-surface)",
             color: filterStaffId === "mine" ? "#92400e" : "#6b7280",
           }}>⭐ My Tasks</button>
 
@@ -173,7 +173,7 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
             {showCompleted ? "▼" : "▶"} Recently Completed ({filteredCompleted.length})
           </button>
           {showCompleted && (
-            <TaskGroup title="" tasks={filteredCompleted} headerBg="#f9f9f9"
+            <TaskGroup title="" tasks={filteredCompleted} headerBg="var(--crm-surface2)"
               headerColor="#9ca3af" accountManagers={accountManagers} isAdmin={isAdmin} hideHeader />
           )}
         </div>
@@ -235,7 +235,7 @@ function StaffDropdown({ staff, value, onChange }: {
           padding: "6px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600,
           cursor: "pointer",
           border: `2px solid ${value ? "#3b82f6" : "#e5e5e5"}`,
-          background: value ? "#eff6ff" : "#fff",
+          background: value ? "#eff6ff" : "var(--crm-surface)",
           color: value ? "#1e40af" : "#6b7280",
           minWidth: 160,
         }}
@@ -303,7 +303,7 @@ function StaffDropdown({ staff, value, onChange }: {
                     borderBottom: "1px solid var(--crm-border2)",
                     transition: "background 0.1s",
                   }}
-                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = "#f9f9f9"; }}
+                  onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = "var(--crm-surface2)"; }}
                   onMouseLeave={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
                 >
                   <div style={{ width: 28, height: 28, borderRadius: "50%", background: "#f5c700",
@@ -365,7 +365,7 @@ function TaskCard({ task, accountManagers, isAdmin }: {
         <button onClick={cycleStatus} title="Click to change status" style={{
           width: 24, height: 24, borderRadius: "50%", border: `2px solid ${statusColor}`,
           background: status === "complete" ? "#22c55e" : "transparent",
-          color: status === "complete" ? "#fff" : statusColor,
+          color: status === "complete" ? "var(--crm-surface)" : statusColor,
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: 12, fontWeight: 800, cursor: "pointer", flexShrink: 0, marginTop: 1,
         }}>{statusIcon}</button>

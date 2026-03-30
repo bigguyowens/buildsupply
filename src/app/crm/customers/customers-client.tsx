@@ -222,7 +222,7 @@ function StaffRow({ member }: { member: CRMStaff }) {
               <button key={r} onClick={() => changeRole(r)} style={{
                 padding: "3px 10px", borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: "pointer",
                 border: `1px solid ${r === role ? "#f5c700" : "#e5e5e5"}`,
-                background: r === role ? "#fffbeb" : "#fff",
+                background: r === role ? "#fffbeb" : "var(--crm-surface)",
                 color: r === role ? "#92400e" : "#6b7280",
               }}>{r.replace("_", " ")}</button>
             ))}

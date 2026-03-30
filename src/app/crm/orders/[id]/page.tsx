@@ -70,7 +70,7 @@ export default async function CRMOrderDetailPage({ params }: { params: Promise<{
         marginBottom: 20, display: "flex", alignItems: "center",
         justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 900, margin: "0 0 4px" }}>
+          <h1 style={{ color: "var(--crm-surface)", fontSize: 22, fontWeight: 900, margin: "0 0 4px" }}>
             Order #{order.id}
           </h1>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>

@@ -46,7 +46,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
             {customer.first_name[0]}{customer.last_name[0]}
           </div>
           <div>
-            <h1 style={{ color: "#fff", fontSize: 20, fontWeight: 900, margin: "0 0 2px",
+            <h1 style={{ color: "var(--crm-surface)", fontSize: 20, fontWeight: 900, margin: "0 0 2px",
               letterSpacing: "-0.02em" }}>{fullName}</h1>
             <p style={{ color: "var(--crm-muted)", fontSize: 13, margin: "0 0 6px" }}>{customer.email}</p>
             {health && (

@@ -87,7 +87,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-              <h1 style={{ color: "#fff", fontSize: 20, fontWeight: 900, margin: 0,
+              <h1 style={{ color: "var(--crm-surface)", fontSize: 20, fontWeight: 900, margin: 0,
                 letterSpacing: "-0.02em" }}>Quote #{quote.id}</h1>
               <span style={{ fontSize: 11, fontWeight: 800, padding: "3px 10px", borderRadius: 999,
                 textTransform: "uppercase", background: meta.bg, color: meta.color }}>

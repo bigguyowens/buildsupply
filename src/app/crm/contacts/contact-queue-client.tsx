@@ -52,7 +52,7 @@ export function ContactQueueClient({ contacts }: { contacts: Contact[] }) {
               {t.count !== undefined && (
                 <span style={{ fontSize: 11, fontWeight: 800, padding: "1px 7px", borderRadius: 999,
                   background: t.key === "new" && t.count > 0 ? "#ef4444" : "#f1f1f1",
-                  color: t.key === "new" && t.count > 0 ? "#fff" : "#9ca3af" }}>
+                  color: t.key === "new" && t.count > 0 ? "var(--crm-surface)" : "#9ca3af" }}>
                   {t.count}
                 </span>
               )}
@@ -67,7 +67,7 @@ export function ContactQueueClient({ contacts }: { contacts: Contact[] }) {
         ) : filtered.map((c, i) => (
           <div key={c.id} onClick={() => { setSelected(c); setReplyBody(""); }}
             style={{ padding: "14px 18px", borderBottom: "1px solid var(--crm-border2)", cursor: "pointer",
-              background: selected?.id === c.id ? "#fffbeb" : sent.includes(c.id) ? "#f0fdf4" : "#fff",
+              background: selected?.id === c.id ? "#fffbeb" : sent.includes(c.id) ? "#f0fdf4" : "var(--crm-surface)",
               borderLeft: `3px solid ${selected?.id === c.id ? "#f5c700" : sent.includes(c.id) ? "#22c55e" : "transparent"}`,
             }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>

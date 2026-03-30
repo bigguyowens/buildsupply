@@ -86,7 +86,7 @@ export default async function AMPerformancePage() {
                   </div>
                   <div>
                     <Link href={`/crm/customers/${am.id}`}
-                      style={{ fontWeight: 800, fontSize: 15, color: "#fff", textDecoration: "none" }}>
+                      style={{ fontWeight: 800, fontSize: 15, color: "var(--crm-surface)", textDecoration: "none" }}>
                       {am.name}
                     </Link>
                     <p style={{ color: "var(--crm-muted)", fontSize: 12, margin: 0 }}>
@@ -97,7 +97,7 @@ export default async function AMPerformancePage() {
                 </div>
                 <div style={{ display: "flex", gap: 8 }}>
                   {am.tasks_overdue > 0 && (
-                    <span style={{ background: "#ef4444", color: "#fff", fontSize: 11,
+                    <span style={{ background: "#ef4444", color: "var(--crm-surface)", fontSize: 11,
                       fontWeight: 800, padding: "3px 10px", borderRadius: 999 }}>
                       ⚠ {am.tasks_overdue} overdue
                     </span>

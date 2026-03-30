@@ -52,7 +52,7 @@ export function CRMSidebar({ user }: { user: SessionUser }) {
             <span style={{ fontSize: 16, fontWeight: 900, color: "#000" }}>B</span>
           </div>
           <div>
-            <p style={{ color: "#fff", fontWeight: 800, fontSize: 15, margin: 0, letterSpacing: "-0.02em" }}>
+            <p style={{ color: "var(--crm-surface)", fontWeight: 800, fontSize: 15, margin: 0, letterSpacing: "-0.02em" }}>
               <span style={{ color: C.accent }}>Build</span>Supply
             </p>
             <p style={{ color: C.muted, fontSize: 10, margin: 0, fontWeight: 700,

@@ -155,7 +155,7 @@ export function RoleManager({ customerId, currentRole, sessionRole }:
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "9px 12px", borderRadius: 6, cursor: "pointer", textAlign: "left",
               border: `2px solid ${role === r.value ? "#f5c700" : "#e5e5e5"}`,
-              background: role === r.value ? "#fffbeb" : "#fff",
+              background: role === r.value ? "#fffbeb" : "var(--crm-surface)",
               transition: "all 0.15s",
             }}>
             <div>
@@ -250,7 +250,7 @@ export function NotesPanel({ customerId, initialNotes }: { customerId: number; i
 
 function NoteCard({ note, onPin, onDelete }: { note: CRMNote; onPin: (id: number) => void; onDelete: (id: number) => void }) {
   return (
-    <div style={{ background: note.pinned ? "#fffbeb" : "#f9f9f9",
+    <div style={{ background: note.pinned ? "#fffbeb" : "var(--crm-surface2)",
       border: `1px solid ${note.pinned ? "#fde68a" : "#f0f0f0"}`,
       borderRadius: 8, padding: "12px 14px", marginBottom: 8 }}>
       <p style={{ fontSize: 13, color: "var(--crm-text)", margin: "0 0 8px", lineHeight: 1.6 }}>{note.body}</p>
