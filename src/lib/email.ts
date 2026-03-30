@@ -267,3 +267,33 @@ export async function sendContactReplyEmail(
   });
 }
 
+
+// ── Password reset email ────────────────────────────────────────────────
+export type PasswordResetData = {
+  to: string;
+  firstName: string;
+  resetUrl: string;
+  expiresAt: string;
+};
+
+export async function sendPasswordResetEmail(data: PasswordResetData) {
+  const { to, firstName, resetUrl, expiresAt } = data;
+  const body = `
+    ${h1("Reset Your Password")}
+    ${p(`Hi ${firstName},`)}
+    ${p("We received a request to reset the password for your BuildSupply account. Click the button below to set a new password.")}
+    <div style="text-align:center;margin:32px 0;">
+      ${ctaButton("Reset My Password", resetUrl)}
+    </div>
+    ${p("This link will expire at <strong>" + expiresAt + "</strong> (1 hour from now).", false)}
+    ${divider()}
+    ${p("If you didn't request a password reset, you can safely ignore this email — your password will not change.", true)}
+    ${p("For security, this link can only be used once and expires in 1 hour. If you need a new link, visit the login page and click \"Forgot password?\" again.", true)}
+  `;
+  return getResend().emails.send({
+    from: FROM,
+    to: [to],
+    subject: "Reset your BuildSupply password",
+    html: emailShell(body),
+  });
+}
