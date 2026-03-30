@@ -97,7 +97,7 @@ export function CRMGlobalSearch() {
     <div ref={containerRef} style={{ position: "relative", flex: 1, maxWidth: 440 }}>
       {/* Input */}
       <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-        <span style={{ position: "absolute", left: 12, color: "#9ca3af", fontSize: 14,
+        <span style={{ position: "absolute", left: 12, color: "var(--crm-muted2)", fontSize: 14,
           pointerEvents: "none", display: "flex", alignItems: "center" }}>
           {isPending ? "⌛" : "🔍"}
         </span>
@@ -112,7 +112,7 @@ export function CRMGlobalSearch() {
             width: "100%", padding: "8px 12px 8px 36px",
             borderRadius: 8, fontSize: 13, fontWeight: 500,
             border: `1.5px solid ${open ? "#f5c700" : "#e5e5e5"}`,
-            background: "#fafafa", color: "#0d0d0d",
+            background: "var(--crm-surface2)", color: "var(--crm-text)",
             outline: "none", transition: "border-color 0.15s",
             boxSizing: "border-box" as const,
           }}
@@ -120,7 +120,7 @@ export function CRMGlobalSearch() {
         {query && (
           <button onClick={() => { setQuery(""); setResults([]); setOpen(false); }}
             style={{ position: "absolute", right: 10, background: "none", border: "none",
-              cursor: "pointer", color: "#9ca3af", fontSize: 16, lineHeight: 1,
+              cursor: "pointer", color: "var(--crm-muted2)", fontSize: 16, lineHeight: 1,
               display: "flex", alignItems: "center", padding: 2 }}>
             ✕
           </button>
@@ -131,7 +131,7 @@ export function CRMGlobalSearch() {
       {open && results.length > 0 && (
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
-          background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+          background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
           boxShadow: "0 8px 32px rgba(0,0,0,0.14)", zIndex: 500,
           overflow: "hidden", maxHeight: 420, overflowY: "auto",
         }}>
@@ -142,11 +142,11 @@ export function CRMGlobalSearch() {
               <div key={type}>
                 {/* Section header */}
                 <div style={{ padding: "8px 14px 4px",
-                  background: "#fafafa", borderBottom: "1px solid #f1f1f1",
+                  background: "var(--crm-surface2)", borderBottom: "1px solid var(--crm-border2)",
                   display: "flex", alignItems: "center", gap: 6 }}>
                   <span style={{ fontSize: 11 }}>{meta.icon}</span>
                   <span style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase",
-                    letterSpacing: "0.1em", color: "#9ca3af" }}>{meta.label}s</span>
+                    letterSpacing: "0.1em", color: "var(--crm-muted2)" }}>{meta.label}s</span>
                 </div>
 
                 {/* Results */}
@@ -163,7 +163,7 @@ export function CRMGlobalSearch() {
                         display: "flex", alignItems: "center", gap: 12,
                         padding: "10px 14px", cursor: "pointer",
                         background: isActive ? "#fffbeb" : "#fff",
-                        borderBottom: "1px solid #f9f9f9",
+                        borderBottom: "1px solid var(--crm-border2)",
                         transition: "background 0.1s",
                       }}
                     >
@@ -179,12 +179,12 @@ export function CRMGlobalSearch() {
 
                       {/* Text */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d",
+                        <p style={{ fontSize: 13, fontWeight: 700, color: "var(--crm-text)",
                           margin: "0 0 1px", overflow: "hidden",
                           textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {result.title}
                         </p>
-                        <p style={{ fontSize: 11, color: "#9ca3af", margin: 0,
+                        <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0,
                           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {result.subtitle}
                         </p>
@@ -218,8 +218,8 @@ export function CRMGlobalSearch() {
           })}
 
           {/* Footer hint */}
-          <div style={{ padding: "7px 14px", background: "#fafafa",
-            borderTop: "1px solid #f1f1f1", display: "flex",
+          <div style={{ padding: "7px 14px", background: "var(--crm-surface2)",
+            borderTop: "1px solid var(--crm-border2)", display: "flex",
             alignItems: "center", gap: 10 }}>
             <span style={{ fontSize: 10, color: "#d1d5db" }}>↑↓ navigate</span>
             <span style={{ fontSize: 10, color: "#d1d5db" }}>↵ select</span>
@@ -235,12 +235,12 @@ export function CRMGlobalSearch() {
       {open && query.length >= 2 && results.length === 0 && !isPending && (
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
-          background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+          background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
           boxShadow: "0 8px 32px rgba(0,0,0,0.14)", zIndex: 500,
           padding: "20px 16px", textAlign: "center",
         }}>
-          <p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>
-            No results for <strong style={{ color: "#0d0d0d" }}>"{query}"</strong>
+          <p style={{ fontSize: 13, color: "var(--crm-muted2)", margin: 0 }}>
+            No results for <strong style={{ color: "var(--crm-text)" }}>"{query}"</strong>
           </p>
         </div>
       )}

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
+import { useCRMTheme } from "./crm-theme-wrapper";
 import type { SessionUser } from "@/lib/auth";
 
 const NAV = [
@@ -37,6 +38,7 @@ const C = {
 
 export function CRMSidebar({ user }: { user: SessionUser }) {
   const pathname = usePathname();
+  const { theme, toggle } = useCRMTheme();
 
   return (
     <aside style={{ width: 230, flexShrink: 0, background: C.sidebar, minHeight: "100vh",
@@ -119,6 +121,15 @@ export function CRMSidebar({ user }: { user: SessionUser }) {
             </p>
           </div>
         </div>
+        {/* Theme toggle */}
+        <button
+          onClick={toggle}
+          style={{ width: "100%", padding: "7px 0", background: "transparent",
+            border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6,
+            fontSize: 12, fontWeight: 600, cursor: "pointer", marginBottom: 6,
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+          {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+        </button>
         <form action={logoutAction}>
           <button type="submit" style={{ width: "100%", padding: "7px 0", background: "transparent",
             border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6,

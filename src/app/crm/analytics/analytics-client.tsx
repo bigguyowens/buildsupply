@@ -41,10 +41,10 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
     <div>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
           Revenue Analytics
         </h1>
-        <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+        <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: "4px 0 0" }}>
           Last 12 months · {totalOrders} orders · {fmt(totalRevenue)} total revenue
         </p>
       </div>
@@ -53,31 +53,31 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 24 }}>
         {[
           { label: "12-Month Revenue", value: fmt(totalRevenue),                      color: "#f5c700", border: "#f5c700" },
-          { label: "Total Orders",     value: totalOrders.toLocaleString(),            color: "#0d0d0d", border: "#0d0d0d" },
+          { label: "Total Orders",     value: totalOrders.toLocaleString(),            color: "var(--crm-text)", border: "#0d0d0d" },
           { label: "Pipeline (Open)",  value: fmt(Number(sentValue?.value ?? 0)),      color: "#3b82f6", border: "#3b82f6" },
           { label: "Quote Win Rate",   value: `${winRatePct}%`,                        color: "#22c55e", border: "#22c55e" },
         ].map(k => (
-          <div key={k.label} style={{ background: "#fff", borderRadius: 10, padding: "16px 20px",
-            border: "1px solid #e5e5e5", borderTop: `3px solid ${k.border}` }}>
+          <div key={k.label} style={{ background: "var(--crm-surface)", borderRadius: 10, padding: "16px 20px",
+            border: "1px solid var(--crm-border)", borderTop: `3px solid ${k.border}` }}>
             <p style={{ fontSize: 24, fontWeight: 900, color: k.color, margin: "0 0 4px" }}>{k.value}</p>
             <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>{k.label}</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>{k.label}</p>
           </div>
         ))}
       </div>
 
       {/* Revenue trend chart */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
         padding: "20px 24px", marginBottom: 20 }}>
         <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-          letterSpacing: "0.08em", color: "#0d0d0d", margin: "0 0 20px" }}>Monthly Revenue</h2>
+          letterSpacing: "0.08em", color: "var(--crm-text)", margin: "0 0 20px" }}>Monthly Revenue</h2>
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={monthlyRevenue.map(m => ({ ...m, revenue: Number(m.revenue) }))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f1f1" />
             <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#9ca3af" }} />
             <YAxis tickFormatter={v => `$${(v/1000).toFixed(0)}k`} tick={{ fontSize: 11, fill: "#9ca3af" }} />
             <Tooltip formatter={(v: any) => fmt(Number(v))}
-              contentStyle={{ borderRadius: 8, border: "1px solid #e5e5e5", fontSize: 12 }} />
+              contentStyle={{ borderRadius: 8, border: "1px solid var(--crm-border)", fontSize: 12 }} />
             <Line type="monotone" dataKey="revenue" stroke="#f5c700" strokeWidth={3}
               dot={{ fill: "#f5c700", strokeWidth: 2, r: 4 }} activeDot={{ r: 6 }} />
           </LineChart>
@@ -88,9 +88,9 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
       <div style={{ display: "grid", gridTemplateColumns: showAMs ? "1fr 1fr" : "1fr", gap: 20, marginBottom: 20 }}>
 
         {showAMs && (
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", padding: "20px 24px" }}>
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", padding: "20px 24px" }}>
             <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#0d0d0d", margin: "0 0 20px" }}>Revenue by Account Manager</h2>
+              letterSpacing: "0.08em", color: "var(--crm-text)", margin: "0 0 20px" }}>Revenue by Account Manager</h2>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={revenueByAM.map(r => ({ ...r, revenue: Number(r.revenue) }))}
                 layout="vertical" margin={{ left: 20 }}>
@@ -100,7 +100,7 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
                 <YAxis type="category" dataKey="am_name" width={90}
                   tick={{ fontSize: 11, fill: "#374151", fontWeight: 600 }} />
                 <Tooltip formatter={(v: any) => fmt(Number(v))}
-                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e5e5", fontSize: 12 }} />
+                  contentStyle={{ borderRadius: 8, border: "1px solid var(--crm-border)", fontSize: 12 }} />
                 <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
                   {revenueByAM.map((_, i) => (
                     <Cell key={i} fill={i === 0 ? "#f5c700" : i === 1 ? "#0d0d0d" : "#e5e5e5"} />
@@ -112,9 +112,9 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
         )}
 
         {/* Quote pipeline */}
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", padding: "20px 24px" }}>
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", padding: "20px 24px" }}>
           <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-            letterSpacing: "0.08em", color: "#0d0d0d", margin: "0 0 20px" }}>Quote Pipeline</h2>
+            letterSpacing: "0.08em", color: "var(--crm-text)", margin: "0 0 20px" }}>Quote Pipeline</h2>
           <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
             <ResponsiveContainer width="50%" height={180}>
               <PieChart>
@@ -125,25 +125,25 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
                   ))}
                 </Pie>
                 <Tooltip formatter={(v: any) => fmt(Number(v))}
-                  contentStyle={{ borderRadius: 8, border: "1px solid #e5e5e5", fontSize: 12 }} />
+                  contentStyle={{ borderRadius: 8, border: "1px solid var(--crm-border)", fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
             <div style={{ flex: 1 }}>
               {quotePipeline.map(p => (
                 <div key={p.status} style={{ display: "flex", justifyContent: "space-between",
                   alignItems: "center", padding: "8px 0",
-                  borderBottom: "1px solid #f5f5f5" }}>
+                  borderBottom: "1px solid var(--crm-border2)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <div style={{ width: 10, height: 10, borderRadius: 2,
                       background: PIPE_COLORS[p.status] ?? "#9ca3af" }} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: "#374151",
+                    <span style={{ fontSize: 13, fontWeight: 600, color: "var(--crm-text2)",
                       textTransform: "capitalize" }}>{p.status}</span>
                   </div>
                   <div style={{ textAlign: "right" }}>
-                    <p style={{ fontSize: 13, fontWeight: 800, color: "#0d0d0d", margin: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 800, color: "var(--crm-text)", margin: 0 }}>
                       {fmt(Number(p.value))}
                     </p>
-                    <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{p.count} quotes</p>
+                    <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>{p.count} quotes</p>
                   </div>
                 </div>
               ))}
@@ -161,24 +161,24 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
       </div>
 
       {/* Top customers */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
         <div style={{ padding: "14px 20px", background: "#0d0d0d" }}>
           <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
             letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Top Customers by Revenue</h2>
         </div>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
-            <tr style={{ background: "#fafafa" }}>
+            <tr style={{ background: "var(--crm-surface2)" }}>
               {["#", "Customer", "Orders", "Revenue", "Avg. Order"].map(h => (
                 <th key={h} style={{ padding: "9px 16px", textAlign: "left", fontSize: 10,
                   fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em",
-                  color: "#9ca3af" }}>{h}</th>
+                  color: "var(--crm-muted2)" }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {topCustomers.map((c, i) => (
-              <tr key={c.email} style={{ borderTop: "1px solid #f5f5f5" }}>
+              <tr key={c.email} style={{ borderTop: "1px solid var(--crm-border2)" }}>
                 <td style={{ padding: "10px 16px" }}>
                   <span style={{ fontSize: 12, fontWeight: 800,
                     color: i === 0 ? "#f5c700" : i === 1 ? "#9ca3af" : "#d1d5db" }}>
@@ -186,14 +186,14 @@ export function AnalyticsClient({ data, sessionRole }: { data: AnalyticsData; se
                   </span>
                 </td>
                 <td style={{ padding: "10px 16px" }}>
-                  <p style={{ fontWeight: 700, margin: 0, color: "#0d0d0d" }}>{c.name}</p>
-                  <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{c.email}</p>
+                  <p style={{ fontWeight: 700, margin: 0, color: "var(--crm-text)" }}>{c.name}</p>
+                  <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>{c.email}</p>
                 </td>
-                <td style={{ padding: "10px 16px", color: "#6b7280", fontWeight: 600 }}>{c.orders}</td>
+                <td style={{ padding: "10px 16px", color: "var(--crm-muted)", fontWeight: 600 }}>{c.orders}</td>
                 <td style={{ padding: "10px 16px", fontWeight: 800, color: "#22c55e" }}>
                   {fmt(Number(c.revenue))}
                 </td>
-                <td style={{ padding: "10px 16px", color: "#6b7280" }}>
+                <td style={{ padding: "10px 16px", color: "var(--crm-muted)" }}>
                   {c.orders > 0 ? fmt(Number(c.revenue) / c.orders) : "—"}
                 </td>
               </tr>

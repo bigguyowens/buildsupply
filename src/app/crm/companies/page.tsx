@@ -11,10 +11,10 @@ export default async function CRMCompaniesPage() {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
           Companies
         </h1>
-        <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+        <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: "4px 0 0" }}>
           {companies.length} companies · {totalEmployees} employees · {fmt(totalRevenue)} total revenue
         </p>
       </div>
@@ -27,17 +27,17 @@ export default async function CRMCompaniesPage() {
           { label: "Total Revenue",  value: fmt(totalRevenue),                                     color: "#22c55e" },
           { label: "Open Quotes",    value: companies.reduce((s,c) => s + c.open_quotes, 0),       color: "#f97316" },
         ].map(k => (
-          <div key={k.label} style={{ background: "#fff", borderRadius: 10, padding: "16px 20px",
-            border: "1px solid #e5e5e5", borderTop: `3px solid ${k.color}` }}>
-            <p style={{ fontSize: 22, fontWeight: 900, color: "#0d0d0d", margin: "0 0 4px" }}>{k.value}</p>
+          <div key={k.label} style={{ background: "var(--crm-surface)", borderRadius: 10, padding: "16px 20px",
+            border: "1px solid var(--crm-border)", borderTop: `3px solid ${k.color}` }}>
+            <p style={{ fontSize: 22, fontWeight: 900, color: "var(--crm-text)", margin: "0 0 4px" }}>{k.value}</p>
             <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>{k.label}</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>{k.label}</p>
           </div>
         ))}
       </div>
 
       {/* Companies table */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
           <thead>
             <tr style={{ background: "#0d0d0d" }}>
@@ -49,8 +49,8 @@ export default async function CRMCompaniesPage() {
           </thead>
           <tbody>
             {companies.map((c, i) => (
-              <tr key={c.id} style={{ borderBottom: "1px solid #f5f5f5",
-                background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
+              <tr key={c.id} style={{ borderBottom: "1px solid var(--crm-border2)",
+                background: i % 2 === 0 ? "var(--crm-surface)" : "var(--crm-surface2)" }}>
                 <td style={{ padding: "12px 16px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <div style={{ width: 34, height: 34, borderRadius: 6, background: "#0d0d0d",
@@ -59,14 +59,14 @@ export default async function CRMCompaniesPage() {
                       {c.name[0]}
                     </div>
                     <div>
-                      <Link href={`/crm/companies/${c.id}`} style={{ fontWeight: 700, color: "#0d0d0d",
+                      <Link href={`/crm/companies/${c.id}`} style={{ fontWeight: 700, color: "var(--crm-text)",
                         textDecoration: "none", fontSize: 13 }}>{c.name}</Link>
-                      {c.domain && <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{c.domain}</p>}
+                      {c.domain && <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>{c.domain}</p>}
                     </div>
                   </div>
                 </td>
-                <td style={{ padding: "12px 16px", color: "#6b7280", fontSize: 12 }}>{c.industry ?? "—"}</td>
-                <td style={{ padding: "12px 16px", fontWeight: 700, color: "#0d0d0d" }}>{c.employee_count}</td>
+                <td style={{ padding: "12px 16px", color: "var(--crm-muted)", fontSize: 12 }}>{c.industry ?? "—"}</td>
+                <td style={{ padding: "12px 16px", fontWeight: 700, color: "var(--crm-text)" }}>{c.employee_count}</td>
                 <td style={{ padding: "12px 16px", fontWeight: 700, color: "#22c55e" }}>{fmt(Number(c.total_spent))}</td>
                 <td style={{ padding: "12px 16px" }}>
                   {c.open_quotes > 0 ? (
@@ -78,7 +78,7 @@ export default async function CRMCompaniesPage() {
                 </td>
                 <td style={{ padding: "12px 16px" }}>
                   {c.account_manager_name ? (
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "#374151",
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--crm-text2)",
                       background: "#fef9c3", padding: "2px 8px", borderRadius: 4 }}>
                       {c.account_manager_name}
                     </span>

@@ -24,7 +24,7 @@ export function CustomerTasksPanel({ tasks: initialTasks, entityType, entityId, 
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
         <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-          letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>
+          letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>
           {pending.length} active · {completed.length} completed
         </p>
         <button onClick={() => setShowForm(true)} style={{
@@ -35,9 +35,9 @@ export function CustomerTasksPanel({ tasks: initialTasks, entityType, entityId, 
       </div>
 
       {initialTasks.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "32px 0", color: "#9ca3af" }}>
+        <div style={{ textAlign: "center", padding: "32px 0", color: "var(--crm-muted2)" }}>
           <p style={{ fontSize: 24, margin: "0 0 8px" }}>📋</p>
-          <p style={{ fontSize: 14, fontWeight: 600, color: "#374151", margin: "0 0 4px" }}>No tasks yet</p>
+          <p style={{ fontSize: 14, fontWeight: 600, color: "var(--crm-text2)", margin: "0 0 4px" }}>No tasks yet</p>
           <p style={{ fontSize: 13, margin: 0 }}>Create a follow-up, call, or check-in</p>
         </div>
       ) : (
@@ -46,8 +46,8 @@ export function CustomerTasksPanel({ tasks: initialTasks, entityType, entityId, 
             <TaskCard key={t.id} task={t} accountManagers={accountManagers} isAdmin={isAdmin} />
           ))}
           {completed.length > 0 && (
-            <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid #f1f1f1" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+            <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px solid var(--crm-border2)" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                 textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 8px" }}>
                 Completed ({completed.length})
               </p>

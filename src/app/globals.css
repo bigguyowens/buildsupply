@@ -30,6 +30,18 @@ html { scroll-behavior: smooth; }
   --ad-muted:   #6b6b6b;
   --ad-muted2:  #9ca3af;
   --ad-shadow:  rgba(0,0,0,0.06);
+
+  /* ── CRM theme tokens (light) ── */
+  --crm-bg:       #f2f2f2;
+  --crm-surface:  #ffffff;
+  --crm-surface2: #fafafa;
+  --crm-border:   #e5e5e5;
+  --crm-border2:  #f1f1f1;
+  --crm-text:     #0d0d0d;
+  --crm-text2:    #374151;
+  --crm-muted:    #6b7280;
+  --crm-muted2:   #9ca3af;
+  --crm-shadow:   rgba(0,0,0,0.06);
 }
 
 /* ── Mobile responsive — Admin & CRM ─────────────────────────────────────── */
@@ -351,4 +363,31 @@ a, button { transition: all 0.15s ease; }
 
   /* ── Apply form grid ─────────────────────────────────────── */
   .apply-grid { grid-template-columns: 1fr !important; }
+}
+
+/* ── CRM dark theme ─────────────────────────────────────────────────────── */
+[data-crm-theme="dark"] {
+  --crm-bg:       #0d1117;
+  --crm-surface:  #161b22;
+  --crm-surface2: #1c2128;
+  --crm-border:   #30363d;
+  --crm-border2:  #21262d;
+  --crm-text:     #e6edf3;
+  --crm-text2:    #c9d1d9;
+  --crm-muted:    #8b949e;
+  --crm-muted2:   #6e7681;
+  --crm-shadow:   rgba(0,0,0,0.3);
+}
+
+[data-crm-theme="dark"] input,
+[data-crm-theme="dark"] textarea,
+[data-crm-theme="dark"] select {
+  background: var(--crm-surface2) !important;
+  color: var(--crm-text) !important;
+  border-color: var(--crm-border) !important;
+  color-scheme: dark;
+}
+[data-crm-theme="dark"] input::placeholder,
+[data-crm-theme="dark"] textarea::placeholder {
+  color: var(--crm-muted2) !important;
 }

@@ -60,9 +60,9 @@ export default async function CRMOrderDetailPage({ params }: { params: Promise<{
     <div>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, fontSize: 13 }}>
-        <Link href="/crm/orders" style={{ color: "#9ca3af", textDecoration: "none" }}>Orders</Link>
+        <Link href="/crm/orders" style={{ color: "var(--crm-muted2)", textDecoration: "none" }}>Orders</Link>
         <span style={{ color: "#d1d5db" }}>›</span>
-        <span style={{ color: "#0d0d0d", fontWeight: 700 }}>Order #{order.id}</span>
+        <span style={{ color: "var(--crm-text)", fontWeight: 700 }}>Order #{order.id}</span>
       </div>
 
       {/* Header */}
@@ -78,12 +78,12 @@ export default async function CRMOrderDetailPage({ params }: { params: Promise<{
               style={{ color: "#f5c700", fontSize: 13, fontWeight: 700, textDecoration: "none" }}>
               {order.first_name} {order.last_name}
             </Link>
-            <span style={{ color: "#6b6b6b", fontSize: 12 }}>{order.email}</span>
+            <span style={{ color: "var(--crm-muted)", fontSize: 12 }}>{order.email}</span>
           </div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {order.account_manager_name && (
-            <span style={{ fontSize: 12, color: "#9ca3af" }}>
+            <span style={{ fontSize: 12, color: "var(--crm-muted2)" }}>
               AM: <strong style={{ color: "#f5c700" }}>{order.account_manager_name}</strong>
             </span>
           )}
@@ -98,42 +98,42 @@ export default async function CRMOrderDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* Timeline */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
         padding: "20px 24px", marginBottom: 20 }}>
         <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-          letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 16px" }}>Order Status</p>
+          letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 16px" }}>Order Status</p>
         <OrderStatusTimeline status={order.status} statusHistory={history} />
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 300px", gap: 20, alignItems: "start" }}>
         {/* Items */}
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
-          <div style={{ padding: "14px 18px", borderBottom: "1px solid #f1f1f1", background: "#fafafa" }}>
-            <h2 style={{ fontSize: 13, fontWeight: 800, margin: 0, color: "#0d0d0d" }}>
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
+          <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--crm-border2)", background: "var(--crm-surface2)" }}>
+            <h2 style={{ fontSize: 13, fontWeight: 800, margin: 0, color: "var(--crm-text)" }}>
               Order Items ({items.length})
             </h2>
           </div>
           {items.map((item, i) => (
             <div key={item.id} style={{ display: "flex", gap: 14, padding: "14px 18px",
-              borderBottom: i < items.length - 1 ? "1px solid #f9f9f9" : "none",
+              borderBottom: i < items.length - 1 ? "1px solid var(--crm-border2)" : "none",
               alignItems: "center" }}>
-              <div style={{ width: 48, height: 48, borderRadius: 6, background: "#f5f5f5",
+              <div style={{ width: 48, height: 48, borderRadius: 6, background: "var(--crm-surface2)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 20, flexShrink: 0 }}>
                 📦
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontWeight: 700, fontSize: 13, color: "#0d0d0d", margin: "0 0 2px",
+                <p style={{ fontWeight: 700, fontSize: 13, color: "var(--crm-text)", margin: "0 0 2px",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {item.name}
                 </p>
-                <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>SKU: {item.sku}</p>
+                <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>SKU: {item.sku}</p>
               </div>
               <div style={{ textAlign: "right", flexShrink: 0 }}>
-                <p style={{ fontWeight: 800, color: "#0d0d0d", margin: "0 0 2px", fontSize: 13 }}>
+                <p style={{ fontWeight: 800, color: "var(--crm-text)", margin: "0 0 2px", fontSize: 13 }}>
                   {fmt(item.price * item.quantity)}
                 </p>
-                <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>
+                <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>
                   {fmt(item.price)} × {item.quantity}
                 </p>
               </div>
@@ -145,9 +145,9 @@ export default async function CRMOrderDetailPage({ params }: { params: Promise<{
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div style={{ background: "#0d0d0d", borderRadius: 10, padding: "18px 20px" }}>
             <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#6b6b6b", margin: "0 0 14px" }}>Order Summary</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted)", margin: "0 0 14px" }}>Order Summary</p>
             {[
-              { label: "Subtotal",  value: fmt(subtotal),                  color: "#9ca3af" },
+              { label: "Subtotal",  value: fmt(subtotal),                  color: "var(--crm-muted2)" },
               ...(discount > 0 ? [{ label: `Promo (${order.promo_code ?? ""})`,
                 value: `-${fmt(discount)}`, color: "#22c55e" }] : []),
               { label: "Total",     value: fmt(Number(order.total)),        color: "#f5c700" },
@@ -155,16 +155,16 @@ export default async function CRMOrderDetailPage({ params }: { params: Promise<{
               <div key={r.label} style={{ display: "flex", justifyContent: "space-between",
                 padding: "6px 0", fontSize: 13,
                 borderBottom: r.label === "Total" ? "none" : "1px solid #1a1a1a" }}>
-                <span style={{ color: "#6b6b6b" }}>{r.label}</span>
+                <span style={{ color: "var(--crm-muted)" }}>{r.label}</span>
                 <span style={{ fontWeight: 800, color: r.color }}>{r.value}</span>
               </div>
             ))}
           </div>
 
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
             padding: "16px 18px" }}>
             <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 10px" }}>Order Details</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 10px" }}>Order Details</p>
             {[
               { label: "Date",   value: new Date(order.created_at).toLocaleDateString("en-US",
                   { month: "long", day: "numeric", year: "numeric" }) },
@@ -173,9 +173,9 @@ export default async function CRMOrderDetailPage({ params }: { params: Promise<{
             ].map(r => (
               <div key={r.label} style={{ display: "flex", justifyContent: "space-between",
                 padding: "5px 0", fontSize: 12,
-                borderBottom: "1px solid #f5f5f5" }}>
-                <span style={{ color: "#9ca3af", fontWeight: 600 }}>{r.label}</span>
-                <span style={{ fontWeight: 700, color: "#0d0d0d" }}>{r.value}</span>
+                borderBottom: "1px solid var(--crm-border2)" }}>
+                <span style={{ color: "var(--crm-muted2)", fontWeight: 600 }}>{r.label}</span>
+                <span style={{ fontWeight: 700, color: "var(--crm-text)" }}>{r.value}</span>
               </div>
             ))}
             {session.role === "admin" && (

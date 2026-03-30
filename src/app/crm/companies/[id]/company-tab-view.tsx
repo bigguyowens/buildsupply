@@ -41,7 +41,7 @@ export function CompanyTabView({ company, employees, onboarding, accountManagers
   ];
 
   return (
-    <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+    <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
       {/* Tab bar */}
       <div style={{ display: "flex", borderBottom: "2px solid #f1f1f1" }}>
         {tabs.map(t => (
@@ -88,18 +88,18 @@ export function CompanyTabView({ company, employees, onboarding, accountManagers
         {tab === "team" && (
           <div>
             <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 14px" }}>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 14px" }}>
               {employees.length} Employee{employees.length !== 1 ? "s" : ""}
             </p>
             {employees.length === 0 ? (
-              <p style={{ color: "#9ca3af", fontSize: 13, textAlign: "center", padding: "24px 0" }}>No employees yet</p>
+              <p style={{ color: "var(--crm-muted2)", fontSize: 13, textAlign: "center", padding: "24px 0" }}>No employees yet</p>
             ) : (
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                 <thead>
-                  <tr style={{ borderBottom: "1px solid #f1f1f1" }}>
+                  <tr style={{ borderBottom: "1px solid var(--crm-border2)" }}>
                     {["Name", "Email", "Role", "Orders", "Spent"].map(h => (
                       <th key={h} style={{ padding: "7px 0", textAlign: "left", fontSize: 10,
-                        fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>{h}</th>
+                        fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--crm-muted2)" }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -107,7 +107,7 @@ export function CompanyTabView({ company, employees, onboarding, accountManagers
                   {employees.map((emp, i) => {
                     const meta = ROLE_META[emp.role] ?? ROLE_META.customer;
                     return (
-                      <tr key={emp.id} style={{ borderBottom: i < employees.length - 1 ? "1px solid #f9f9f9" : "none" }}>
+                      <tr key={emp.id} style={{ borderBottom: i < employees.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                         <td style={{ padding: "10px 0" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <div style={{ width: 26, height: 26, borderRadius: "50%", background: "#f5c700",
@@ -116,12 +116,12 @@ export function CompanyTabView({ company, employees, onboarding, accountManagers
                               {emp.first_name[0]}{emp.last_name[0]}
                             </div>
                             <Link href={`/crm/customers/${emp.id}`}
-                              style={{ fontWeight: 700, color: "#0d0d0d", textDecoration: "none", fontSize: 13 }}>
+                              style={{ fontWeight: 700, color: "var(--crm-text)", textDecoration: "none", fontSize: 13 }}>
                               {emp.first_name} {emp.last_name}
                             </Link>
                           </div>
                         </td>
-                        <td style={{ padding: "10px 8px", color: "#6b7280", fontSize: 12 }}>{emp.email}</td>
+                        <td style={{ padding: "10px 8px", color: "var(--crm-muted)", fontSize: 12 }}>{emp.email}</td>
                         <td style={{ padding: "10px 8px" }}>
                           <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4,
                             background: meta.bg, color: meta.color }}>{meta.label}</span>

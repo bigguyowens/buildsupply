@@ -17,7 +17,7 @@ const TYPE_META: Record<string, { label: string; icon: string; color: string }> 
   demo:       { label: "Demo",       icon: "🖥️",  color: "#10b981" },
   check_in:   { label: "Check-in",   icon: "👋", color: "#06b6d4" },
   proposal:   { label: "Proposal",   icon: "📄", color: "#f97316" },
-  other:      { label: "Other",      icon: "📌", color: "#6b7280" },
+  other:      { label: "Other",      icon: "📌", color: "var(--crm-muted)" },
 };
 
 const PRIORITY_META: Record<string, { label: string; bg: string; color: string }> = {
@@ -73,10 +73,10 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
             Tasks & Follow-ups
           </h1>
-          <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+          <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: "4px 0 0" }}>
             {filteredOverdue.length > 0 && <span style={{ color: "#ef4444", fontWeight: 700 }}>{filteredOverdue.length} overdue · </span>}
             {filteredDueToday.length} due today · {filteredUpcoming.length} upcoming
           </p>
@@ -90,10 +90,10 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
 
       {/* Staff filter bar — admin and manager only */}
       {canFilter && staff.length > 0 && (
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
           padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-            letterSpacing: "0.08em", color: "#9ca3af", marginRight: 4 }}>View:</span>
+            letterSpacing: "0.08em", color: "var(--crm-muted2)", marginRight: 4 }}>View:</span>
 
           {/* All Tasks */}
           <button onClick={() => setFilterStaffId("all")} style={{
@@ -131,11 +131,11 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
           { label: "Upcoming",  value: filteredUpcoming.length,  color: "#3b82f6", border: "#3b82f6" },
           { label: "Completed", value: filteredCompleted.length, color: "#22c55e", border: "#22c55e" },
         ].map(k => (
-          <div key={k.label} style={{ background: "#fff", borderRadius: 10, padding: "14px 18px",
-            border: "1px solid #e5e5e5", borderTop: `3px solid ${k.border}` }}>
+          <div key={k.label} style={{ background: "var(--crm-surface)", borderRadius: 10, padding: "14px 18px",
+            border: "1px solid var(--crm-border)", borderTop: `3px solid ${k.border}` }}>
             <p style={{ fontSize: 26, fontWeight: 900, color: k.color, margin: "0 0 2px" }}>{k.value}</p>
             <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>{k.label}</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>{k.label}</p>
           </div>
         ))}
       </div>
@@ -154,11 +154,11 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
           headerColor="#0369a1" accountManagers={accountManagers} isAdmin={isAdmin} />
       )}
       {total === 0 && (
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
           padding: "60px 24px", textAlign: "center" }}>
           <p style={{ fontSize: 32, margin: "0 0 8px" }}>✅</p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: "#0d0d0d", margin: "0 0 4px" }}>All caught up!</p>
-          <p style={{ fontSize: 14, color: "#9ca3af", margin: 0 }}>No pending tasks.</p>
+          <p style={{ fontSize: 16, fontWeight: 700, color: "var(--crm-text)", margin: "0 0 4px" }}>All caught up!</p>
+          <p style={{ fontSize: 14, color: "var(--crm-muted2)", margin: 0 }}>No pending tasks.</p>
         </div>
       )}
 
@@ -167,7 +167,7 @@ export function TasksClient({ overdue, dueToday, upcoming, completed, accountMan
         <div style={{ marginTop: 16 }}>
           <button onClick={() => setShowCompleted(v => !v)} style={{
             background: "none", border: "none", cursor: "pointer",
-            fontSize: 13, fontWeight: 700, color: "#9ca3af", padding: "8px 0",
+            fontSize: 13, fontWeight: 700, color: "var(--crm-muted2)", padding: "8px 0",
             display: "flex", alignItems: "center", gap: 6,
           }}>
             {showCompleted ? "▼" : "▶"} Recently Completed ({filteredCompleted.length})
@@ -266,21 +266,21 @@ function StaffDropdown({ staff, value, onChange }: {
       {open && (
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 200,
-          background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5",
+          background: "var(--crm-surface)", borderRadius: 8, border: "1px solid var(--crm-border)",
           boxShadow: "0 8px 24px rgba(0,0,0,0.12)", minWidth: 240, overflow: "hidden",
         }}>
           {/* Search input */}
-          <div style={{ padding: "10px 12px", borderBottom: "1px solid #f1f1f1" }}>
+          <div style={{ padding: "10px 12px", borderBottom: "1px solid var(--crm-border2)" }}>
             <div style={{ position: "relative" }}>
               <span style={{ position: "absolute", left: 8, top: "50%", transform: "translateY(-50%)",
-                color: "#9ca3af", fontSize: 13 }}>🔍</span>
+                color: "var(--crm-muted2)", fontSize: 13 }}>🔍</span>
               <input
                 autoFocus
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search staff..."
                 style={{ width: "100%", padding: "6px 8px 6px 28px", borderRadius: 5, fontSize: 12,
-                  border: "1px solid #e5e5e5", outline: "none", boxSizing: "border-box" as const }}
+                  border: "1px solid var(--crm-border)", outline: "none", boxSizing: "border-box" as const }}
               />
             </div>
           </div>
@@ -288,7 +288,7 @@ function StaffDropdown({ staff, value, onChange }: {
           {/* Options */}
           <div style={{ maxHeight: 240, overflowY: "auto" }}>
             {filtered.length === 0 ? (
-              <p style={{ padding: "12px 14px", fontSize: 12, color: "#9ca3af", margin: 0,
+              <p style={{ padding: "12px 14px", fontSize: 12, color: "var(--crm-muted2)", margin: 0,
                 textAlign: "center" }}>No staff found</p>
             ) : filtered.map(s => {
               const isSelected = s.id === value;
@@ -300,7 +300,7 @@ function StaffDropdown({ staff, value, onChange }: {
                     display: "flex", alignItems: "center", gap: 10,
                     padding: "9px 12px", cursor: "pointer",
                     background: isSelected ? "#eff6ff" : "transparent",
-                    borderBottom: "1px solid #f9f9f9",
+                    borderBottom: "1px solid var(--crm-border2)",
                     transition: "background 0.1s",
                   }}
                   onMouseEnter={e => { if (!isSelected) (e.currentTarget as HTMLElement).style.background = "#f9f9f9"; }}
@@ -312,10 +312,10 @@ function StaffDropdown({ staff, value, onChange }: {
                     {s.first_name[0]}{s.last_name[0]}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: "#0d0d0d", margin: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: "var(--crm-text)", margin: 0 }}>
                       {s.first_name} {s.last_name}
                     </p>
-                    <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>
+                    <p style={{ fontSize: 10, color: "var(--crm-muted2)", margin: 0 }}>
                       {ROLE_LABEL[s.role] ?? s.role}
                     </p>
                   </div>
@@ -357,7 +357,7 @@ function TaskCard({ task, accountManagers, isAdmin }: {
   const statusColor = status === "complete" ? "#22c55e" : status === "in_progress" ? "#f97316" : "#d1d5db";
 
   return (
-    <div style={{ background: "#fff", borderRadius: 8, border: `1px solid ${overdue ? "#fecaca" : "#e5e5e5"}`,
+    <div style={{ background: "var(--crm-surface)", borderRadius: 8, border: `1px solid ${overdue ? "#fecaca" : "#e5e5e5"}`,
       padding: "13px 16px", opacity: status === "complete" ? 0.65 : 1,
       borderLeft: `3px solid ${overdue ? "#ef4444" : typeMeta.color}` }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
@@ -372,7 +372,7 @@ function TaskCard({ task, accountManagers, isAdmin }: {
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d",
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--crm-text)",
               textDecoration: status === "complete" ? "line-through" : "none" }}>
               {task.title}
             </span>
@@ -397,12 +397,12 @@ function TaskCard({ task, accountManagers, isAdmin }: {
               </Link>
             )}
             {task.assigned_name && (
-              <span style={{ fontSize: 12, color: "#9ca3af" }}>→ {task.assigned_name}</span>
+              <span style={{ fontSize: 12, color: "var(--crm-muted2)" }}>→ {task.assigned_name}</span>
             )}
           </div>
 
           {task.description && expanded && (
-            <p style={{ fontSize: 12, color: "#6b7280", margin: "6px 0 0", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 12, color: "var(--crm-muted)", margin: "6px 0 0", lineHeight: 1.5 }}>
               {task.description}
             </p>
           )}
@@ -413,7 +413,7 @@ function TaskCard({ task, accountManagers, isAdmin }: {
           {task.description && (
             <button onClick={() => setExpanded(v => !v)} style={{
               background: "none", border: "none", cursor: "pointer",
-              color: "#9ca3af", fontSize: 12, padding: 4,
+              color: "var(--crm-muted2)", fontSize: 12, padding: 4,
             }}>{expanded ? "▲" : "▼"}</button>
           )}
           <button onClick={del} style={{
@@ -485,8 +485,8 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "9px 12px", borderRadius: 6, fontSize: 13,
-    border: "1px solid #e5e5e5", outline: "none", boxSizing: "border-box",
-    background: "#fff",
+    border: "1px solid var(--crm-border)", outline: "none", boxSizing: "border-box",
+    background: "var(--crm-surface)",
   };
 
   function handleEntityTypeChange(newType: "" | "customer" | "company") {
@@ -528,7 +528,7 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 9999,
       display: "flex", alignItems: "center", justifyContent: "center" }}
       onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ background: "#fff", borderRadius: 12, width: 500, maxWidth: "95vw",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 12, width: 500, maxWidth: "95vw",
         boxShadow: "0 20px 60px rgba(0,0,0,0.3)", overflow: "hidden",
         maxHeight: "90vh", display: "flex", flexDirection: "column" }}>
 
@@ -537,7 +537,7 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
           display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ color: "#f5c700", fontSize: 15, fontWeight: 800, margin: 0 }}>New Task</h2>
           <button onClick={onClose} style={{ background: "none", border: "none",
-            color: "#6b6b6b", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>✕</button>
+            color: "var(--crm-muted)", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>✕</button>
         </div>
 
         <div style={{ padding: 20, overflowY: "auto", display: "flex", flexDirection: "column", gap: 12 }}>
@@ -549,7 +549,7 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
           {/* Type + Priority */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                 textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                 Type
               </label>
@@ -560,7 +560,7 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
               </select>
             </div>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                 textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                 Priority
               </label>
@@ -575,7 +575,7 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
           {/* Due Date + Assign To */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                 textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                 Due Date
               </label>
@@ -583,7 +583,7 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
             </div>
             {isAdmin && (
               <div>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+                <label style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                   textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                   Assign To
                 </label>
@@ -599,7 +599,7 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
           {/* Link to Customer / Company */}
           {!locked && (customers.length > 0 || companies.length > 0) && (
             <div>
-              <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+              <label style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                 textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 6 }}>
                 Link To <span style={{ color: "#d1d5db", fontWeight: 400, textTransform: "none" }}>(optional)</span>
               </label>
@@ -633,7 +633,7 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
                 )}
                 {!entityType && (
                   <div style={{ ...inputStyle, display: "flex", alignItems: "center",
-                    color: "#d1d5db", fontSize: 13, background: "#fafafa" }}>
+                    color: "#d1d5db", fontSize: 13, background: "var(--crm-surface2)" }}>
                     Select a type first
                   </div>
                 )}
@@ -650,8 +650,8 @@ function NewTaskModal({ accountManagers, customers, companies, sessionId, isAdmi
           {locked && entityName && (
             <div style={{ background: "#fffbeb", border: "1px solid #f5c700",
               borderRadius: 6, padding: "8px 12px", fontSize: 12 }}>
-              <span style={{ color: "#9ca3af", fontWeight: 600 }}>Linked to: </span>
-              <strong style={{ color: "#0d0d0d" }}>
+              <span style={{ color: "var(--crm-muted2)", fontWeight: 600 }}>Linked to: </span>
+              <strong style={{ color: "var(--crm-text)" }}>
                 {initEntityType === "customer" ? "👤" : "🏢"} {entityName}
               </strong>
             </div>

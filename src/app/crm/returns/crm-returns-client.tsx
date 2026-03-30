@@ -66,10 +66,10 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
       <div style={{ display: "flex", justifyContent: "space-between",
         alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
             Returns
           </h1>
-          <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+          <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: "4px 0 0" }}>
             {sessionRole === "admin" ? "All platform returns" :
              sessionRole === "manager" ? "Returns from your team's customers" :
              "Returns from your customers"}
@@ -84,34 +84,34 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
           { label: "Total Returns",   value: returns.length.toString(),              color: "#f5c700" },
           { label: "Pending Action",  value: pendingCount.toString(),                color: pendingCount > 0 ? "#ef4444" : "#9ca3af" },
           { label: "Refunded",        value: (statusCounts.refunded ?? 0).toString(), color: "#22c55e" },
-          { label: "Rejected",        value: (statusCounts.rejected ?? 0).toString(), color: "#6b7280" },
+          { label: "Rejected",        value: (statusCounts.rejected ?? 0).toString(), color: "var(--crm-muted)" },
           { label: "Total Refunded",  value: fmt(totalRefunded),                    color: "#22c55e" },
         ].map(k => (
-          <div key={k.label} style={{ background: "#fff", borderRadius: 10,
-            padding: "14px 16px", border: "1px solid #e5e5e5",
+          <div key={k.label} style={{ background: "var(--crm-surface)", borderRadius: 10,
+            padding: "14px 16px", border: "1px solid var(--crm-border)",
             borderTop: `3px solid ${k.color}` }}>
-            <p style={{ fontSize: 22, fontWeight: 900, margin: "0 0 2px", color: "#0d0d0d" }}>{k.value}</p>
+            <p style={{ fontSize: 22, fontWeight: 900, margin: "0 0 2px", color: "var(--crm-text)" }}>{k.value}</p>
             <p style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>{k.label}</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>{k.label}</p>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
         padding: "12px 16px", marginBottom: 16,
         display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
 
         {/* Search */}
         <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
           <span style={{ position: "absolute", left: 10, top: "50%",
-            transform: "translateY(-50%)", color: "#9ca3af", fontSize: 13 }}>🔍</span>
+            transform: "translateY(-50%)", color: "var(--crm-muted2)", fontSize: 13 }}>🔍</span>
           <input
             value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search by customer, email, return #, or order #…"
             style={{ width: "100%", padding: "7px 10px 7px 30px", borderRadius: 6,
-              border: "1px solid #e5e5e5", fontSize: 13, outline: "none",
-              background: "#fafafa", boxSizing: "border-box" as const }} />
+              border: "1px solid var(--crm-border)", fontSize: 13, outline: "none",
+              background: "var(--crm-surface2)", boxSizing: "border-box" as const }} />
         </div>
 
         {/* Status tabs */}
@@ -136,11 +136,11 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
       </div>
 
       {/* Table */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
-        <div style={{ padding: "10px 18px", borderBottom: "1px solid #f1f1f1",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
+        <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--crm-border2)",
           display: "flex", justifyContent: "space-between", alignItems: "center",
-          background: "#fafafa" }}>
-          <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>
+          background: "var(--crm-surface2)" }}>
+          <span style={{ fontSize: 12, color: "var(--crm-muted)", fontWeight: 600 }}>
             {filtered.length} return{filtered.length !== 1 ? "s" : ""}
             {(search || statusFilter !== "all") ? ` (filtered from ${returns.length})` : ""}
           </span>
@@ -186,18 +186,18 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
             <tbody>
               {filtered.length === 0 ? (
                 <tr><td colSpan={10} style={{ padding: "48px 24px",
-                  textAlign: "center", color: "#9ca3af" }}>No returns found</td></tr>
+                  textAlign: "center", color: "var(--crm-muted2)" }}>No returns found</td></tr>
               ) : filtered.map((r, i) => {
-                const meta = STATUS_META[r.status] ?? { label: r.status, color: "#6b7280", bg: "#f1f1f1" };
+                const meta = STATUS_META[r.status] ?? { label: r.status, color: "var(--crm-muted)", bg: "#f1f1f1" };
                 const needsAction = ["requested", "approved"].includes(r.status);
                 return (
-                  <tr key={r.id} style={{ borderBottom: "1px solid #f5f5f5",
+                  <tr key={r.id} style={{ borderBottom: "1px solid var(--crm-border2)",
                     background: needsAction
                       ? "#fffbeb"
-                      : i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                      : i % 2 === 0 ? "var(--crm-surface)" : "var(--crm-surface2)" }}>
 
                     {/* Return # */}
-                    <td style={{ padding: "12px 16px", fontWeight: 800, color: "#0d0d0d" }}>
+                    <td style={{ padding: "12px 16px", fontWeight: 800, color: "var(--crm-text)" }}>
                       #{r.id}
                     </td>
 
@@ -213,23 +213,23 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
                     <td style={{ padding: "12px 16px" }}>
                       {r.customer_id ? (
                         <Link href={`/crm/customers/${r.customer_id}`}
-                          style={{ fontWeight: 700, color: "#0d0d0d", textDecoration: "none",
+                          style={{ fontWeight: 700, color: "var(--crm-text)", textDecoration: "none",
                             display: "block" }}>
                           {r.first_name} {r.last_name}
                         </Link>
                       ) : (
-                        <span style={{ fontWeight: 700, color: "#0d0d0d" }}>
+                        <span style={{ fontWeight: 700, color: "var(--crm-text)" }}>
                           {r.first_name} {r.last_name}
                         </span>
                       )}
-                      <span style={{ fontSize: 11, color: "#9ca3af" }}>{r.email}</span>
+                      <span style={{ fontSize: 11, color: "var(--crm-muted2)" }}>{r.email}</span>
                     </td>
 
                     {/* AM column */}
                     {(isAdmin || isManager) && (
                       <td style={{ padding: "12px 16px" }}>
                         {r.account_manager_name ? (
-                          <span style={{ fontSize: 12, fontWeight: 600, color: "#0d0d0d",
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--crm-text)",
                             background: "#fef9c3", padding: "2px 8px", borderRadius: 4 }}>
                             {r.account_manager_name}
                           </span>
@@ -238,7 +238,7 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
                     )}
 
                     {/* Reason */}
-                    <td style={{ padding: "12px 16px", color: "#6b7280", maxWidth: 200 }}>
+                    <td style={{ padding: "12px 16px", color: "var(--crm-muted)", maxWidth: 200 }}>
                       <span style={{ display: "block", overflow: "hidden",
                         textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                         {r.reason}
@@ -246,7 +246,7 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
                     </td>
 
                     {/* Items */}
-                    <td style={{ padding: "12px 16px", color: "#6b7280", fontWeight: 600 }}>
+                    <td style={{ padding: "12px 16px", color: "var(--crm-muted)", fontWeight: 600 }}>
                       {r.item_count}
                     </td>
 
@@ -262,7 +262,7 @@ export function CRMReturnsClient({ returns, statusCounts, totalRefunded, session
                     </td>
 
                     {/* Date */}
-                    <td style={{ padding: "12px 16px", color: "#6b7280",
+                    <td style={{ padding: "12px 16px", color: "var(--crm-muted)",
                       whiteSpace: "nowrap" as const }}>
                       {new Date(r.created_at).toLocaleDateString("en-US",
                         { month: "short", day: "numeric", year: "numeric" })}

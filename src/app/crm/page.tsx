@@ -42,11 +42,11 @@ export default async function CRMDashboard() {
     <div>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
           CRM Dashboard
         </h1>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
-          <p style={{ color: "#6b7280", fontSize: 14, margin: 0 }}>
+          <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: 0 }}>
             Overview of customers, orders, quotes, and team activity
           </p>
           {scopeLabel && (
@@ -70,15 +70,15 @@ export default async function CRMDashboard() {
           { label: "Open Quotes",      value: data.openQuotes.toLocaleString(),     icon: "📋", color: "#f97316", delta: `${winRate}% win rate` },
           { label: "Pending Contacts", value: data.pendingContacts.toLocaleString(),icon: "✉️", color: "#ef4444", delta: "Need reply" },
         ].map(k => (
-          <div key={k.label} style={{ background: "#fff", borderRadius: 10, padding: "18px 18px 14px",
-            border: "1px solid #e5e5e5", borderTop: `3px solid ${k.color}` }}>
+          <div key={k.label} style={{ background: "var(--crm-surface)", borderRadius: 10, padding: "18px 18px 14px",
+            border: "1px solid var(--crm-border)", borderTop: `3px solid ${k.color}` }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <p style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase",
-                  letterSpacing: "0.1em", color: "#9ca3af", margin: "0 0 6px" }}>{k.label}</p>
-                <p style={{ fontSize: 26, fontWeight: 900, margin: 0, color: "#0d0d0d",
+                  letterSpacing: "0.1em", color: "var(--crm-muted2)", margin: "0 0 6px" }}>{k.label}</p>
+                <p style={{ fontSize: 26, fontWeight: 900, margin: 0, color: "var(--crm-text)",
                   letterSpacing: "-0.03em" }}>{k.value}</p>
-                {k.delta && <p style={{ fontSize: 11, color: "#6b7280", margin: "3px 0 0", fontWeight: 600 }}>{k.delta}</p>}
+                {k.delta && <p style={{ fontSize: 11, color: "var(--crm-muted)", margin: "3px 0 0", fontWeight: 600 }}>{k.delta}</p>}
               </div>
               <span style={{ fontSize: 22, opacity: 0.5 }}>{k.icon}</span>
             </div>
@@ -124,15 +124,15 @@ export default async function CRMDashboard() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Customer Health Breakdown */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
-            <div style={{ padding: "14px 20px", borderBottom: "1px solid #f1f1f1",
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--crm-border2)",
               display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-                letterSpacing: "0.08em", color: "#0d0d0d", margin: 0 }}>Customer Health</h2>
+                letterSpacing: "0.08em", color: "var(--crm-text)", margin: 0 }}>Customer Health</h2>
               <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ fontSize: 12, color: "#9ca3af" }}>Avg score:</span>
-                <span style={{ fontSize: 14, fontWeight: 900, color: "#0d0d0d" }}>{hs.avgScore}</span>
-                <span style={{ fontSize: 11, color: "#9ca3af" }}>/ 100</span>
+                <span style={{ fontSize: 12, color: "var(--crm-muted2)" }}>Avg score:</span>
+                <span style={{ fontSize: 14, fontWeight: 900, color: "var(--crm-text)" }}>{hs.avgScore}</span>
+                <span style={{ fontSize: 11, color: "var(--crm-muted2)" }}>/ 100</span>
               </div>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0 }}>
@@ -147,13 +147,13 @@ export default async function CRMDashboard() {
                 return (
                   <div key={h.key} style={{
                     padding: "18px 16px", textAlign: "center",
-                    borderRight: i < 3 ? "1px solid #f1f1f1" : "none",
+                    borderRight: i < 3 ? "1px solid var(--crm-border2)" : "none",
                   }}>
                     <div style={{ width: 10, height: 10, borderRadius: "50%",
                       background: m.dot, margin: "0 auto 8px" }} />
                     <p style={{ fontSize: 28, fontWeight: 900, margin: "0 0 2px",
                       color: m.color }}>{h.count}</p>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+                    <p style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                       margin: "0 0 4px", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                       {h.label}
                     </p>
@@ -176,16 +176,16 @@ export default async function CRMDashboard() {
                 );
               })}
             </div>
-            <div style={{ padding: "8px 20px 14px", borderTop: "1px solid #f9f9f9" }}>
+            <div style={{ padding: "8px 20px 14px", borderTop: "1px solid var(--crm-border2)" }}>
               <Link href="/crm/customers" style={{ fontSize: 12, color: "#f5c700",
                 fontWeight: 700, textDecoration: "none" }}>View all customers →</Link>
             </div>
           </div>
 
           {/* Revenue Sparkline */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", padding: "16px 20px" }}>
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", padding: "16px 20px" }}>
             <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#0d0d0d", margin: "0 0 16px" }}>Revenue — Last 6 Months</h2>
+              letterSpacing: "0.08em", color: "var(--crm-text)", margin: "0 0 16px" }}>Revenue — Last 6 Months</h2>
             <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 60 }}>
               {revenueSparkline.map(r => {
                 const pct = (Number(r.revenue) / maxSparkline) * 100;
@@ -195,13 +195,13 @@ export default async function CRMDashboard() {
                     <div style={{ width: "100%", borderRadius: "3px 3px 0 0",
                       background: "#f5c700", height: `${Math.max(pct, 4)}%`,
                       transition: "height 0.3s" }} title={fmt(Number(r.revenue))} />
-                    <span style={{ fontSize: 10, color: "#9ca3af", fontWeight: 600 }}>{r.month}</span>
+                    <span style={{ fontSize: 10, color: "var(--crm-muted2)", fontWeight: 600 }}>{r.month}</span>
                   </div>
                 );
               })}
             </div>
             <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 11, color: "#9ca3af" }}>
+              <span style={{ fontSize: 11, color: "var(--crm-muted2)" }}>
                 Peak: {fmt(Math.max(...revenueSparkline.map(r => Number(r.revenue))))}
               </span>
               <Link href="/crm/analytics" style={{ fontSize: 12, color: "#f5c700",
@@ -211,42 +211,42 @@ export default async function CRMDashboard() {
         </div>
 
         {/* Right: Activity feed */}
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden",
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden",
           display: "flex", flexDirection: "column" }}>
-          <div style={{ padding: "14px 20px", borderBottom: "1px solid #f1f1f1",
+          <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--crm-border2)",
             display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
             <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#0d0d0d", margin: 0 }}>Recent Activity</h2>
+              letterSpacing: "0.08em", color: "var(--crm-text)", margin: 0 }}>Recent Activity</h2>
             <Link href="/crm/customers" style={{ fontSize: 12, color: "#f5c700",
               textDecoration: "none", fontWeight: 700 }}>View All →</Link>
           </div>
           <div style={{ flex: 1, overflowY: "auto" }}>
             {data.recentActivity.length === 0 ? (
-              <p style={{ color: "#9ca3af", fontSize: 13, padding: "24px 20px", textAlign: "center" }}>
+              <p style={{ color: "var(--crm-muted2)", fontSize: 13, padding: "24px 20px", textAlign: "center" }}>
                 No activity yet
               </p>
             ) : data.recentActivity.map((a, i) => (
               <div key={a.id} style={{ display: "flex", gap: 12, padding: "11px 16px",
-                borderBottom: i < data.recentActivity.length - 1 ? "1px solid #f9f9f9" : "none" }}>
+                borderBottom: i < data.recentActivity.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                 <div style={{ width: 32, height: 32, borderRadius: "50%", flexShrink: 0,
                   background: `${ACTIVITY_COLORS[a.type] ?? "#94a3b8"}18`,
                   display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>
                   {ACTIVITY_ICONS[a.type] ?? "📌"}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 12, fontWeight: 700, color: "#0d0d0d", margin: "0 0 1px",
+                  <p style={{ fontSize: 12, fontWeight: 700, color: "var(--crm-text)", margin: "0 0 1px",
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     <Link href={`/crm/customers/${a.customer_id}`}
-                      style={{ color: "#0d0d0d", textDecoration: "none" }}>
+                      style={{ color: "var(--crm-text)", textDecoration: "none" }}>
                       {(a as any).customer_name ?? "Customer"}
                     </Link>
                   </p>
-                  <p style={{ fontSize: 11, color: "#6b7280", margin: 0,
+                  <p style={{ fontSize: 11, color: "var(--crm-muted)", margin: 0,
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {a.description}
                   </p>
                 </div>
-                <span style={{ fontSize: 10, color: "#9ca3af", flexShrink: 0, marginTop: 2 }}>
+                <span style={{ fontSize: 10, color: "var(--crm-muted2)", flexShrink: 0, marginTop: 2 }}>
                   {new Date(a.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                 </span>
               </div>
@@ -259,7 +259,7 @@ export default async function CRMDashboard() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 260px", gap: 20, marginBottom: 20 }}>
 
         {/* Top 5 customers */}
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
           <div style={{ padding: "13px 18px", background: "#0d0d0d" }}>
             <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
               letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Top Customers</h2>
@@ -267,18 +267,18 @@ export default async function CRMDashboard() {
           <div>
             {topCustomers.map((c, i) => (
               <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12,
-                padding: "10px 16px", borderBottom: i < topCustomers.length - 1 ? "1px solid #f9f9f9" : "none" }}>
+                padding: "10px 16px", borderBottom: i < topCustomers.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                 <span style={{ fontSize: 13, fontWeight: 900, width: 20, textAlign: "center",
                   color: i === 0 ? "#f5c700" : i === 1 ? "#9ca3af" : "#d1d5db" }}>
                   {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
                 </span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <Link href={`/crm/customers/${c.id}`} style={{ fontSize: 13, fontWeight: 700,
-                    color: "#0d0d0d", textDecoration: "none",
+                    color: "var(--crm-text)", textDecoration: "none",
                     display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {c.first_name} {c.last_name}
                   </Link>
-                  <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>
+                  <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>
                     {c.order_count} order{c.order_count !== 1 ? "s" : ""}
                   </p>
                 </div>
@@ -288,7 +288,7 @@ export default async function CRMDashboard() {
               </div>
             ))}
             {topCustomers.length === 0 && (
-              <p style={{ color: "#9ca3af", fontSize: 13, padding: "20px 16px", textAlign: "center" }}>
+              <p style={{ color: "var(--crm-muted2)", fontSize: 13, padding: "20px 16px", textAlign: "center" }}>
                 No orders yet
               </p>
             )}
@@ -296,36 +296,36 @@ export default async function CRMDashboard() {
         </div>
 
         {/* Upcoming tasks */}
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
-          <div style={{ padding: "13px 18px", borderBottom: "1px solid #f1f1f1",
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
+          <div style={{ padding: "13px 18px", borderBottom: "1px solid var(--crm-border2)",
             display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#0d0d0d", margin: 0 }}>Next Tasks</h2>
+              letterSpacing: "0.08em", color: "var(--crm-text)", margin: 0 }}>Next Tasks</h2>
             <Link href="/crm/tasks" style={{ fontSize: 12, color: "#f5c700",
               fontWeight: 700, textDecoration: "none" }}>All tasks →</Link>
           </div>
           <div>
             {recentTasks.length === 0 ? (
-              <p style={{ color: "#9ca3af", fontSize: 13, padding: "20px 16px", textAlign: "center" }}>
+              <p style={{ color: "var(--crm-muted2)", fontSize: 13, padding: "20px 16px", textAlign: "center" }}>
                 No upcoming tasks
               </p>
             ) : recentTasks.map((t, i) => {
               const isOverdue = t.due_date && new Date(t.due_date) < new Date();
               return (
                 <div key={t.id} style={{ padding: "11px 16px",
-                  borderBottom: i < recentTasks.length - 1 ? "1px solid #f9f9f9" : "none" }}>
+                  borderBottom: i < recentTasks.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                   <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                     <span style={{ fontSize: 14, marginTop: 1 }}>
                       {t.type === "call" ? "📞" : t.type === "email" ? "📧" : "✅"}
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontSize: 12, fontWeight: 700, color: "#0d0d0d", margin: "0 0 2px",
+                      <p style={{ fontSize: 12, fontWeight: 700, color: "var(--crm-text)", margin: "0 0 2px",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {t.title.length > 44 ? t.title.slice(0, 44) + "…" : t.title}
                       </p>
                       <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                         {t.entity_name && (
-                          <span style={{ fontSize: 10, color: "#9ca3af" }}>{t.entity_name}</span>
+                          <span style={{ fontSize: 10, color: "var(--crm-muted2)" }}>{t.entity_name}</span>
                         )}
                         {t.due_date && (
                           <span style={{ fontSize: 10, fontWeight: 700,
@@ -347,7 +347,7 @@ export default async function CRMDashboard() {
         {/* Quick actions */}
         <div style={{ background: "#0d0d0d", borderRadius: 10, padding: 18 }}>
           <h2 style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-            letterSpacing: "0.1em", color: "#6b6b6b", margin: "0 0 12px" }}>Quick Actions</h2>
+            letterSpacing: "0.1em", color: "var(--crm-muted)", margin: "0 0 12px" }}>Quick Actions</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {[
               { label: "All Customers",   href: "/crm/customers",  icon: "👥" },
@@ -374,12 +374,12 @@ export default async function CRMDashboard() {
       {(pipeline.customers.length > 0 || pipeline.companies.length > 0) && (
         <div>
           <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-            letterSpacing: "0.08em", color: "#0d0d0d", margin: "0 0 12px" }}>
+            letterSpacing: "0.08em", color: "var(--crm-text)", margin: "0 0 12px" }}>
             Onboarding In Progress
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
             {/* Customer onboarding */}
-            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+            <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
               <div style={{ padding: "12px 16px", background: "#0d0d0d" }}>
                 <h3 style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
                   letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>
@@ -388,7 +388,7 @@ export default async function CRMDashboard() {
               </div>
               {pipeline.customers.map((c, i) => (
                 <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12,
-                  padding: "10px 14px", borderBottom: i < pipeline.customers.length - 1 ? "1px solid #f9f9f9" : "none" }}>
+                  padding: "10px 14px", borderBottom: i < pipeline.customers.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                   <div style={{ width: 30, height: 30, borderRadius: "50%", background: "#f5c700",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 10, fontWeight: 800, color: "#000", flexShrink: 0 }}>
@@ -396,12 +396,12 @@ export default async function CRMDashboard() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <Link href={`/crm/customers/${c.id}`} style={{ fontSize: 12, fontWeight: 700,
-                      color: "#0d0d0d", textDecoration: "none",
+                      color: "var(--crm-text)", textDecoration: "none",
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
                       {c.first_name} {c.last_name}
                     </Link>
                     {c.account_manager_name && (
-                      <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>{c.account_manager_name}</p>
+                      <p style={{ fontSize: 10, color: "var(--crm-muted2)", margin: 0 }}>{c.account_manager_name}</p>
                     )}
                   </div>
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
@@ -419,7 +419,7 @@ export default async function CRMDashboard() {
             </div>
 
             {/* Company onboarding */}
-            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+            <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
               <div style={{ padding: "12px 16px", background: "#0d0d0d" }}>
                 <h3 style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
                   letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>
@@ -428,7 +428,7 @@ export default async function CRMDashboard() {
               </div>
               {pipeline.companies.map((c, i) => (
                 <div key={c.id} style={{ display: "flex", alignItems: "center", gap: 12,
-                  padding: "10px 14px", borderBottom: i < pipeline.companies.length - 1 ? "1px solid #f9f9f9" : "none" }}>
+                  padding: "10px 14px", borderBottom: i < pipeline.companies.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                   <div style={{ width: 30, height: 30, borderRadius: 5, background: "#0d0d0d",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 11, fontWeight: 900, color: "#f5c700", flexShrink: 0 }}>
@@ -436,12 +436,12 @@ export default async function CRMDashboard() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <Link href={`/crm/companies/${c.id}`} style={{ fontSize: 12, fontWeight: 700,
-                      color: "#0d0d0d", textDecoration: "none",
+                      color: "var(--crm-text)", textDecoration: "none",
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block" }}>
                       {c.name}
                     </Link>
                     {c.account_manager_name && (
-                      <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>{c.account_manager_name}</p>
+                      <p style={{ fontSize: 10, color: "var(--crm-muted2)", margin: 0 }}>{c.account_manager_name}</p>
                     )}
                   </div>
                   <p style={{ fontSize: 13, fontWeight: 900, margin: 0, flexShrink: 0,

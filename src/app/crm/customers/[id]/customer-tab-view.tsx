@@ -58,7 +58,7 @@ export function CustomerTabView({
   ];
 
   return (
-    <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+    <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
       {/* Tab bar */}
       <div style={{ display: "flex", borderBottom: "2px solid #f1f1f1", overflowX: "auto" }}>
         {tabs.map(t => (
@@ -100,7 +100,7 @@ export function CustomerTabView({
         {tab === "orders" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>
+              <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>
                 {orders.length} Order{orders.length !== 1 ? "s" : ""}
               </p>
               <Link href={`/admin/orders`} style={{ fontSize: 11, color: "#f5c700", textDecoration: "none", fontWeight: 700 }}>
@@ -108,22 +108,22 @@ export function CustomerTabView({
               </Link>
             </div>
             {orders.length === 0 ? (
-              <p style={{ color: "#9ca3af", fontSize: 13, textAlign: "center", padding: "24px 0" }}>No orders yet</p>
+              <p style={{ color: "var(--crm-muted2)", fontSize: 13, textAlign: "center", padding: "24px 0" }}>No orders yet</p>
             ) : orders.map((o, i) => {
               const s = STATUS_COLORS[o.status] ?? STATUS_COLORS.pending;
               const items = Array.isArray(o.items) ? o.items : JSON.parse(o.items as unknown as string ?? "[]");
               return (
                 <div key={o.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
-                  padding: "11px 0", borderBottom: i < orders.length - 1 ? "1px solid #f5f5f5" : "none" }}>
+                  padding: "11px 0", borderBottom: i < orders.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                   <div>
-                    <Link href={`/admin/orders/${o.id}`} style={{ fontWeight: 700, fontSize: 13, color: "#0d0d0d", textDecoration: "none" }}>
+                    <Link href={`/admin/orders/${o.id}`} style={{ fontWeight: 700, fontSize: 13, color: "var(--crm-text)", textDecoration: "none" }}>
                       Order #{o.id}
                     </Link>
                     <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 4,
                       fontSize: 10, fontWeight: 700, textTransform: "uppercase", background: s.bg, color: s.color }}>
                       {o.status}
                     </span>
-                    <p style={{ color: "#9ca3af", fontSize: 11, margin: "2px 0 0" }}>
+                    <p style={{ color: "var(--crm-muted2)", fontSize: 11, margin: "2px 0 0" }}>
                       {(items as any[]).length} item{(items as any[]).length !== 1 ? "s" : ""} ·{" "}
                       {new Date(o.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
@@ -138,7 +138,7 @@ export function CustomerTabView({
         {tab === "quotes" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>
+              <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>
                 {quotes.length} Quote{quotes.length !== 1 ? "s" : ""}
               </p>
               <Link href={`/admin/quotes`} style={{ fontSize: 11, color: "#f5c700", textDecoration: "none", fontWeight: 700 }}>
@@ -146,21 +146,21 @@ export function CustomerTabView({
               </Link>
             </div>
             {quotes.length === 0 ? (
-              <p style={{ color: "#9ca3af", fontSize: 13, textAlign: "center", padding: "24px 0" }}>No quotes yet</p>
+              <p style={{ color: "var(--crm-muted2)", fontSize: 13, textAlign: "center", padding: "24px 0" }}>No quotes yet</p>
             ) : quotes.map((q, i) => {
               const s = STATUS_COLORS[q.status] ?? STATUS_COLORS.pending;
               return (
                 <div key={q.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
-                  padding: "11px 0", borderBottom: i < quotes.length - 1 ? "1px solid #f5f5f5" : "none" }}>
+                  padding: "11px 0", borderBottom: i < quotes.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                   <div>
-                    <Link href={`/admin/quotes/${q.id}`} style={{ fontWeight: 700, fontSize: 13, color: "#0d0d0d", textDecoration: "none" }}>
+                    <Link href={`/admin/quotes/${q.id}`} style={{ fontWeight: 700, fontSize: 13, color: "var(--crm-text)", textDecoration: "none" }}>
                       Quote #{q.id}
                     </Link>
                     <span style={{ marginLeft: 8, padding: "2px 8px", borderRadius: 4,
                       fontSize: 10, fontWeight: 700, textTransform: "uppercase", background: s.bg, color: s.color }}>
                       {q.status}
                     </span>
-                    <p style={{ color: "#9ca3af", fontSize: 11, margin: "2px 0 0" }}>
+                    <p style={{ color: "var(--crm-muted2)", fontSize: 11, margin: "2px 0 0" }}>
                       {new Date(q.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       {q.expires_at ? ` · Expires ${new Date(q.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : ""}
                     </p>
@@ -177,8 +177,8 @@ export function CustomerTabView({
         {tab === "notes" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <EmailSender customerId={customerId} customerEmail={customerEmail} customerName={customerName} />
-            <div style={{ borderTop: "1px solid #f1f1f1", paddingTop: 20 }}>
-              <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 12px" }}>Notes & Call Logs</p>
+            <div style={{ borderTop: "1px solid var(--crm-border2)", paddingTop: 20 }}>
+              <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 12px" }}>Notes & Call Logs</p>
               <NotesPanel customerId={customerId} initialNotes={notes} />
             </div>
           </div>
@@ -186,23 +186,23 @@ export function CustomerTabView({
 
         {tab === "contacts" && (
           <div>
-            <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 14px" }}>
+            <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 14px" }}>
               {contacts.length} Contact Form{contacts.length !== 1 ? "s" : ""}
             </p>
             {contacts.map((c, i) => (
-              <div key={c.id} style={{ padding: "12px 0", borderBottom: i < contacts.length - 1 ? "1px solid #f5f5f5" : "none" }}>
+              <div key={c.id} style={{ padding: "12px 0", borderBottom: i < contacts.length - 1 ? "1px solid var(--crm-border2)" : "none" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                  <span style={{ fontWeight: 700, fontSize: 13, color: "#0d0d0d" }}>{c.reason ?? "General Inquiry"}</span>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: "var(--crm-text)" }}>{c.reason ?? "General Inquiry"}</span>
                   <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4,
                     background: c.status === "new" ? "#fee2e2" : "#dcfce7",
                     color: c.status === "new" ? "#991b1b" : "#15803d" }}>
                     {c.status}
                   </span>
                 </div>
-                <p style={{ fontSize: 12, color: "#6b7280", margin: "0 0 4px" }}>
+                <p style={{ fontSize: 12, color: "var(--crm-muted)", margin: "0 0 4px" }}>
                   {c.message.slice(0, 140)}{c.message.length > 140 ? "…" : ""}
                 </p>
-                <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>
+                <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>
                   {new Date(c.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </p>
               </div>

@@ -30,9 +30,9 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
     <div>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, fontSize: 13 }}>
-        <Link href="/crm/customers" style={{ color: "#9ca3af", textDecoration: "none" }}>Customers</Link>
+        <Link href="/crm/customers" style={{ color: "var(--crm-muted2)", textDecoration: "none" }}>Customers</Link>
         <span style={{ color: "#d1d5db" }}>›</span>
-        <span style={{ color: "#0d0d0d", fontWeight: 700 }}>{fullName}</span>
+        <span style={{ color: "var(--crm-text)", fontWeight: 700 }}>{fullName}</span>
       </div>
 
       {/* Customer header */}
@@ -48,7 +48,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
           <div>
             <h1 style={{ color: "#fff", fontSize: 20, fontWeight: 900, margin: "0 0 2px",
               letterSpacing: "-0.02em" }}>{fullName}</h1>
-            <p style={{ color: "#6b6b6b", fontSize: 13, margin: "0 0 6px" }}>{customer.email}</p>
+            <p style={{ color: "var(--crm-muted)", fontSize: 13, margin: "0 0 6px" }}>{customer.email}</p>
             {health && (
               <span style={{
                 display: "inline-flex", alignItems: "center", gap: 5,
@@ -71,7 +71,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
           ].map(s => (
             <div key={s.label} style={{ textAlign: "center" }}>
               <p style={{ color: "#f5c700", fontSize: 20, fontWeight: 900, margin: 0 }}>{s.value}</p>
-              <p style={{ color: "#6b6b6b", fontSize: 11, margin: 0, textTransform: "uppercase",
+              <p style={{ color: "var(--crm-muted)", fontSize: 11, margin: 0, textTransform: "uppercase",
                 letterSpacing: "0.06em" }}>{s.label}</p>
             </div>
           ))}
@@ -103,7 +103,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
 
           {/* Health score breakdown */}
           {health && (
-            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+            <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
               <div style={{ padding: "12px 16px", background: "#0d0d0d",
                 display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
@@ -130,11 +130,11 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
                     <div key={f.label} style={{ marginBottom: 10 }}>
                       <div style={{ display: "flex", justifyContent: "space-between",
                         alignItems: "center", marginBottom: 4 }}>
-                        <span style={{ fontSize: 12, color: "#374151", fontWeight: 600,
+                        <span style={{ fontSize: 12, color: "var(--crm-text2)", fontWeight: 600,
                           display: "flex", alignItems: "center", gap: 5 }}>
                           <span>{f.icon}</span>{f.label}
                         </span>
-                        <span style={{ fontSize: 11, fontWeight: 800, color: "#6b7280" }}>
+                        <span style={{ fontSize: 11, fontWeight: 800, color: "var(--crm-muted)" }}>
                           {f.pts}/{f.max}
                         </span>
                       </div>
@@ -146,9 +146,9 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
                     </div>
                   );
                 })}
-                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid #f1f1f1",
+                <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid var(--crm-border2)",
                   display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 11, color: "#9ca3af" }}>Total score</span>
+                  <span style={{ fontSize: 11, color: "var(--crm-muted2)" }}>Total score</span>
                   <span style={{ fontSize: 14, fontWeight: 900, padding: "2px 10px",
                     borderRadius: 20, background: health.bg, color: health.color }}>
                     {health.label} · {health.score}/100
@@ -158,7 +158,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
             </div>
           )}
           {/* Projects panel */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
             <div style={{ padding: "12px 16px", background: "#0d0d0d",
               display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
@@ -166,13 +166,13 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
                 Projects ({projects.length})
               </h2>
               <Link href={`/crm/projects?entity=customer&id=${customer.id}`}
-                style={{ fontSize: 11, color: "#6b6b6b", textDecoration: "none", fontWeight: 600 }}>
+                style={{ fontSize: 11, color: "var(--crm-muted)", textDecoration: "none", fontWeight: 600 }}>
                 View all →
               </Link>
             </div>
             {projects.length === 0 ? (
               <div style={{ padding: "16px", textAlign: "center" }}>
-                <p style={{ fontSize: 12, color: "#9ca3af", margin: "0 0 10px" }}>No projects yet</p>
+                <p style={{ fontSize: 12, color: "var(--crm-muted2)", margin: "0 0 10px" }}>No projects yet</p>
                 <Link href="/crm/projects" style={{ fontSize: 12, color: "#f5c700",
                   fontWeight: 700, textDecoration: "none" }}>
                   + Create project
@@ -185,18 +185,18 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
                     active:    { color: "#15803d", dot: "#22c55e" },
                     on_hold:   { color: "#92400e", dot: "#f59e0b" },
                     completed: { color: "#1e40af", dot: "#3b82f6" },
-                    cancelled: { color: "#6b7280", dot: "#9ca3af" },
+                    cancelled: { color: "var(--crm-muted)", dot: "#9ca3af" },
                   };
                   const sc = statusColors[p.status] ?? statusColors.active;
                   return (
                     <Link key={p.id} href={`/crm/projects/${p.id}`} style={{
                       display: "block", padding: "10px 14px", textDecoration: "none",
-                      borderBottom: i < projects.length - 1 ? "1px solid #f5f5f5" : "none",
+                      borderBottom: i < projects.length - 1 ? "1px solid var(--crm-border2)" : "none",
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <div style={{ width: 7, height: 7, borderRadius: "50%",
                           background: sc.dot, flexShrink: 0 }} />
-                        <p style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d",
+                        <p style={{ fontSize: 13, fontWeight: 700, color: "var(--crm-text)",
                           margin: 0, flex: 1, overflow: "hidden",
                           textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {p.name}
@@ -213,7 +213,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
                           </span>
                         )}
                         {p.value && (
-                          <span style={{ fontSize: 10, color: "#9ca3af" }}>
+                          <span style={{ fontSize: 10, color: "var(--crm-muted2)" }}>
                             ${Number(p.value).toLocaleString()}
                           </span>
                         )}
@@ -237,12 +237,12 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
           />
 
           {/* Temp password */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", padding: "16px 18px" }}>
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", padding: "16px 18px" }}>
             <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 6px" }}>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 6px" }}>
               Account Access
             </h2>
-            <p style={{ fontSize: 12, color: "#9ca3af", margin: "0 0 12px", lineHeight: 1.5 }}>
+            <p style={{ fontSize: 12, color: "var(--crm-muted2)", margin: "0 0 12px", lineHeight: 1.5 }}>
               Issue a temporary password that expires in 24 hours.
             </p>
             <TempPasswordButton

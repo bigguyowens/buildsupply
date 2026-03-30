@@ -15,7 +15,7 @@ const STATUS_META: Record<ProjectStatus, { label: string; color: string; bg: str
   active:    { label: "Active",    color: "#15803d", bg: "#dcfce7", dot: "#22c55e" },
   on_hold:   { label: "On Hold",   color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
   completed: { label: "Completed", color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
-  cancelled: { label: "Cancelled", color: "#6b7280", bg: "#f1f5f9", dot: "#9ca3af" },
+  cancelled: { label: "Cancelled", color: "var(--crm-muted)", bg: "#f1f5f9", dot: "#9ca3af" },
 };
 
 const QUOTE_STATUS: Record<string,{color:string;bg:string}> = {
@@ -86,9 +86,9 @@ export function ProjectDetailClient({ project: initialProject, sessionId, sessio
     <div>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, fontSize: 13 }}>
-        <Link href="/crm/projects" style={{ color: "#9ca3af", textDecoration: "none" }}>Projects</Link>
+        <Link href="/crm/projects" style={{ color: "var(--crm-muted2)", textDecoration: "none" }}>Projects</Link>
         <span style={{ color: "#d1d5db" }}>›</span>
-        <span style={{ color: "#0d0d0d", fontWeight: 700 }}>{project.name}</span>
+        <span style={{ color: "var(--crm-text)", fontWeight: 700 }}>{project.name}</span>
       </div>
 
       {/* Header */}
@@ -120,13 +120,13 @@ export function ProjectDetailClient({ project: initialProject, sessionId, sessio
                 {project.entity_type === "customer" ? "👤" : "🏢"} {project.entity_name}
               </Link>
               {project.assigned_name && (
-                <span style={{ fontSize: 12, color: "#6b6b6b" }}>
-                  Assigned to: <strong style={{ color: "#9ca3af" }}>{project.assigned_name}</strong>
+                <span style={{ fontSize: 12, color: "var(--crm-muted)" }}>
+                  Assigned to: <strong style={{ color: "var(--crm-muted2)" }}>{project.assigned_name}</strong>
                 </span>
               )}
             </div>
             {project.description && (
-              <p style={{ color: "#6b6b6b", fontSize: 13, margin: "8px 0 0", lineHeight: 1.5 }}>
+              <p style={{ color: "var(--crm-muted)", fontSize: 13, margin: "8px 0 0", lineHeight: 1.5 }}>
                 {project.description}
               </p>
             )}
@@ -140,7 +140,7 @@ export function ProjectDetailClient({ project: initialProject, sessionId, sessio
             ].map(s => (
               <div key={s.label} style={{ textAlign: "center" }}>
                 <p style={{ color: "#f5c700", fontSize: 18, fontWeight: 900, margin: 0 }}>{s.value}</p>
-                <p style={{ color: "#6b6b6b", fontSize: 10, margin: 0,
+                <p style={{ color: "var(--crm-muted)", fontSize: 10, margin: 0,
                   textTransform: "uppercase", letterSpacing: "0.06em" }}>{s.label}</p>
               </div>
             ))}
@@ -149,7 +149,7 @@ export function ProjectDetailClient({ project: initialProject, sessionId, sessio
       </div>
 
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 2, borderBottom: "2px solid #e5e5e5",
+      <div style={{ display: "flex", gap: 2, borderBottom: "2px solid var(--crm-border)",
         marginBottom: 20 }}>
         {TABS.map(t => (
           <button key={t.key} onClick={() => setTab(t.key)} style={{
@@ -253,41 +253,41 @@ function OverviewTab({ project }: { project: ProjectDetail }) {
           { icon: "✅", label: "Open Tasks",   count: openTasks, value: `${project.tasks.length} total`,  color: openTasks > 0 ? "#ef4444" : "#22c55e" },
           { icon: "📝", label: "Notes",        count: project.notes.length, value: "",                    color: "#3b82f6" },
         ].map(s => (
-          <div key={s.label} style={{ background: "#fff", borderRadius: 10,
-            border: "1px solid #e5e5e5", padding: "16px 20px",
+          <div key={s.label} style={{ background: "var(--crm-surface)", borderRadius: 10,
+            border: "1px solid var(--crm-border)", padding: "16px 20px",
             display: "flex", alignItems: "center", gap: 14 }}>
             <span style={{ fontSize: 24 }}>{s.icon}</span>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: 22, fontWeight: 900, margin: 0, color: s.color }}>{s.count}</p>
               <p style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase",
-                letterSpacing: "0.07em", color: "#9ca3af", margin: 0 }}>{s.label}</p>
+                letterSpacing: "0.07em", color: "var(--crm-muted2)", margin: 0 }}>{s.label}</p>
             </div>
-            {s.value && <p style={{ fontSize: 13, fontWeight: 800, color: "#6b7280", margin: 0 }}>{s.value}</p>}
+            {s.value && <p style={{ fontSize: 13, fontWeight: 800, color: "var(--crm-muted)", margin: 0 }}>{s.value}</p>}
           </div>
         ))}
       </div>
 
       {/* Recent activity */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
         overflow: "hidden" }}>
-        <div style={{ padding: "13px 18px", borderBottom: "1px solid #f1f1f1",
-          background: "#fafafa" }}>
+        <div style={{ padding: "13px 18px", borderBottom: "1px solid var(--crm-border2)",
+          background: "var(--crm-surface2)" }}>
           <h3 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-            letterSpacing: "0.08em", color: "#0d0d0d", margin: 0 }}>Recent Notes</h3>
+            letterSpacing: "0.08em", color: "var(--crm-text)", margin: 0 }}>Recent Notes</h3>
         </div>
         {project.notes.slice(0,4).map((n,i) => (
           <div key={n.id} style={{ padding: "12px 16px",
-            borderBottom: i<3 && i<project.notes.length-1 ? "1px solid #f9f9f9" : "none" }}>
-            <p style={{ fontSize: 12, color: "#374151", margin: "0 0 4px", lineHeight: 1.5,
+            borderBottom: i<3 && i<project.notes.length-1 ? "1px solid var(--crm-border2)" : "none" }}>
+            <p style={{ fontSize: 12, color: "var(--crm-text2)", margin: "0 0 4px", lineHeight: 1.5,
               display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const,
               overflow: "hidden" }}>{n.body}</p>
-            <p style={{ fontSize: 10, color: "#9ca3af", margin: 0 }}>
+            <p style={{ fontSize: 10, color: "var(--crm-muted2)", margin: 0 }}>
               {n.author_name} · {new Date(n.created_at).toLocaleDateString("en-US",{month:"short",day:"numeric"})}
             </p>
           </div>
         ))}
         {project.notes.length === 0 && (
-          <p style={{ padding: "24px 16px", textAlign: "center", color: "#9ca3af", fontSize: 13, margin: 0 }}>
+          <p style={{ padding: "24px 16px", textAlign: "center", color: "var(--crm-muted2)", fontSize: 13, margin: 0 }}>
             No notes yet
           </p>
         )}
@@ -314,7 +314,7 @@ function LinkedItemsTab({ title, icon, linkedItems, available, onLink, onUnlink,
     <div>
       <div style={{ display: "flex", justifyContent: "space-between",
         alignItems: "center", marginBottom: 14 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#0d0d0d" }}>
+        <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "var(--crm-text)" }}>
           {icon} {title} ({linkedItems.length})
         </h2>
         {available.length > 0 && (
@@ -329,20 +329,20 @@ function LinkedItemsTab({ title, icon, linkedItems, available, onLink, onUnlink,
       </div>
 
       {showAdd && (
-        <div style={{ background: "#f9f9f9", borderRadius: 10, border: "1px solid #e5e5e5",
+        <div style={{ background: "var(--crm-surface2)", borderRadius: 10, border: "1px solid var(--crm-border)",
           padding: "14px 16px", marginBottom: 14 }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: "#6b7280",
+          <p style={{ fontSize: 12, fontWeight: 700, color: "var(--crm-muted)",
             margin: "0 0 10px", textTransform: "uppercase", letterSpacing: "0.07em" }}>
             Available to link:
           </p>
           <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto" }}>
             {available.map(a => (
               <div key={a.id} style={{ display: "flex", justifyContent: "space-between",
-                alignItems: "center", padding: "8px 12px", background: "#fff",
-                borderRadius: 6, border: "1px solid #e5e5e5" }}>
+                alignItems: "center", padding: "8px 12px", background: "var(--crm-surface)",
+                borderRadius: 6, border: "1px solid var(--crm-border)" }}>
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d", margin: 0 }}>{a.label}</p>
-                  {a.sub && <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>{a.sub}</p>}
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "var(--crm-text)", margin: 0 }}>{a.label}</p>
+                  {a.sub && <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>{a.sub}</p>}
                 </div>
                 <button onClick={() => { onLink(a.id); setShowAdd(false); }} disabled={isPending}
                   style={{ background: "#f5c700", color: "#000", border: "none",
@@ -355,29 +355,29 @@ function LinkedItemsTab({ title, icon, linkedItems, available, onLink, onUnlink,
       )}
 
       {linkedItems.length === 0 ? (
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
           padding: "40px 20px", textAlign: "center" }}>
-          <p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>
+          <p style={{ fontSize: 13, color: "var(--crm-muted2)", margin: 0 }}>
             No {title.toLowerCase()} linked to this project yet
           </p>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {linkedItems.map(item => (
-            <div key={item.id} style={{ background: "#fff", borderRadius: 10,
-              border: "1px solid #e5e5e5", padding: "14px 18px",
+            <div key={item.id} style={{ background: "var(--crm-surface)", borderRadius: 10,
+              border: "1px solid var(--crm-border)", padding: "14px 18px",
               display: "flex", alignItems: "center", gap: 12 }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 {item.href ? (
                   <Link href={item.href} style={{ fontSize: 14, fontWeight: 700,
-                    color: "#0d0d0d", textDecoration: "none" }}>{item.label}</Link>
+                    color: "var(--crm-text)", textDecoration: "none" }}>{item.label}</Link>
                 ) : (
-                  <p style={{ fontSize: 14, fontWeight: 700, color: "#0d0d0d",
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "var(--crm-text)",
                     margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {item.label}
                   </p>
                 )}
-                {item.sub && <p style={{ fontSize: 12, color: "#9ca3af", margin: "2px 0 0" }}>{item.sub}</p>}
+                {item.sub && <p style={{ fontSize: 12, color: "var(--crm-muted2)", margin: "2px 0 0" }}>{item.sub}</p>}
               </div>
               {item.meta && (
                 <span style={{ padding: "2px 9px", borderRadius: 20, fontSize: 10,
@@ -392,8 +392,8 @@ function LinkedItemsTab({ title, icon, linkedItems, available, onLink, onUnlink,
                 </span>
               )}
               <button onClick={() => onUnlink(item.id)} disabled={isPending}
-                style={{ background: "none", border: "1px solid #e5e5e5",
-                  color: "#9ca3af", borderRadius: 5, padding: "3px 8px",
+                style={{ background: "none", border: "1px solid var(--crm-border)",
+                  color: "var(--crm-muted2)", borderRadius: 5, padding: "3px 8px",
                   fontSize: 11, cursor: "pointer", flexShrink: 0 }}>
                 Unlink
               </button>
@@ -426,7 +426,7 @@ function NotesTab({ projectId, notes, onAdded }: {
   return (
     <div>
       {/* Add note */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
         padding: "16px 18px", marginBottom: 16 }}>
         <textarea value={body} onChange={e => setBody(e.target.value)}
           placeholder="Add a note to this project…"
@@ -446,9 +446,9 @@ function NotesTab({ projectId, notes, onAdded }: {
       {/* Notes list */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {notes.length === 0 ? (
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
             padding: "40px 20px", textAlign: "center" }}>
-            <p style={{ fontSize: 13, color: "#9ca3af", margin: 0 }}>No notes yet</p>
+            <p style={{ fontSize: 13, color: "var(--crm-muted2)", margin: 0 }}>No notes yet</p>
           </div>
         ) : notes.map(n => (
           <div key={n.id} style={{ background: n.pinned ? "#fffbeb" : "#fff",
@@ -456,10 +456,10 @@ function NotesTab({ projectId, notes, onAdded }: {
             padding: "14px 18px" }}>
             {n.pinned && <span style={{ fontSize: 10, fontWeight: 800, color: "#92400e",
               marginBottom: 6, display: "block" }}>📌 Pinned</span>}
-            <p style={{ fontSize: 13, color: "#374151", margin: "0 0 8px", lineHeight: 1.6 }}>
+            <p style={{ fontSize: 13, color: "var(--crm-text2)", margin: "0 0 8px", lineHeight: 1.6 }}>
               {n.body}
             </p>
-            <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>
+            <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>
               {n.author_name} · {new Date(n.created_at).toLocaleDateString("en-US",
                 { month: "short", day: "numeric", year: "numeric" })}
             </p>

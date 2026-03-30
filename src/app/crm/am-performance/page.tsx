@@ -10,7 +10,7 @@ function StatBox({ label, value, sub, color }: { label: string; value: string | 
     <div style={{ textAlign: "center", padding: "12px 8px" }}>
       <p style={{ fontSize: 22, fontWeight: 900, margin: "0 0 2px", color: color ?? "#0d0d0d" }}>{value}</p>
       <p style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.07em",
-        color: "#9ca3af", margin: 0 }}>{label}</p>
+        color: "var(--crm-muted2)", margin: 0 }}>{label}</p>
       {sub && <p style={{ fontSize: 10, color: "#d1d5db", margin: "2px 0 0" }}>{sub}</p>}
     </div>
   );
@@ -31,10 +31,10 @@ export default async function AMPerformancePage() {
     <div>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
           AM Performance
         </h1>
-        <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+        <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: "4px 0 0" }}>
           {ams.length} account manager{ams.length !== 1 ? "s" : ""} ·{" "}
           {session.role === "admin" ? "All teams" : "Your team"}
         </p>
@@ -44,15 +44,15 @@ export default async function AMPerformancePage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 24 }}>
         {[
           { label: "Team Revenue",     value: fmt(totalRevenue),       color: "#f5c700", border: "#f5c700" },
-          { label: "Total Customers",  value: totalCustomers,          color: "#0d0d0d", border: "#0d0d0d" },
+          { label: "Total Customers",  value: totalCustomers,          color: "var(--crm-text)", border: "#0d0d0d" },
           { label: "Avg Win Rate",     value: `${avgWinRate}%`,        color: "#22c55e", border: "#22c55e" },
           { label: "Overdue Tasks",    value: overdueCount,            color: overdueCount > 0 ? "#ef4444" : "#22c55e", border: overdueCount > 0 ? "#ef4444" : "#22c55e" },
         ].map(k => (
-          <div key={k.label} style={{ background: "#fff", borderRadius: 10, padding: "16px 20px",
-            border: "1px solid #e5e5e5", borderTop: `3px solid ${k.border}` }}>
+          <div key={k.label} style={{ background: "var(--crm-surface)", borderRadius: 10, padding: "16px 20px",
+            border: "1px solid var(--crm-border)", borderTop: `3px solid ${k.border}` }}>
             <p style={{ fontSize: 26, fontWeight: 900, color: k.color, margin: "0 0 4px" }}>{k.value}</p>
             <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>{k.label}</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>{k.label}</p>
           </div>
         ))}
       </div>
@@ -64,8 +64,8 @@ export default async function AMPerformancePage() {
           const onbColor = am.onboarding_avg >= 70 ? "#22c55e" : am.onboarding_avg >= 40 ? "#f97316" : "#ef4444";
 
           return (
-            <div key={am.id} style={{ background: "#fff", borderRadius: 10,
-              border: "1px solid #e5e5e5", overflow: "hidden" }}>
+            <div key={am.id} style={{ background: "var(--crm-surface)", borderRadius: 10,
+              border: "1px solid var(--crm-border)", overflow: "hidden" }}>
               {/* AM header */}
               <div style={{ background: "#0d0d0d", padding: "14px 20px",
                 display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -89,7 +89,7 @@ export default async function AMPerformancePage() {
                       style={{ fontWeight: 800, fontSize: 15, color: "#fff", textDecoration: "none" }}>
                       {am.name}
                     </Link>
-                    <p style={{ color: "#6b6b6b", fontSize: 12, margin: 0 }}>
+                    <p style={{ color: "var(--crm-muted)", fontSize: 12, margin: 0 }}>
                       {am.email}
                       {am.manager_name && ` · Manager: ${am.manager_name}`}
                     </p>
@@ -112,26 +112,26 @@ export default async function AMPerformancePage() {
 
               {/* Metrics grid */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)",
-                borderBottom: "1px solid #f1f1f1", gap: 0 }}>
-                <div style={{ borderRight: "1px solid #f1f1f1" }}>
+                borderBottom: "1px solid var(--crm-border2)", gap: 0 }}>
+                <div style={{ borderRight: "1px solid var(--crm-border2)" }}>
                   <StatBox label="Customers" value={am.customer_count} />
                 </div>
-                <div style={{ borderRight: "1px solid #f1f1f1" }}>
+                <div style={{ borderRight: "1px solid var(--crm-border2)" }}>
                   <StatBox label="Companies" value={am.company_count} />
                 </div>
-                <div style={{ borderRight: "1px solid #f1f1f1" }}>
+                <div style={{ borderRight: "1px solid var(--crm-border2)" }}>
                   <StatBox label="Revenue" value={fmt(Number(am.revenue))} color="#22c55e" />
                 </div>
-                <div style={{ borderRight: "1px solid #f1f1f1" }}>
+                <div style={{ borderRight: "1px solid var(--crm-border2)" }}>
                   <StatBox label="Orders" value={am.order_count} />
                 </div>
-                <div style={{ borderRight: "1px solid #f1f1f1" }}>
+                <div style={{ borderRight: "1px solid var(--crm-border2)" }}>
                   <StatBox label="Open Quotes" value={am.open_quotes} color="#3b82f6" />
                 </div>
-                <div style={{ borderRight: "1px solid #f1f1f1" }}>
+                <div style={{ borderRight: "1px solid var(--crm-border2)" }}>
                   <StatBox label="Pipeline" value={fmt(Number(am.quote_value))} color="#f5c700" />
                 </div>
-                <div style={{ borderRight: "1px solid #f1f1f1" }}>
+                <div style={{ borderRight: "1px solid var(--crm-border2)" }}>
                   <StatBox label="Win Rate" value={`${am.win_rate}%`} color={winColor} />
                 </div>
                 <div>
@@ -149,7 +149,7 @@ export default async function AMPerformancePage() {
                 ].map(bar => (
                   <div key={bar.label}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                      <span style={{ fontSize: 11, color: "#9ca3af", fontWeight: 600 }}>{bar.label}</span>
+                      <span style={{ fontSize: 11, color: "var(--crm-muted2)", fontWeight: 600 }}>{bar.label}</span>
                       <span style={{ fontSize: 11, fontWeight: 800, color: bar.color }}>{bar.value}%</span>
                     </div>
                     <div style={{ height: 5, background: "#f1f1f1", borderRadius: 3 }}>

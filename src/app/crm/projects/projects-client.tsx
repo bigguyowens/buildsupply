@@ -13,7 +13,7 @@ const STATUS_META: Record<ProjectStatus, { label: string; color: string; bg: str
   active:    { label: "Active",    color: "#15803d", bg: "#dcfce7", dot: "#22c55e" },
   on_hold:   { label: "On Hold",   color: "#92400e", bg: "#fef3c7", dot: "#f59e0b" },
   completed: { label: "Completed", color: "#1e40af", bg: "#dbeafe", dot: "#3b82f6" },
-  cancelled: { label: "Cancelled", color: "#6b7280", bg: "#f1f5f9", dot: "#9ca3af" },
+  cancelled: { label: "Cancelled", color: "var(--crm-muted)", bg: "#f1f5f9", dot: "#9ca3af" },
 };
 
 const STATUSES: (ProjectStatus | "all")[] = ["all","active","on_hold","completed","cancelled"];
@@ -52,10 +52,10 @@ export function ProjectsClient({ projects, statusCounts, sessionRole, sessionId,
       <div style={{ display: "flex", justifyContent: "space-between",
         alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
             Projects
           </h1>
-          <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+          <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: "4px 0 0" }}>
             Organize quotes, orders, tasks and notes across customers and companies
           </p>
         </div>
@@ -79,31 +79,31 @@ export function ProjectsClient({ projects, statusCounts, sessionRole, sessionId,
           { label: "Completed", value: statusCounts.completed ?? 0,   color: "#3b82f6" },
           { label: "Value",     value: fmt(projects.reduce((s,p)=>s+Number(p.value??0),0)), color: "#22c55e" },
         ].map(k => (
-          <div key={k.label} style={{ background: "#fff", borderRadius: 10,
-            padding: "14px 16px", border: "1px solid #e5e5e5",
+          <div key={k.label} style={{ background: "var(--crm-surface)", borderRadius: 10,
+            padding: "14px 16px", border: "1px solid var(--crm-border)",
             borderTop: `3px solid ${k.color}` }}>
-            <p style={{ fontSize: 22, fontWeight: 900, margin: "0 0 2px", color: "#0d0d0d" }}>
+            <p style={{ fontSize: 22, fontWeight: 900, margin: "0 0 2px", color: "var(--crm-text)" }}>
               {typeof k.value === "number" ? k.value : k.value}
             </p>
             <p style={{ fontSize: 10, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>{k.label}</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>{k.label}</p>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
         padding: "12px 16px", marginBottom: 16,
         display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
 
         <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
           <span style={{ position: "absolute", left: 10, top: "50%",
-            transform: "translateY(-50%)", color: "#9ca3af", fontSize: 13 }}>🔍</span>
+            transform: "translateY(-50%)", color: "var(--crm-muted2)", fontSize: 13 }}>🔍</span>
           <input value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search projects, customers, companies…"
             style={{ width: "100%", padding: "7px 10px 7px 30px", borderRadius: 6,
-              border: "1px solid #e5e5e5", fontSize: 13, outline: "none",
-              background: "#fafafa", boxSizing: "border-box" as const }} />
+              border: "1px solid var(--crm-border)", fontSize: 13, outline: "none",
+              background: "var(--crm-surface2)", boxSizing: "border-box" as const }} />
         </div>
 
         {/* Type filter */}
@@ -142,7 +142,7 @@ export function ProjectsClient({ projects, statusCounts, sessionRole, sessionId,
       {/* Results info */}
       <div style={{ display: "flex", justifyContent: "space-between",
         alignItems: "center", marginBottom: 12, padding: "0 4px" }}>
-        <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>
+        <span style={{ fontSize: 12, color: "var(--crm-muted)", fontWeight: 600 }}>
           {filtered.length} project{filtered.length !== 1 ? "s" : ""}
         </span>
         {totalValue > 0 && (
@@ -154,13 +154,13 @@ export function ProjectsClient({ projects, statusCounts, sessionRole, sessionId,
 
       {/* Project cards grid */}
       {filtered.length === 0 ? (
-        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+        <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
           padding: "60px 20px", textAlign: "center" }}>
           <p style={{ fontSize: 32, margin: "0 0 12px" }}>📁</p>
-          <p style={{ fontSize: 16, fontWeight: 700, color: "#0d0d0d", margin: "0 0 6px" }}>
+          <p style={{ fontSize: 16, fontWeight: 700, color: "var(--crm-text)", margin: "0 0 6px" }}>
             No projects yet
           </p>
-          <p style={{ fontSize: 13, color: "#9ca3af", margin: "0 0 20px" }}>
+          <p style={{ fontSize: 13, color: "var(--crm-muted2)", margin: "0 0 20px" }}>
             Create a project to start organizing quotes, orders, and tasks together
           </p>
           <button onClick={() => setShowCreate(true)} style={{
@@ -194,17 +194,17 @@ function ProjectCard({ project: p }: { project: CRMProject }) {
 
   return (
     <Link href={`/crm/projects/${p.id}`} style={{ textDecoration: "none" }}>
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
         overflow: "hidden", transition: "box-shadow 0.15s", cursor: "pointer" }}
         onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 16px rgba(0,0,0,0.1)"}
         onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = "none"}>
 
         {/* Card header */}
         <div style={{ padding: "16px 18px 12px",
-          borderBottom: "1px solid #f5f5f5" }}>
+          borderBottom: "1px solid var(--crm-border2)" }}>
           <div style={{ display: "flex", justifyContent: "space-between",
             alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 800, color: "#0d0d0d",
+            <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--crm-text)",
               margin: 0, lineHeight: 1.3, flex: 1 }}>
               {p.name}
             </h3>
@@ -221,7 +221,7 @@ function ProjectCard({ project: p }: { project: CRMProject }) {
           {/* Entity */}
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ fontSize: 11 }}>{p.entity_type === "customer" ? "👤" : "🏢"}</span>
-            <span style={{ fontSize: 12, color: "#374151", fontWeight: 600 }}>{p.entity_name}</span>
+            <span style={{ fontSize: 12, color: "var(--crm-text2)", fontWeight: 600 }}>{p.entity_name}</span>
             {p.value && (
               <>
                 <span style={{ color: "#e5e5e5" }}>·</span>
@@ -233,7 +233,7 @@ function ProjectCard({ project: p }: { project: CRMProject }) {
           </div>
 
           {p.description && (
-            <p style={{ fontSize: 12, color: "#6b7280", margin: "8px 0 0", lineHeight: 1.5,
+            <p style={{ fontSize: 12, color: "var(--crm-muted)", margin: "8px 0 0", lineHeight: 1.5,
               display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const,
               overflow: "hidden" }}>
               {p.description}
@@ -243,7 +243,7 @@ function ProjectCard({ project: p }: { project: CRMProject }) {
 
         {/* Stats row */}
         <div style={{ padding: "10px 18px", display: "flex", gap: 16,
-          background: "#fafafa" }}>
+          background: "var(--crm-surface2)" }}>
           {[
             { icon: "📋", count: p.quote_count,  label: "Quote" },
             { icon: "🛒", count: p.order_count,  label: "Order" },
@@ -253,7 +253,7 @@ function ProjectCard({ project: p }: { project: CRMProject }) {
           ].map(s => (
             <div key={s.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
               <span style={{ fontSize: 11 }}>{s.icon}</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--crm-text2)" }}>
                 {s.count}
               </span>
               {s.badge && (
@@ -266,7 +266,7 @@ function ProjectCard({ project: p }: { project: CRMProject }) {
           ))}
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
             {p.assigned_name && (
-              <span style={{ fontSize: 11, color: "#9ca3af" }}>{p.assigned_name}</span>
+              <span style={{ fontSize: 11, color: "var(--crm-muted2)" }}>{p.assigned_name}</span>
             )}
             <span style={{ fontSize: 10, color: "#d1d5db" }}>
               {daysOld === 0 ? "today" : `${daysOld}d ago`}
@@ -313,7 +313,7 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
       zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center",
       padding: 20 }}>
-      <div style={{ background: "#fff", borderRadius: 12, width: "100%", maxWidth: 520,
+      <div style={{ background: "var(--crm-surface)", borderRadius: 12, width: "100%", maxWidth: 520,
         boxShadow: "0 20px 60px rgba(0,0,0,0.2)", overflow: "hidden" }}>
 
         {/* Modal header */}
@@ -323,7 +323,7 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
             New Project
           </h2>
           <button onClick={onClose} style={{ background: "none", border: "none",
-            color: "#6b6b6b", fontSize: 18, cursor: "pointer", lineHeight: 1 }}>✕</button>
+            color: "var(--crm-muted)", fontSize: 18, cursor: "pointer", lineHeight: 1 }}>✕</button>
         </div>
 
         <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 16 }}>
@@ -334,7 +334,7 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
 
           {/* Name */}
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6b7280",
+            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--crm-muted)",
               textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>
               Project Name *
             </label>
@@ -346,7 +346,7 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
 
           {/* Entity type + ID */}
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6b7280",
+            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--crm-muted)",
               textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>
               Link To *
             </label>
@@ -372,7 +372,7 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
 
           {/* Description */}
           <div>
-            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6b7280",
+            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--crm-muted)",
               textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>
               Description
             </label>
@@ -388,7 +388,7 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
           {/* Value + Status */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6b7280",
+              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--crm-muted)",
                 textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>
                 Est. Value ($)
               </label>
@@ -399,14 +399,14 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
                   border: "1.5px solid #e5e5e5", outline: "none", boxSizing: "border-box" as const }} />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#6b7280",
+              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "var(--crm-muted)",
                 textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>
                 Status
               </label>
               <select value={form.status} onChange={e => setForm(f=>({...f,status:e.target.value as ProjectStatus}))}
                 style={{ width: "100%", padding: "9px 12px", borderRadius: 7, fontSize: 13,
                   border: "1.5px solid #e5e5e5", outline: "none",
-                  background: "#fff", boxSizing: "border-box" as const }}>
+                  background: "var(--crm-surface)", boxSizing: "border-box" as const }}>
                 <option value="active">Active</option>
                 <option value="on_hold">On Hold</option>
                 <option value="completed">Completed</option>
@@ -418,7 +418,7 @@ function CreateProjectModal({ sessionId, onClose, onCreated }: {
           {/* Actions */}
           <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", paddingTop: 4 }}>
             <button onClick={onClose} style={{ padding: "9px 18px", borderRadius: 7,
-              border: "1px solid #e5e5e5", background: "#fff", color: "#6b7280",
+              border: "1px solid var(--crm-border)", background: "var(--crm-surface)", color: "var(--crm-muted)",
               fontSize: 13, fontWeight: 700, cursor: "pointer" }}>Cancel</button>
             <button onClick={handleSubmit} disabled={isPending} style={{
               padding: "9px 22px", borderRadius: 7, border: "none",
@@ -478,7 +478,7 @@ function EntityPicker({ type, selectedId, selectedName, onSelect }: {
           {type === "customer" ? "👤" : "🏢"} {selectedName}
         </span>
         <button onClick={() => onSelect(0, "")} style={{ background: "none",
-          border: "none", color: "#9ca3af", cursor: "pointer", fontSize: 14 }}>✕</button>
+          border: "none", color: "var(--crm-muted2)", cursor: "pointer", fontSize: 14 }}>✕</button>
       </div>
     );
   }
@@ -491,12 +491,12 @@ function EntityPicker({ type, selectedId, selectedName, onSelect }: {
           border: "1.5px solid #e5e5e5", outline: "none", boxSizing: "border-box" as const }} />
       {open && results.length > 0 && (
         <div style={{ position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
-          background: "#fff", borderRadius: 8, border: "1px solid #e5e5e5",
+          background: "var(--crm-surface)", borderRadius: 8, border: "1px solid var(--crm-border)",
           boxShadow: "0 8px 24px rgba(0,0,0,0.12)", zIndex: 200, overflow: "hidden" }}>
           {results.map(r => (
             <div key={r.id} onClick={() => { onSelect(r.id, r.name); setOpen(false); setSearch(""); }}
               style={{ padding: "10px 14px", cursor: "pointer", fontSize: 13, fontWeight: 600,
-                color: "#0d0d0d", borderBottom: "1px solid #f9f9f9" }}
+                color: "var(--crm-text)", borderBottom: "1px solid var(--crm-border2)" }}
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = "#f9f9f9"}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = ""}>
               {type === "customer" ? "👤" : "🏢"} {r.name}

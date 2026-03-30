@@ -58,10 +58,10 @@ export default async function CRMQuotesPage({ searchParams }: { searchParams: Pr
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+          <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
             Quote Pipeline
           </h1>
-          <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+          <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: "4px 0 0" }}>
             {grouped.sent?.length ?? 0} awaiting response · {fmt(totalValue)} accepted
           </p>
         </div>
@@ -82,13 +82,13 @@ export default async function CRMQuotesPage({ searchParams }: { searchParams: Pr
           const cols = grouped[s] ?? [];
           const val  = cols.reduce((sum, q) => sum + Number(q.total_quoted), 0);
           return (
-            <div key={s} style={{ background: "#fff", borderRadius: 10, padding: "14px 18px",
-              border: "1px solid #e5e5e5", borderTop: `3px solid ${meta.border}` }}>
-              <p style={{ fontSize: 22, fontWeight: 900, color: "#0d0d0d", margin: "0 0 2px" }}>
+            <div key={s} style={{ background: "var(--crm-surface)", borderRadius: 10, padding: "14px 18px",
+              border: "1px solid var(--crm-border)", borderTop: `3px solid ${meta.border}` }}>
+              <p style={{ fontSize: 22, fontWeight: 900, color: "var(--crm-text)", margin: "0 0 2px" }}>
                 {cols.length}
               </p>
               <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-                letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 2px" }}>
+                letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 2px" }}>
                 {meta.label}
               </p>
               <p style={{ fontSize: 12, fontWeight: 700, color: meta.color, margin: 0 }}>
@@ -110,23 +110,23 @@ export default async function CRMQuotesPage({ searchParams }: { searchParams: Pr
                 <span style={{ width: 10, height: 10, borderRadius: "50%",
                   background: meta.border, display: "inline-block" }} />
                 <h2 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase",
-                  letterSpacing: "0.08em", color: "#0d0d0d", margin: 0 }}>{meta.label}</h2>
+                  letterSpacing: "0.08em", color: "var(--crm-text)", margin: 0 }}>{meta.label}</h2>
                 <span style={{ fontSize: 11, fontWeight: 700, background: "#f1f1f1",
-                  color: "#9ca3af", borderRadius: 999, padding: "1px 8px" }}>{cols.length}</span>
+                  color: "var(--crm-muted2)", borderRadius: 999, padding: "1px 8px" }}>{cols.length}</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {cols.length === 0 ? (
-                  <div style={{ background: "#f9f9f9", borderRadius: 8, border: "1px dashed #e5e5e5",
+                  <div style={{ background: "var(--crm-surface2)", borderRadius: 8, border: "1px dashed #e5e5e5",
                     padding: 24, textAlign: "center", color: "#d1d5db", fontSize: 13 }}>
                     No {meta.label.toLowerCase()} quotes
                   </div>
                 ) : cols.map(q => (
                   <Link key={q.id} href={`/crm/quotes/${q.id}`} style={{ textDecoration: "none" }}>
-                    <div className="crm-quote-card" style={{ background: "#fff", borderRadius: 8,
-                      border: "1px solid #e5e5e5", padding: "14px 16px",
+                    <div className="crm-quote-card" style={{ background: "var(--crm-surface)", borderRadius: 8,
+                      border: "1px solid var(--crm-border)", padding: "14px 16px",
                       borderTop: `3px solid ${meta.border}` }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                        <span style={{ fontWeight: 800, fontSize: 14, color: "#0d0d0d" }}>
+                        <span style={{ fontWeight: 800, fontSize: 14, color: "var(--crm-text)" }}>
                           Quote #{q.id}
                         </span>
                         <span style={{ fontSize: 16, fontWeight: 900, color: "#f5c700" }}>
@@ -139,18 +139,18 @@ export default async function CRMQuotesPage({ searchParams }: { searchParams: Pr
                           fontSize: 9, fontWeight: 800, color: "#000", flexShrink: 0 }}>
                           {q.first_name[0]}{q.last_name[0]}
                         </div>
-                        <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--crm-text2)" }}>
                           {q.first_name} {q.last_name}
                         </span>
                       </div>
-                      <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>
+                      <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>
                         {q.item_count} item{q.item_count !== 1 ? "s" : ""} ·{" "}
                         {new Date(q.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                         {q.expires_at && ` · Exp ${new Date(q.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`}
                       </p>
                       {q.notes && (
-                        <p style={{ fontSize: 11, color: "#6b7280", margin: "6px 0 0",
-                          fontStyle: "italic", borderTop: "1px solid #f5f5f5", paddingTop: 6 }}>
+                        <p style={{ fontSize: 11, color: "var(--crm-muted)", margin: "6px 0 0",
+                          fontStyle: "italic", borderTop: "1px solid var(--crm-border2)", paddingTop: 6 }}>
                           "{q.notes.slice(0, 60)}{q.notes.length > 60 ? "…" : ""}"
                         </p>
                       )}

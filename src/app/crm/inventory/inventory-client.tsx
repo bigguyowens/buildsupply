@@ -75,25 +75,25 @@ export function InventoryClient({
               { label: "Low Stock",     value: hub.low_stock,                    color: "#f97316" },
               { label: "Out of Stock",  value: hub.out_of_stock,                 color: "#ef4444" },
             ].map(k => (
-              <div key={k.label} style={{ background: "#fff", borderRadius: 10, padding: "16px 18px",
-                border: "1px solid #e5e5e5", borderTop: `3px solid ${k.color}` }}>
-                <p style={{ fontSize: 24, fontWeight: 900, color: "#0d0d0d", margin: "0 0 4px" }}>{k.value}</p>
+              <div key={k.label} style={{ background: "var(--crm-surface)", borderRadius: 10, padding: "16px 18px",
+                border: "1px solid var(--crm-border)", borderTop: `3px solid ${k.color}` }}>
+                <p style={{ fontSize: 24, fontWeight: 900, color: "var(--crm-text)", margin: "0 0 4px" }}>{k.value}</p>
                 <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-                  letterSpacing: "0.08em", color: "#9ca3af", margin: 0 }}>{k.label}</p>
+                  letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: 0 }}>{k.label}</p>
               </div>
             ))}
           </div>
 
           {/* Filter + search bar */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
             padding: "12px 16px", marginBottom: 16, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
               <span style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)",
-                color: "#9ca3af", fontSize: 14 }}>🔍</span>
+                color: "var(--crm-muted2)", fontSize: 14 }}>🔍</span>
               <input value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Search product, SKU, category..."
                 style={{ width: "100%", padding: "8px 12px 8px 32px", borderRadius: 6, fontSize: 13,
-                  border: "1px solid #e5e5e5", outline: "none", boxSizing: "border-box" as const }} />
+                  border: "1px solid var(--crm-border)", outline: "none", boxSizing: "border-box" as const }} />
             </div>
             <div style={{ display: "flex", gap: 6 }}>
               {(["all", "out", "low", "ok"] as const).map(f => {
@@ -109,13 +109,13 @@ export function InventoryClient({
                 );
               })}
             </div>
-            <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 600 }}>
+            <span style={{ fontSize: 12, color: "var(--crm-muted2)", fontWeight: 600 }}>
               {filtered.length.toLocaleString()} products
             </span>
           </div>
 
           {/* Products table */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
                 <tr style={{ background: "#0d0d0d" }}>
@@ -127,24 +127,24 @@ export function InventoryClient({
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={5} style={{ padding: "40px 24px", textAlign: "center", color: "#9ca3af" }}>
+                  <tr><td colSpan={5} style={{ padding: "40px 24px", textAlign: "center", color: "var(--crm-muted2)" }}>
                     No products match your filter
                   </td></tr>
                 ) : filtered.map((p, i) => (
-                  <tr key={p.product_id} style={{ borderTop: "1px solid #f5f5f5",
-                    background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
-                    <td style={{ padding: "10px 16px", fontWeight: 600, color: "#0d0d0d",
+                  <tr key={p.product_id} style={{ borderTop: "1px solid var(--crm-border2)",
+                    background: i % 2 === 0 ? "var(--crm-surface)" : "var(--crm-surface2)" }}>
+                    <td style={{ padding: "10px 16px", fontWeight: 600, color: "var(--crm-text)",
                       maxWidth: 300, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {p.name}
                     </td>
-                    <td style={{ padding: "10px 16px", color: "#6b7280", fontSize: 12 }}>{p.sku}</td>
-                    <td style={{ padding: "10px 16px", color: "#6b7280", fontSize: 12 }}>{p.category}</td>
+                    <td style={{ padding: "10px 16px", color: "var(--crm-muted)", fontSize: 12 }}>{p.sku}</td>
+                    <td style={{ padding: "10px 16px", color: "var(--crm-muted)", fontSize: 12 }}>{p.category}</td>
                     <td style={{ padding: "10px 16px" }}>
                       <span style={{ fontWeight: 800, color: stockColor(p.quantity), fontSize: 14 }}>
                         {stockLabel(p.quantity)}
                       </span>
                     </td>
-                    <td style={{ padding: "10px 16px", fontWeight: 700, color: "#374151" }}>
+                    <td style={{ padding: "10px 16px", fontWeight: 700, color: "var(--crm-text2)" }}>
                       ${Number(p.price).toFixed(2)}
                     </td>
                   </tr>

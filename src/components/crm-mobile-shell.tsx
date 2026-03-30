@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { CRMGlobalSearch } from "./crm-global-search";
+import { useCRMTheme } from "./crm-theme-wrapper";
 
 export function CRMMobileShell({
   sidebar,
@@ -10,18 +10,18 @@ export function CRMMobileShell({
   sidebar: React.ReactNode;
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { sidebarOpen, toggleSidebar, closeSidebar } = useCRMTheme();
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f2f2f2" }}>
+    <div style={{ display: "flex", minHeight: "100vh", background: "var(--crm-bg)", width: "100%" }}>
 
       {/* Mobile overlay */}
       <div
         className={`sidebar-overlay${sidebarOpen ? " open" : ""}`}
-        onClick={() => setSidebarOpen(false)}
+        onClick={closeSidebar}
       />
 
-      {/* Sidebar wrapper — becomes drawer on mobile */}
+      {/* Sidebar wrapper */}
       <div className={`crm-sidebar-wrap${sidebarOpen ? " open" : ""}`}
         style={{ flexShrink: 0 }}>
         {sidebar}
@@ -32,16 +32,17 @@ export function CRMMobileShell({
 
         {/* Top bar */}
         <div className="crm-topbar" style={{
-          background: "#fff", borderBottom: "1px solid #e5e5e5",
-          padding: "0 28px", height: 56, display: "flex", alignItems: "center",
+          background: "var(--crm-surface)",
+          borderBottom: "1px solid var(--crm-border)",
+          padding: "0 28px", height: 56,
+          display: "flex", alignItems: "center",
           justifyContent: "space-between", flexShrink: 0,
         }}>
-          {/* Left: hamburger (mobile) + status */}
+          {/* Left: hamburger + status */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            {/* Hamburger — only shown via CSS on mobile */}
             <button
               className="mobile-menu-btn"
-              onClick={() => setSidebarOpen(o => !o)}
+              onClick={toggleSidebar}
               style={{
                 background: "none", border: "none", cursor: "pointer",
                 padding: 4, alignItems: "center", justifyContent: "center",
@@ -49,13 +50,13 @@ export function CRMMobileShell({
               }}
               aria-label="Toggle menu"
             >
-              <span style={{ display: "block", width: 20, height: 2, background: "#0d0d0d", borderRadius: 1 }} />
-              <span style={{ display: "block", width: 20, height: 2, background: "#0d0d0d", borderRadius: 1 }} />
-              <span style={{ display: "block", width: 20, height: 2, background: "#0d0d0d", borderRadius: 1 }} />
+              <span style={{ display: "block", width: 20, height: 2, background: "var(--crm-text)", borderRadius: 1 }} />
+              <span style={{ display: "block", width: 20, height: 2, background: "var(--crm-text)", borderRadius: 1 }} />
+              <span style={{ display: "block", width: 20, height: 2, background: "var(--crm-text)", borderRadius: 1 }} />
             </button>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e" }} />
-              <span style={{ fontSize: 12, color: "#6b7280", fontWeight: 600 }}>CRM Live</span>
+              <span style={{ fontSize: 12, color: "var(--crm-muted)", fontWeight: 600 }}>CRM Live</span>
             </div>
           </div>
 
@@ -65,7 +66,7 @@ export function CRMMobileShell({
           </div>
 
           {/* Right: date */}
-          <span style={{ fontSize: 12, color: "#9ca3af" }} className="hide-mobile">
+          <span style={{ fontSize: 12, color: "var(--crm-muted2)" }} className="hide-mobile">
             {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
           </span>
         </div>

@@ -40,9 +40,9 @@ export default async function CRMReturnDetailPage({ params }: { params: Promise<
     <div>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, fontSize: 13 }}>
-        <Link href="/crm/returns" style={{ color: "#9ca3af", textDecoration: "none" }}>Returns</Link>
+        <Link href="/crm/returns" style={{ color: "var(--crm-muted2)", textDecoration: "none" }}>Returns</Link>
         <span style={{ color: "#d1d5db" }}>›</span>
-        <span style={{ color: "#0d0d0d", fontWeight: 700 }}>Return #{ret.id}</span>
+        <span style={{ color: "var(--crm-text)", fontWeight: 700 }}>Return #{ret.id}</span>
       </div>
 
       {/* Header */}
@@ -60,10 +60,10 @@ export default async function CRMReturnDetailPage({ params }: { params: Promise<
                 {ret.first_name} {ret.last_name}
               </Link>
             )}
-            <span style={{ color: "#6b6b6b", fontSize: 12 }}>{ret.email}</span>
-            <span style={{ color: "#6b6b6b", fontSize: 12 }}>·</span>
+            <span style={{ color: "var(--crm-muted)", fontSize: 12 }}>{ret.email}</span>
+            <span style={{ color: "var(--crm-muted)", fontSize: 12 }}>·</span>
             <Link href={`/crm/orders/${ret.order_id}`}
-              style={{ color: "#9ca3af", fontSize: 12, textDecoration: "none" }}>
+              style={{ color: "var(--crm-muted2)", fontSize: 12, textDecoration: "none" }}>
               Order #{ret.order_id} →
             </Link>
           </div>
@@ -86,30 +86,30 @@ export default async function CRMReturnDetailPage({ params }: { params: Promise<
       <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: 20, alignItems: "start" }}>
         {/* Left: return items */}
         <div>
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
             overflow: "hidden", marginBottom: 16 }}>
-            <div style={{ padding: "14px 18px", borderBottom: "1px solid #f1f1f1", background: "#fafafa" }}>
-              <h2 style={{ fontSize: 13, fontWeight: 800, margin: 0, color: "#0d0d0d" }}>
+            <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--crm-border2)", background: "var(--crm-surface2)" }}>
+              <h2 style={{ fontSize: 13, fontWeight: 800, margin: 0, color: "var(--crm-text)" }}>
                 Return Items ({items.length})
               </h2>
             </div>
             {items.map((item, i) => (
               <div key={item.id} style={{ display: "flex", gap: 14, padding: "14px 18px",
-                borderBottom: i < items.length - 1 ? "1px solid #f9f9f9" : "none",
+                borderBottom: i < items.length - 1 ? "1px solid var(--crm-border2)" : "none",
                 alignItems: "center" }}>
-                <div style={{ width: 44, height: 44, borderRadius: 6, background: "#f5f5f5",
+                <div style={{ width: 44, height: 44, borderRadius: 6, background: "var(--crm-surface2)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                   fontSize: 18, flexShrink: 0 }}>↩️</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 700, fontSize: 13, color: "#0d0d0d", margin: "0 0 2px" }}>
+                  <p style={{ fontWeight: 700, fontSize: 13, color: "var(--crm-text)", margin: "0 0 2px" }}>
                     {item.name}
                   </p>
-                  <p style={{ fontSize: 11, color: "#9ca3af", margin: 0 }}>
+                  <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: 0 }}>
                     SKU: {item.sku} · Qty: {item.quantity}
                     {item.reason && ` · "${item.reason}"`}
                   </p>
                 </div>
-                <span style={{ fontWeight: 800, color: "#0d0d0d", fontSize: 13 }}>
+                <span style={{ fontWeight: 800, color: "var(--crm-text)", fontSize: 13 }}>
                   {fmt(item.price * item.quantity)}
                 </span>
               </div>
@@ -118,11 +118,11 @@ export default async function CRMReturnDetailPage({ params }: { params: Promise<
 
           {/* Customer notes / reason */}
           {ret.notes && (
-            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+            <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
               padding: "16px 18px" }}>
               <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-                letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 8px" }}>Customer Note</p>
-              <p style={{ fontSize: 13, color: "#374151", margin: 0, lineHeight: 1.6 }}>{ret.notes}</p>
+                letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 8px" }}>Customer Note</p>
+              <p style={{ fontSize: 13, color: "var(--crm-text2)", margin: 0, lineHeight: 1.6 }}>{ret.notes}</p>
             </div>
           )}
         </div>
@@ -132,7 +132,7 @@ export default async function CRMReturnDetailPage({ params }: { params: Promise<
           {/* Status & details */}
           <div style={{ background: "#0d0d0d", borderRadius: 10, padding: "18px 20px" }}>
             <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#6b6b6b", margin: "0 0 14px" }}>Return Details</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted)", margin: "0 0 14px" }}>Return Details</p>
             {[
               { label: "Return #",    value: `#${ret.id}` },
               { label: "Order #",     value: `#${ret.order_id}` },
@@ -146,18 +146,18 @@ export default async function CRMReturnDetailPage({ params }: { params: Promise<
               <div key={r.label} style={{ display: "flex", justifyContent: "space-between",
                 padding: "6px 0", fontSize: 12,
                 borderBottom: "1px solid #1a1a1a" }}>
-                <span style={{ color: "#6b6b6b" }}>{r.label}</span>
+                <span style={{ color: "var(--crm-muted)" }}>{r.label}</span>
                 <span style={{ fontWeight: 700, color: "#f5c700" }}>{r.value}</span>
               </div>
             ))}
           </div>
 
           {ret.admin_notes && (
-            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5",
+            <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)",
               padding: "14px 16px" }}>
               <p style={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase",
-                letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 8px" }}>Admin Notes</p>
-              <p style={{ fontSize: 12, color: "#374151", margin: 0, lineHeight: 1.6 }}>
+                letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 8px" }}>Admin Notes</p>
+              <p style={{ fontSize: 12, color: "var(--crm-text2)", margin: 0, lineHeight: 1.6 }}>
                 {ret.admin_notes}
               </p>
             </div>

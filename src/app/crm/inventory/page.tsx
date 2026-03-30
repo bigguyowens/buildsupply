@@ -41,10 +41,10 @@ export default async function CRMInventoryPage() {
   return (
     <div>
       <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "#0d0d0d", letterSpacing: "-0.03em" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 900, margin: 0, color: "var(--crm-text)", letterSpacing: "-0.03em" }}>
           Inventory by Hub
         </h1>
-        <p style={{ color: "#6b7280", fontSize: 14, margin: "4px 0 0" }}>
+        <p style={{ color: "var(--crm-muted)", fontSize: 14, margin: "4px 0 0" }}>
           {hubs.length} distribution centers · {totalRevenue.toLocaleString()} total units across all locations
         </p>
       </div>

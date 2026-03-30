@@ -34,7 +34,7 @@ export function CRMScopeToggle({ sessionRole, currentScope }: Props) {
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-      <span style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+      <span style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
         textTransform: "uppercase", letterSpacing: "0.07em" }}>
         Viewing:
       </span>

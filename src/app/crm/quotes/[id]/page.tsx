@@ -75,9 +75,9 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
     <div>
       {/* Breadcrumb */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20, fontSize: 13 }}>
-        <Link href="/crm/quotes" style={{ color: "#9ca3af", textDecoration: "none" }}>Quote Pipeline</Link>
+        <Link href="/crm/quotes" style={{ color: "var(--crm-muted2)", textDecoration: "none" }}>Quote Pipeline</Link>
         <span style={{ color: "#d1d5db" }}>›</span>
-        <span style={{ color: "#0d0d0d", fontWeight: 700 }}>Quote #{quote.id}</span>
+        <span style={{ color: "var(--crm-text)", fontWeight: 700 }}>Quote #{quote.id}</span>
       </div>
 
       {/* Header bar */}
@@ -94,7 +94,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                 {meta.label}
               </span>
             </div>
-            <p style={{ color: "#6b6b6b", fontSize: 13, margin: 0 }}>
+            <p style={{ color: "var(--crm-muted)", fontSize: 13, margin: 0 }}>
               {quote.customer_name} · {quote.customer_email}
             </p>
           </div>
@@ -108,7 +108,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
           ].map(s => (
             <div key={s.label} style={{ textAlign: "center" }}>
               <p style={{ color: "#f5c700", fontSize: 18, fontWeight: 900, margin: 0 }}>{s.value}</p>
-              <p style={{ color: "#6b6b6b", fontSize: 10, margin: 0, textTransform: "uppercase",
+              <p style={{ color: "var(--crm-muted)", fontSize: 10, margin: 0, textTransform: "uppercase",
                 letterSpacing: "0.06em" }}>{s.label}</p>
             </div>
           ))}
@@ -121,18 +121,18 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
 
           {/* Line items */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
             <div style={{ padding: "14px 20px", background: "#0d0d0d" }}>
               <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
                 letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Line Items</h2>
             </div>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
               <thead>
-                <tr style={{ background: "#fafafa" }}>
+                <tr style={{ background: "var(--crm-surface2)" }}>
                   {["Product", "Qty", "List Price", "Quoted", "Line Total", "Saving"].map(h => (
                     <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 10,
                       fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em",
-                      color: "#9ca3af" }}>{h}</th>
+                      color: "var(--crm-muted2)" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -142,30 +142,30 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                   const pct = Number(item.original_price) > 0
                     ? ((Number(item.original_price) - Number(item.quoted_price)) / Number(item.original_price)) * 100 : 0;
                   return (
-                    <tr key={item.id} style={{ borderTop: "1px solid #f5f5f5" }}>
+                    <tr key={item.id} style={{ borderTop: "1px solid var(--crm-border2)" }}>
                       <td style={{ padding: "12px 16px" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <div style={{ width: 36, height: 36, borderRadius: 6, overflow: "hidden",
-                            border: "1px solid #e5e5e5", flexShrink: 0, position: "relative",
-                            background: "#f9f9f9" }}>
+                            border: "1px solid var(--crm-border)", flexShrink: 0, position: "relative",
+                            background: "var(--crm-surface2)" }}>
                             <ProductImage src={item.product_image} alt={item.product_name} fill sizes="36px" />
                           </div>
                           <div>
                             <Link href={`/products/${item.product_slug}`} target="_blank"
-                              style={{ fontWeight: 700, fontSize: 13, color: "#0d0d0d", textDecoration: "none" }}>
+                              style={{ fontWeight: 700, fontSize: 13, color: "var(--crm-text)", textDecoration: "none" }}>
                               {item.product_name}
                             </Link>
-                            <p style={{ fontSize: 11, color: "#9ca3af", margin: "1px 0 0" }}>
+                            <p style={{ fontSize: 11, color: "var(--crm-muted2)", margin: "1px 0 0" }}>
                               SKU: {item.product_sku || "—"}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td style={{ padding: "12px 16px", color: "#6b7280" }}>{item.quantity}</td>
-                      <td style={{ padding: "12px 16px", color: "#9ca3af", textDecoration: "line-through" }}>
+                      <td style={{ padding: "12px 16px", color: "var(--crm-muted)" }}>{item.quantity}</td>
+                      <td style={{ padding: "12px 16px", color: "var(--crm-muted2)", textDecoration: "line-through" }}>
                         {fmt(Number(item.original_price))}
                       </td>
-                      <td style={{ padding: "12px 16px", fontWeight: 800, color: "#0d0d0d" }}>
+                      <td style={{ padding: "12px 16px", fontWeight: 800, color: "var(--crm-text)" }}>
                         {fmt(Number(item.quoted_price))}
                       </td>
                       <td style={{ padding: "12px 16px", fontWeight: 700, color: "#f5c700" }}>
@@ -188,7 +188,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                   <td colSpan={4} style={{ padding: "12px 16px" }} />
                   <td colSpan={2} style={{ padding: "12px 16px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "#6b6b6b",
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "var(--crm-muted)",
                         textTransform: "uppercase", letterSpacing: "0.06em" }}>Total</span>
                       <span style={{ fontSize: 20, fontWeight: 900, color: "#f5c700" }}>
                         {fmt(quotedTotal)}
@@ -208,14 +208,14 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
 
           {/* Notes */}
           {(quote.notes || quote.internal_notes) && (
-            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", padding: 20 }}>
+            <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", padding: 20 }}>
               <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-                letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 14px" }}>Notes</h2>
+                letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 14px" }}>Notes</h2>
               {quote.notes && (
                 <div style={{ marginBottom: 12 }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                     textTransform: "uppercase", margin: "0 0 6px" }}>Customer Note</p>
-                  <p style={{ fontSize: 13, color: "#374151", lineHeight: 1.6, margin: 0,
+                  <p style={{ fontSize: 13, color: "var(--crm-text2)", lineHeight: 1.6, margin: 0,
                     whiteSpace: "pre-wrap" }}>{quote.notes}</p>
                 </div>
               )}
@@ -236,7 +236,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
 
           {/* Customer card */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
             <div style={{ padding: "12px 16px", background: "#0d0d0d" }}>
               <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
                 letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Customer</h2>
@@ -249,10 +249,10 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                   {quote.customer_name.split(" ").map(n => n[0]).join("")}
                 </div>
                 <div>
-                  <p style={{ fontWeight: 700, fontSize: 14, margin: 0, color: "#0d0d0d" }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, margin: 0, color: "var(--crm-text)" }}>
                     {quote.customer_name}
                   </p>
-                  <p style={{ color: "#9ca3af", fontSize: 12, margin: 0 }}>{quote.customer_email}</p>
+                  <p style={{ color: "var(--crm-muted2)", fontSize: 12, margin: 0 }}>{quote.customer_email}</p>
                 </div>
               </div>
               <Link href={`/crm/customers/${quote.customer_id}`}
@@ -262,7 +262,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
               </Link>
               {session.role === "admin" && (
                 <Link href={`/admin/quotes/${quote.id}`}
-                  style={{ display: "block", fontSize: 12, color: "#6b7280", fontWeight: 600,
+                  style={{ display: "block", fontSize: 12, color: "var(--crm-muted)", fontWeight: 600,
                     textDecoration: "none" }}>
                   Edit in Admin →
                 </Link>
@@ -271,7 +271,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
           </div>
 
           {/* Quote details */}
-          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
             <div style={{ padding: "12px 16px", background: "#0d0d0d" }}>
               <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
                 letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Details</h2>
@@ -285,9 +285,9 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                 ...(quote.order_id ? [{ label: "Converted to", value: `Order #${quote.order_id}` }] : []),
               ].map(r => (
                 <div key={r.label} style={{ display: "flex", justifyContent: "space-between",
-                  padding: "8px 0", borderBottom: "1px solid #f5f5f5", fontSize: 13 }}>
-                  <span style={{ color: "#9ca3af", fontWeight: 600 }}>{r.label}</span>
-                  <span style={{ fontWeight: 700, color: "#0d0d0d" }}>{r.value}</span>
+                  padding: "8px 0", borderBottom: "1px solid var(--crm-border2)", fontSize: 13 }}>
+                  <span style={{ color: "var(--crm-muted2)", fontWeight: 600 }}>{r.label}</span>
+                  <span style={{ fontWeight: 700, color: "var(--crm-text)" }}>{r.value}</span>
                 </div>
               ))}
             </div>
@@ -296,15 +296,15 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
           {/* Value summary */}
           <div style={{ background: "#0d0d0d", borderRadius: 10, padding: 16 }}>
             <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "#6b6b6b", margin: "0 0 12px" }}>Value Summary</p>
+              letterSpacing: "0.08em", color: "var(--crm-muted)", margin: "0 0 12px" }}>Value Summary</p>
             {[
-              { label: "List Total",     value: fmt(listTotal),   color: "#6b6b6b" },
+              { label: "List Total",     value: fmt(listTotal),   color: "var(--crm-muted)" },
               { label: "Quoted Total",   value: fmt(quotedTotal), color: "#f5c700" },
               { label: "Customer Saves", value: savings > 0 ? fmt(savings) : "—", color: "#22c55e" },
             ].map(r => (
               <div key={r.label} style={{ display: "flex", justifyContent: "space-between",
                 padding: "6px 0", fontSize: 13 }}>
-                <span style={{ color: "#6b6b6b", fontWeight: 600 }}>{r.label}</span>
+                <span style={{ color: "var(--crm-muted)", fontWeight: 600 }}>{r.label}</span>
                 <span style={{ fontWeight: 800, color: r.color }}>{r.value}</span>
               </div>
             ))}
@@ -312,12 +312,12 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
 
           {/* Follow-up tasks */}
           {followUpTasks.length > 0 && (
-            <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+            <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
               <div style={{ padding: "12px 16px", background: "#0d0d0d",
                 display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
                   letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Auto Follow-up Tasks</h2>
-                <span style={{ fontSize: 11, color: "#6b6b6b", fontWeight: 600 }}>
+                <span style={{ fontSize: 11, color: "var(--crm-muted)", fontWeight: 600 }}>
                   {followUpTasks.filter(t => t.status === "complete").length}/{followUpTasks.length} done
                 </span>
               </div>
@@ -336,7 +336,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                       <div key={t.id} style={{
                         display: "flex", alignItems: "center", gap: 10,
                         padding: "10px 14px",
-                        borderBottom: i < followUpTasks.length - 1 ? "1px solid #f5f5f5" : "none",
+                        borderBottom: i < followUpTasks.length - 1 ? "1px solid var(--crm-border2)" : "none",
                         opacity: isComplete ? 0.5 : 1,
                       }}>
                         <div style={{
@@ -344,7 +344,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                           background: isComplete ? "#22c55e" : isOverdue ? "#ef4444" : "#f5c700",
                         }} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontSize: 12, fontWeight: 600, color: "#0d0d0d", margin: 0,
+                          <p style={{ fontSize: 12, fontWeight: 600, color: "var(--crm-text)", margin: 0,
                             textDecoration: isComplete ? "line-through" : "none",
                             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {t.title.replace(`Quote #${quote.id} — `, "")}
@@ -362,7 +362,7 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
                     );
                   })}
               </div>
-              <div style={{ padding: "10px 14px", background: "#f9f9f9", borderTop: "1px solid #f1f1f1" }}>
+              <div style={{ padding: "10px 14px", background: "var(--crm-surface2)", borderTop: "1px solid var(--crm-border2)" }}>
                 <Link href="/crm/tasks" style={{ fontSize: 12, color: "#f5c700",
                   fontWeight: 700, textDecoration: "none" }}>
                   Manage all tasks →
@@ -372,9 +372,9 @@ export default async function CRMQuoteDetailPage({ params }: { params: Promise<{
           )}
 
           {!followUpTasks.length && quote.expires_at && quote.status === "sent" && (
-            <div style={{ background: "#f9f9f9", borderRadius: 10, padding: "14px 16px",
+            <div style={{ background: "var(--crm-surface2)", borderRadius: 10, padding: "14px 16px",
               border: "1px dashed #e5e5e5", textAlign: "center" }}>
-              <p style={{ fontSize: 12, color: "#9ca3af", margin: 0 }}>
+              <p style={{ fontSize: 12, color: "var(--crm-muted2)", margin: 0 }}>
                 No auto-tasks generated — quote may have been sent before expiry was set.
               </p>
             </div>

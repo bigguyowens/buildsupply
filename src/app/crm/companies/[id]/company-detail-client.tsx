@@ -26,7 +26,7 @@ export function CompanyDetailClient({ company, accountManagers }: {
   const currentAM = accountManagers.find(a => a.id === amId);
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "8px 10px", borderRadius: 6, fontSize: 13,
-    border: "1px solid #e5e5e5", outline: "none", boxSizing: "border-box",
+    border: "1px solid var(--crm-border)", outline: "none", boxSizing: "border-box",
   };
 
   function save() {
@@ -41,14 +41,14 @@ export function CompanyDetailClient({ company, accountManagers }: {
   return (
     <>
       {/* Company info card */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", overflow: "hidden" }}>
+      <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", overflow: "hidden" }}>
         <div style={{ padding: "12px 16px", background: "#0d0d0d",
           display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
             letterSpacing: "0.08em", color: "#f5c700", margin: 0 }}>Company Details</h2>
           <button onClick={() => setEditing(e => !e)}
             style={{ background: "none", border: "none", cursor: "pointer",
-              color: "#6b6b6b", fontSize: 12, fontWeight: 600 }}>
+              color: "var(--crm-muted)", fontSize: 12, fontWeight: 600 }}>
             {editing ? "Cancel" : "Edit"}
           </button>
         </div>
@@ -63,7 +63,7 @@ export function CompanyDetailClient({ company, accountManagers }: {
                 { label: "State",        val: state, set: setState },
               ].map(f => (
                 <div key={f.label}>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                     textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 4 }}>
                     {f.label}
                   </label>
@@ -85,9 +85,9 @@ export function CompanyDetailClient({ company, accountManagers }: {
                 { label: "Domain",   value: company.domain },
               ].map(f => f.value && (
                 <div key={f.label}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: "#9ca3af",
+                  <p style={{ fontSize: 11, fontWeight: 700, color: "var(--crm-muted2)",
                     textTransform: "uppercase", letterSpacing: "0.06em", margin: "0 0 2px" }}>{f.label}</p>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: "#0d0d0d", margin: 0 }}>{f.value}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: "var(--crm-text)", margin: 0 }}>{f.value}</p>
                 </div>
               ))}
             </>
@@ -97,9 +97,9 @@ export function CompanyDetailClient({ company, accountManagers }: {
       </div>
 
       {/* AM Assignment */}
-      <div style={{ background: "#f9f9f9", borderRadius: 10, border: "1px solid #e5e5e5", padding: 16 }}>
+      <div style={{ background: "var(--crm-surface2)", borderRadius: 10, border: "1px solid var(--crm-border)", padding: 16 }}>
         <p style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-          letterSpacing: "0.08em", color: "#6b7280", margin: "0 0 10px" }}>Account Manager</p>
+          letterSpacing: "0.08em", color: "var(--crm-muted)", margin: "0 0 10px" }}>Account Manager</p>
         {currentAM ? (
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10,
             background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 6, padding: "8px 12px" }}>
@@ -109,7 +109,7 @@ export function CompanyDetailClient({ company, accountManagers }: {
               {currentAM.first_name[0]}{currentAM.last_name[0]}
             </div>
             <div>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#0d0d0d", margin: 0 }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "var(--crm-text)", margin: 0 }}>
                 {currentAM.first_name} {currentAM.last_name}
               </p>
               <p style={{ fontSize: 11, color: "#92400e", margin: 0 }}>{currentAM.email}</p>
