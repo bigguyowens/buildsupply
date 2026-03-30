@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { RoleManager, AMAssigner } from "./crm-customer-client";
 import { CustomerTabView } from "./customer-tab-view";
+import { TempPasswordButton } from "@/components/temp-password-button";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
@@ -234,6 +235,21 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
             currentAMId={(customer as any).account_manager_id ?? null}
             accountManagers={accountManagers}
           />
+
+          {/* Temp password */}
+          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #e5e5e5", padding: "16px 18px" }}>
+            <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+              letterSpacing: "0.08em", color: "#9ca3af", margin: "0 0 6px" }}>
+              Account Access
+            </h2>
+            <p style={{ fontSize: 12, color: "#9ca3af", margin: "0 0 12px", lineHeight: 1.5 }}>
+              Issue a temporary password that expires in 24 hours.
+            </p>
+            <TempPasswordButton
+              userId={customer.id}
+              userName={`${customer.first_name} ${customer.last_name}`}
+            />
+          </div>
         </div>
       </div>
     </div>

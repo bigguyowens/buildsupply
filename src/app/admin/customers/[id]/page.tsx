@@ -2,6 +2,7 @@ import { query } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AdminRoleToggle } from "@/components/admin-role-toggle";
+import { TempPasswordButton } from "@/components/temp-password-button";
 import { getCustomerPromoUses } from "@/app/actions/promotions";
 import { adminGetProductViews } from "@/lib/product-views";
 import { ProductImage } from "@/components/product-image";
@@ -144,6 +145,18 @@ export default async function AdminCustomerDetailPage({ params }: { params: Prom
             <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 4px" }}>Admin Access</h2>
             <p style={{ fontSize: 12, color: "var(--ad-muted2)", margin: "0 0 14px" }}>Grants full access to the admin panel</p>
             <AdminRoleToggle userId={customer.id} currentRole={customer.role} />
+          </div>
+
+          {/* Temp password */}
+          <div style={{ background: "var(--ad-surface)", borderRadius: 10, padding: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}>
+            <h2 style={{ fontSize: 14, fontWeight: 700, margin: "0 0 4px" }}>Account Access</h2>
+            <p style={{ fontSize: 12, color: "var(--ad-muted2)", margin: "0 0 14px" }}>
+              Issue a temporary password that expires in 24 hours. The user will be forced to set a new password on login.
+            </p>
+            <TempPasswordButton
+              userId={customer.id}
+              userName={`${customer.first_name} ${customer.last_name}`}
+            />
           </div>
 
           {/* Privacy consent */}

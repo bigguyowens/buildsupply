@@ -53,17 +53,22 @@ export async function loginAction(
   }
 
   let role = "";
+  let forceChange = false;
   try {
     const user = await verifyCredentials(email, password);
     await setSessionCookie(user);
     role = user.role;
+    forceChange = user.forcePasswordChange;
   } catch (err) {
     await logger.warn("Login failed", { source: "auth/login", context: { email } });
     return { error: err instanceof Error ? err.message : "Login failed." };
   }
 
-  // Redirect outside try/catch — Next.js redirect() throws internally
-  if (role === "admin")                              redirect("/admin");
+  // Force password change takes priority over all redirects
+  if (forceChange) redirect("/change-password");
+
+  // Normal role-based redirect
+  if (role === "admin")                                 redirect("/admin");
   if (role === "account_manager" || role === "manager") redirect("/crm");
   redirect("/account");
 }

@@ -22,6 +22,7 @@ type UserRow = {
   first_name: string;
   last_name: string;
   role: string;
+  force_password_change: boolean;
 };
 
 // ── User creation ────────────────────────────────────────
@@ -51,9 +52,9 @@ export async function createUser(
 export async function verifyCredentials(
   email: string,
   password: string
-): Promise<SessionUser> {
+): Promise<SessionUser & { forcePasswordChange: boolean }> {
   const rows = await query<UserRow>(
-    "SELECT id, email, password, first_name, last_name, role FROM users WHERE LOWER(email) = LOWER($1)",
+    "SELECT id, email, password, first_name, last_name, role, force_password_change FROM users WHERE LOWER(email) = LOWER($1)",
     [email]
   );
   if (rows.length === 0) throw new Error("Invalid email or password.");
@@ -61,7 +62,10 @@ export async function verifyCredentials(
   const valid = await bcrypt.compare(password, rows[0].password);
   if (!valid) throw new Error("Invalid email or password.");
 
-  return mapUser(rows[0]);
+  return {
+    ...mapUser(rows[0]),
+    forcePasswordChange: rows[0].force_password_change ?? false,
+  };
 }
 
 // ── Token helpers ────────────────────────────────────────
