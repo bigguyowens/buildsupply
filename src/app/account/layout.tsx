@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { AccountSidebar } from "@/components/account-sidebar";
+import { ImpersonationBanner } from "@/components/impersonation-banner";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
   const user = await getSession();
@@ -8,6 +9,9 @@ export default async function AccountLayout({ children }: { children: React.Reac
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--color-background)" }}>
+      {/* Impersonation banner — shown when a staff member is viewing as this customer */}
+      <ImpersonationBanner />
+
       {/* Shared header */}
       <div style={{ background: "var(--color-primary)", borderBottom: "3px solid var(--color-accent)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "20px 16px" }}>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { RoleManager, AMAssigner } from "./crm-customer-client";
 import { CustomerTabView } from "./customer-tab-view";
 import { TempPasswordButton } from "@/components/temp-password-button";
+import { ImpersonateButton } from "@/components/impersonate-button";
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(n);
 
@@ -246,6 +247,21 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
               Issue a temporary password that expires in 24 hours.
             </p>
             <TempPasswordButton
+              userId={customer.id}
+              userName={`${customer.first_name} ${customer.last_name}`}
+            />
+          </div>
+
+          {/* Impersonation */}
+          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", padding: "16px 18px" }}>
+            <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
+              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 6px" }}>
+              Customer View
+            </h2>
+            <p style={{ fontSize: 12, color: "var(--crm-muted2)", margin: "0 0 12px", lineHeight: 1.5 }}>
+              Open a new tab authenticated as this customer. Session is logged for audit.
+            </p>
+            <ImpersonateButton
               userId={customer.id}
               userName={`${customer.first_name} ${customer.last_name}`}
             />
