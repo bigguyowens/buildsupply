@@ -33,7 +33,7 @@ export async function createImpersonationToken(
   );
 
   const token     = crypto.randomBytes(32).toString("hex");
-  const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+  const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
 
   await query(
     `INSERT INTO impersonation_tokens (token, target_user_id, created_by, expires_at)

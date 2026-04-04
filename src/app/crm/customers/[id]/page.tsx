@@ -63,7 +63,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
             )}
           </div>
         </div>
-        <div style={{ display: "flex", gap: 24 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
           {[
             { label: "Orders",       value: orders.length },
             { label: "Total Spent",  value: fmt(totalSpent) },
@@ -76,6 +76,10 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
                 letterSpacing: "0.06em" }}>{s.label}</p>
             </div>
           ))}
+          {/* Divider */}
+          <div style={{ width: 1, height: 36, background: "#2a2a2a" }} />
+          {/* Impersonate button — inline in header */}
+          <ImpersonateButton userId={customer.id} userName={fullName} compact />
         </div>
       </div>
 
@@ -252,20 +256,7 @@ export default async function CRMCustomerPage({ params }: { params: Promise<{ id
             />
           </div>
 
-          {/* Impersonation */}
-          <div style={{ background: "var(--crm-surface)", borderRadius: 10, border: "1px solid var(--crm-border)", padding: "16px 18px" }}>
-            <h2 style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase",
-              letterSpacing: "0.08em", color: "var(--crm-muted2)", margin: "0 0 6px" }}>
-              Customer View
-            </h2>
-            <p style={{ fontSize: 12, color: "var(--crm-muted2)", margin: "0 0 12px", lineHeight: 1.5 }}>
-              Open a new tab authenticated as this customer. Session is logged for audit.
-            </p>
-            <ImpersonateButton
-              userId={customer.id}
-              userName={`${customer.first_name} ${customer.last_name}`}
-            />
-          </div>
+          {/* Impersonation moved to customer header bar */}
         </div>
       </div>
     </div>

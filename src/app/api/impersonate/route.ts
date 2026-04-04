@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60, // 1 hour max impersonation session
+    maxAge: 60 * 30, // 30 minute max impersonation session
     path: "/",
   });
 
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
     httpOnly: false, // Intentionally readable by client for banner display
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60,
+    maxAge: 60 * 30,
     path: "/",
   });
 

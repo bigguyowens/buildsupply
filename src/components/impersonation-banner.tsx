@@ -59,7 +59,7 @@ export function ImpersonationBanner() {
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <span style={{ fontSize: 12, color: "rgba(255,255,255,0.7)" }}>
-          Session expires in 1 hour
+          Session expires in 30 minutes
         </span>
         <button
           onClick={handleEnd}
