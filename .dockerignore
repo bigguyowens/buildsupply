@@ -1,0 +1,29 @@
+# Dependencies & build output
+node_modules
+.next
+build_output.txt
+
+# Version control & local config
+.git
+.gitignore
+.env*
+
+# Dev/debug/migration scripts not needed in the image
+check_*.js
+debug_*.js
+probe_*.js
+migrate_*.js
+seed_*.js
+test_*.js
+test_*.mjs
+test_*.ts
+update_theme.js
+admin_theme_replace.js
+crm_theme_replace.ps1
+deploy_geo.ps1
+migrate_geo_run.ps1
+homepage_seed.sql
+
+# Project docs
+README.md
+project-knowledge
